@@ -409,9 +409,9 @@
 
 						<?php if (auth()->user()->inGroup('admin')): ?>
 							<span class="text-muted text-center text-sm-left d-block d-sm-inline-block">
-								[CI Version <?php echo CodeIgniter\CodeIgniter::CI_VERSION ?>] | 
-								[PHP Version <?php echo phpversion(); ?>] |
-								[Database Version <?php echo \Config\Database::connect()->getVersion(); ?>]
+								[CI <?php echo CodeIgniter\CodeIgniter::CI_VERSION ?>] | 
+								[PHP <?php echo phpversion(); ?>] |
+								[Database <?php echo \Config\Database::connect()->getVersion(); ?>]
 							</span>
 						<?php endif; ?>
 
