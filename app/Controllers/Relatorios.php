@@ -793,6 +793,12 @@ class Relatorios extends BaseController
                 </tr>
             </table>');
 
+        $pdf->appendHTML('<p>teste</p>');
+
+        $pdf->generatePDF("horarios_por_curso");
+
+        return;
+
         $nome_dia = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
 
         foreach ($tabelas as $curso => $turmas)
