@@ -147,6 +147,32 @@ class Aulas extends BaseController
 		}
 	}
 
+	public function deletarMulti()
+	{
+		$selecionados = $this->request->getPost('selecionados');
+
+        if (empty($selecionados))
+        {
+            die('Nenhuma aula selecionada para exclusão.');
+        }
+
+        foreach ($selecionados as $k => $id)
+		{
+			$aulasModel = new AulasModel();
+			
+			$restricoes = $aulasModel->getRestricoes(['id' => $id]);
+
+			if (!$restricoes['horarios'])
+			{
+				$aulaProfModel = new AulaProfessorModel();
+				$aulaProfModel->where('aula_id', $id)->delete();
+				$aulasModel->delete($id);
+			}
+		}
+
+		echo "ok";
+	}
+
 	public function getAulasFromTurma($turma)
 	{
 		$aula = new AulasModel();

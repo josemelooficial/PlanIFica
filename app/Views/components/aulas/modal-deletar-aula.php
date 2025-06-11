@@ -8,7 +8,7 @@
                 </button>
             </div>
             
-            <form id="deletarProfessor" class="forms-sample" method="post" action='<?php echo base_url('sys/aulas/deletar'); ?>'>
+            <form id="deletarAula" class="forms-sample" method="post" action='<?php echo base_url('sys/aulas/deletar'); ?>'>
                 <?php echo csrf_field() ?>
                 <input type="hidden" id="deletar-id" name="id" />
                 <div class="modal-body text-break">

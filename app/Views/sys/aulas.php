@@ -7,6 +7,7 @@
 <?php echo view('components/aulas/modal-cad-aula'); ?>
 <?php echo view('components/aulas/modal-edit-aula'); ?>
 <?php echo view('components/aulas/modal-deletar-aula') ?>
+<?php echo view('components/aulas/modal-deletar-aulas') ?>
 
 <div class="page-header">
     <h3 class="page-title">GERENCIAR AULAS</h3>
@@ -88,10 +89,11 @@
     <div class="col-12 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
-                <div class="table-responsive">
+                <div class="">
                     <table class="table mb-4" id="listagem-aulas" style="width:100%;">
                         <thead>
                             <tr>
+                                <th></th>
                                 <th>Curso</th>
                                 <th>Turma</th>
                                 <th>Disciplina</th>
@@ -102,6 +104,26 @@
                         <tbody>
                             <!-- preenchido por ajax -->
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>
+                                    <span data-bs-toggle="tooltip" data-placement="top" title="Excluir marcadas">
+                                        <button
+                                            type="button"
+                                            class="justify-content-center align-items-center d-flex btn btn-inverse-danger button-trans-danger btn-icon me-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modal-deletar-aulas">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </span>
+                                </th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -174,10 +196,11 @@
                 },
                 ordering: true,
                 order: [
-                    [0, 'asc'],
-                    [1, 'asc']
+                    [1, 'asc'],
+                    [2, 'asc']
                 ],
                 columns: [
+                    { data: null },
                     { data: 'curso_nome' },
                     { data: 'turma_sigla' },
                     { data: 'disciplina_nome' },
@@ -186,7 +209,7 @@
                 ],
                 columnDefs: [
                     {
-                        targets: 4,
+                        targets: 5,
                         data: null,
                         className: 'dt-left',
                         render: function (data, type, row, meta) {
@@ -224,6 +247,18 @@
                                         </button>
                                     </span>
                                 </div>
+                            `;
+                        }
+                    },
+                    {
+                        targets: 0,
+                        data: null,
+                        className: 'dt-center',
+                        render: function (data, type, row, meta) {
+                            return `
+                                <label class="form-check-label">
+                                    <input type="checkbox" class="form-check-input" name="selecionados[]" value="${data.id}">
+                                </label>
                             `;
                         }
                     }
@@ -290,13 +325,13 @@
                     }, 'json')
                 }
 
-                table.columns(0).search($('#filtroCurso option:selected').text());                
+                table.columns(1).search($('#filtroCurso option:selected').text());                
                 table.draw();
             });
 
             $('#filtroTurma').on('change', function()
             {
-                table.columns(1).search($('#filtroTurma option:selected').text());
+                table.columns(2).search($('#filtroTurma option:selected').text());
                 table.draw();
             });
 

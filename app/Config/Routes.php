@@ -138,6 +138,7 @@ $routes->group('sys', function ($routes)
         $routes->get('', 'Aulas::index');
         $routes->post('salvar', 'Aulas::salvar');
         $routes->post('deletar', 'Aulas::deletar');
+        $routes->post('deletarMulti', 'Aulas::deletarMulti');
         $routes->post('atualizar', 'Aulas::atualizar');
         $routes->get('getAulasFromTurma/(:num)', 'Aulas::getAulasFromTurma/$1');
         $routes->get('getTableByAjax', 'Aulas::getTableByAjax');        
