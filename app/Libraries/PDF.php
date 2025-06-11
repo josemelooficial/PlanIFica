@@ -15,9 +15,9 @@ class PDF
 
 	public function __construct()
 	{
-		//$this->dompdf = new Dompdf();
+		$this->dompdf = new Dompdf();
 
-		$this->dompdf = new Dompdf([
+		/*$this->dompdf = new Dompdf([
 			"logOutputFile" => "log.html",
 			"debugPng" => false, // extra messaging
 			"debugKeepTemp" => false, // don't delete temp files
@@ -27,13 +27,20 @@ class PDF
 			'debugLayoutBlocks' => false, // block frames
 			'debugLayoutInline' => false, // inline frames
 			'debugLayoutPaddingBox' => false // padding box
-		]);
+		]);*/
 
 		$this->dompdf->setPaper('A4', 'landscape');
 
 		$options = $this->dompdf->getOptions();
 		$options->set('isHtml5ParserEnabled', true);
 		$options->set('isRemoteEnabled', true);
+		$options->set('defaultFont', 'Courier');
+		//$options->set('rootDir',"/path/goes/here/dompdf/dompdf");
+		//$options->set('tempDir',"/path/goes/here/tmpdir/"); 
+		$options->set('isPhpEnabled', true);
+		$options->set('isRemoteEnabled', true);
+		$options->set('isJavascriptEnabled',true);
+		$options->set('isFontSubsettingEnabled',true);
 	}
 
 	public function setCSS($css)
@@ -84,5 +91,7 @@ class PDF
 		//echo $render;
 		
 		$this->dompdf->stream($file_name . ".pdf", ['Attachment' => 0 , 'compress' => 0]);
+
+		exit();
 	}
 }
