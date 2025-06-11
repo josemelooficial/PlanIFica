@@ -114,6 +114,7 @@
     {
         let matriz = getMatrizFromCurso();
         $('#disciplina').empty();
+        $('#disciplina').append($('<option>', {value: '0',text: '-'}));
 
         disciplinas.forEach(function(obj) 
         {
@@ -185,9 +186,16 @@
         {
             e.preventDefault();
 
+            if($("#disciplina").val() == "0") 
+            {
+                alert("Selecione uma disciplina válida.");
+                return;
+            }
+
             let form = $(this);
             let url = form.attr('action');
             let data = form.serialize();
+
 
             $.ajax(
             {

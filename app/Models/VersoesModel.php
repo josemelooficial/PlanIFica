@@ -75,6 +75,14 @@ class VersoesModel extends Model
         return $builder->update();
     }
 
+    public function retirarVersaoExcluidaDeUsuarios($versao)
+    {
+        $builder = $this->db->table('users');
+        $builder->set('versao_em_uso', null);
+        $builder->where('versao_em_uso', $versao);  
+        return $builder->update();
+    }
+
     public function getLastVersion()
     {
         $builder = $this->db->table('versoes');

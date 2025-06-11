@@ -712,17 +712,17 @@
                     }
                     else
                     {
-                            // Mostra feedback de erro
-                            $.toast({
-                                heading: 'Erro',
-                                text: 'Ocorreu um erro ao remover a aula do horário.',
-                                showHideTransition: 'slide',
-                                icon: 'error',
-                                loaderBg: '#f96868',
-                                position: 'top-center'
-                            });
-                        }
-                    });
+                        // Mostra feedback de erro
+                        $.toast({
+                            heading: 'Erro',
+                            text: 'Ocorreu um erro ao remover a aula do horário.',
+                            showHideTransition: 'slide',
+                            icon: 'error',
+                            loaderBg: '#f96868',
+                            position: 'top-center'
+                        });
+                    }
+                });
             });
 
             // Mostra o modal
@@ -833,10 +833,10 @@
                 // Requisição para atribuir a disciplina ao horário no backend
                 $.post('<?php echo base_url('sys/tabela-horarios/atribuirAula'); ?>', 
                 {
-                        aula_id: aulaId,
-                        tempo_de_aula_id: horarioId,
-                        ambiente_id: ambienteSelecionadoId
-                    },
+                    aula_id: aulaId,
+                    tempo_de_aula_id: horarioId,
+                    ambiente_id: ambienteSelecionadoId
+                },
                 function(data) 
                 {
                     if(data == "0") 
@@ -862,7 +862,7 @@
                         var conflitoAmbiente = 0;
                         var conflitoProfessor = 0;
 
-                            var aulaHorarioId = data.split("-")[0];
+                        var aulaHorarioId = data.split("-")[0];
 
                         if(data.indexOf("TRES-TURNOS") >= 0)
                         {
@@ -914,6 +914,7 @@
                                         <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${ambientesSelecionadosNome.join("<br />")}</small>
                                     </div>
                                     <div style="width: 100%; text-align: right; top: 0; position: absolute">
+                                        <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${aulaHorarioId}"></i><br />
                                         <i class="mdi mdi-lock fs-6 text-primary me-1" id="btnFixar_horario_${aulaHorarioId}"></i>
                                     </div>
                                 </div>
@@ -922,10 +923,72 @@
 
                         $("#btnFixar_horario_" + aulaHorarioId).off().click(function(e) 
                         {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                fixarAulaHorario(1, aulaHorarioId, horarioId);
+                            e.preventDefault();
+                            e.stopPropagation();
+                            fixarAulaHorario(1, aulaHorarioId, horarioId);
+                        });
+
+                        $("#btnRemover_horario_" + aulaHorarioId).off().click(function(e) 
+                        {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            if($(`#horario_${horarioId}`).data('fixa') == 1)
+                            {
+                                alert("Aula fixada, não pode ser removida");
+                                return;
+                            }
+
+                            // Requisição para remover a disciplina ao horário no backend
+                            $.post('<?php echo base_url('sys/tabela-horarios/removerAula'); ?>', 
+                            {
+                                aula_id: aulaId,
+                                tempo_de_aula_id: horarioId
+                            },
+                            function(data)
+                            {
+                                if(data == "1")
+                                {
+                                    moverDisciplinaParaPendentes($(`#horario_${horarioId}`));
+
+                                    // Limpa o horário
+                                    $(`#horario_${horarioId}`).html('')
+                                        .removeClass('horario-preenchido')
+                                        .addClass('horario-vazio')
+                                        .removeData(['disciplina', 'professor', 'ambiente', 'aula-id', 'aulas-total', 'aulas-pendentes'])
+                                        .off('click')
+                                        .click(function() {
+                                            horarioSelecionado = $(this);
+                                            carregarDisciplinasPendentes($(this).attr('id'));
+                                            modalAtribuirDisciplina.show();
+                                        });
+
+                                    configurarDragAndDrop();
+
+                                    // Mostra feedback de sucesso
+                                    $.toast({
+                                        heading: 'Sucesso',
+                                        text: 'A disciplina foi removida do horário.',
+                                        showHideTransition: 'slide',
+                                        icon: 'success',
+                                        loaderBg: '#f96868',
+                                        position: 'top-center'
+                                    });
+                                }
+                                else
+                                {
+                                    // Mostra feedback de erro
+                                    $.toast({
+                                        heading: 'Erro',
+                                        text: 'Ocorreu um erro ao remover a aula do horário.',
+                                        showHideTransition: 'slide',
+                                        icon: 'error',
+                                        loaderBg: '#f96868',
+                                        position: 'top-center'
+                                    });
+                                }
                             });
+                        });
 
                         // Adiciona os dados ao horário
                         horarioSelecionado
@@ -1560,6 +1623,7 @@
                                                 <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${ambientesSelecionadosNome.join("<br />")}</small>
                                             </div>
                                             <div style="width: 100%; text-align: right; top: 0; position: absolute">
+                                                <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${obj.id}"></i><br />
                                                 <i class="mdi mdi-lock fs-6 ${btnFixar} me-1" id="btnFixar_horario_${obj.id}"></i>
                                             </div>
                                         </div>
@@ -1574,6 +1638,68 @@
                                         fixarAulaHorario(0, obj.id, obj.tempo_de_aula_id); //desfixar
                                     else
                                         fixarAulaHorario(1, obj.id, obj.tempo_de_aula_id); //fixar
+                                });
+
+                                $("#btnRemover_horario_" + obj.id).off().click(function(e) 
+                                {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+
+                                    if($(`#horario_${obj.tempo_de_aula_id}`).data('fixa') == 1)
+                                    {
+                                        alert("Aula fixada, não pode ser removida");
+                                        return;
+                                    }
+
+                                    // Requisição para remover a disciplina ao horário no backend
+                                    $.post('<?php echo base_url('sys/tabela-horarios/removerAula'); ?>', 
+                                    {
+                                        aula_id: obj.aula_id,
+                                        tempo_de_aula_id: obj.tempo_de_aula_id
+                                    },
+                                    function(data)
+                                    {
+                                        if(data == "1")
+                                        {
+                                            moverDisciplinaParaPendentes($(`#horario_${obj.tempo_de_aula_id}`));
+
+                                            // Limpa o horário
+                                            $(`#horario_${obj.tempo_de_aula_id}`).html('')
+                                                .removeClass('horario-preenchido')
+                                                .addClass('horario-vazio')
+                                                .removeData(['disciplina', 'professor', 'ambiente', 'aula-id', 'aulas-total', 'aulas-pendentes'])
+                                                .off('click')
+                                                .click(function() {
+                                                    horarioSelecionado = $(this);
+                                                    carregarDisciplinasPendentes($(this).attr('id'));
+                                                    modalAtribuirDisciplina.show();
+                                                });
+
+                                            configurarDragAndDrop();
+
+                                            // Mostra feedback de sucesso
+                                            $.toast({
+                                                heading: 'Sucesso',
+                                                text: 'A disciplina foi removida do horário.',
+                                                showHideTransition: 'slide',
+                                                icon: 'success',
+                                                loaderBg: '#f96868',
+                                                position: 'top-center'
+                                            });
+                                        }
+                                        else
+                                        {
+                                            // Mostra feedback de erro
+                                            $.toast({
+                                                heading: 'Erro',
+                                                text: 'Ocorreu um erro ao remover a aula do horário.',
+                                                showHideTransition: 'slide',
+                                                icon: 'error',
+                                                loaderBg: '#f96868',
+                                                position: 'top-center'
+                                            });
+                                        }
+                                    });
                                 });
 
                                 // Adiciona os dados ao horário

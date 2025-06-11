@@ -32,10 +32,13 @@ class Versao extends BaseController
         $dadosLimpos['nome'] = strip_tags($dadosPost['nome']);
         $dadosLimpos['semestre'] = strip_tags($dadosPost['semestre']);
 
-        if ($versao->insert($dadosLimpos)) {
+        if ($versao->insert($dadosLimpos))
+        {
             session()->setFlashdata('sucesso', 'Versão cadastrado com sucesso.');
             return redirect()->to(base_url('/sys/versao'));
-        } else {
+        }
+        else
+        {
             $data['erros'] = $versao->errors(); //o(s) erro(s)
             return redirect()->to(base_url('/sys/versao'))->with('erros', $data['erros'])->withInput(); //retora com os erros e os inputs
         }
@@ -50,10 +53,13 @@ class Versao extends BaseController
         $dadosLimpos['semestre'] = strip_tags($dadosPost['semestre']);
 
         $versao = new VersoesModel();
-        if ($versao->save($dadosLimpos)) {
+        if ($versao->save($dadosLimpos))
+        {
             session()->setFlashdata('sucesso', 'Versão atualizado com sucesso.');
             return redirect()->to(base_url('/sys/versao')); // Redireciona para a página de listagem
-        } else {
+        }
+        else
+        {
             $data['erros'] = $versao->errors(); //o(s) erro(s)
             return redirect()->to(base_url('/sys/versao'))->with('erros', $data['erros']); //retora com os erros
         }
@@ -63,39 +69,59 @@ class Versao extends BaseController
     {
         $dadosPost = $this->request->getPost();
         $id = (int)strip_tags($dadosPost['id']);
-        
+
         $versaoModel = new VersoesModel();
-        try {
+
+        try
+        {
             $restricoes = $versaoModel->getRestricoes(['id' => $id]);
 
-            if (!$restricoes['horarios'] && !$restricoes['aulas']) {
-                if ($versaoModel->delete($id)) {
+            if (!$restricoes['horarios'] && !$restricoes['aulas'])
+            {
+                if ($versaoModel->delete($id))
+                {
                     session()->setFlashdata('sucesso', 'Versão excluída com sucesso!');
-                    
+
+                    //Retira versão excluída de usuários que estejam usando ela
+                    $versaoModel->retirarVersaoExcluidaDeUsuarios($id);
+
                     $versao = $versaoModel->getVersaoByUser(auth()->id());
 
-                    if($versao == $id) 
+                    if ($versao == $id)
                     {
                         $versao = $versaoModel->getLastVersion();
                         $versaoModel->setVersaoByUser(auth()->id(), $versao);
                     }
 
                     return redirect()->to(base_url('/sys/versao'));
-                } else {
+                }
+                else
+                {
                     return redirect()->to(base_url('/sys/versao'))->with('erro', 'Erro inesperado ao excluir Versão!');
                 }
-            } else {
+            }
+            else
+            {
                 $mensagem = "A versão não pode ser excluída.<br>Esta versão possui ";
-                if ($restricoes['aulas'] && $restricoes['horarios']) {
+
+                if ($restricoes['aulas'] && $restricoes['horarios'])
+                {
                     $mensagem = $mensagem . "aula(s) e horário(s) de aula relacionados a ela!";
-                } else if ($restricoes['aulas']) {
+                }
+                else if ($restricoes['aulas'])
+                {
                     $mensagem = $mensagem . "aula(s) relacionada(s) a ela!";
-                } else {
+                }
+                else
+                {
                     $mensagem = $mensagem . "horário(s) de aula relacionado(s) a ela!";
                 }
+
                 throw new ReferenciaException($mensagem);
             }
-        } catch (ReferenciaException $e) {
+        }
+        catch (ReferenciaException $e)
+        {
             session()->setFlashdata('erro', $e->getMessage());
             return redirect()->to(base_url('/sys/versao'));
         }
@@ -109,10 +135,13 @@ class Versao extends BaseController
 
         $versaoModel = new VersoesModel();
 
-        if ($versaoModel->setVersaoByUser(auth()->id(), $versao)) {
+        if ($versaoModel->setVersaoByUser(auth()->id(), $versao))
+        {
             session()->setFlashdata('sucesso', 'Versão ativada com sucesso.');
             return redirect()->to(base_url('/sys/versao'));
-        } else {
+        }
+        else
+        {
             $data['erros'] = $versaoModel->errors();
             return redirect()->to(base_url('/sys/versao'))->with('erros', $data['erros']);
         }
@@ -128,7 +157,7 @@ class Versao extends BaseController
         $dadosLimpos['nome'] = strip_tags($dadosPost['nome']);
         $dadosLimpos['semestre'] = strip_tags($dadosPost['semestre']);
 
-        if ($versaoModel->insert($dadosLimpos)) 
+        if ($versaoModel->insert($dadosLimpos))
         {
             session()->setFlashdata('sucesso', 'Cópia da versão criada com sucesso.');
 
@@ -136,8 +165,8 @@ class Versao extends BaseController
             $versaoModel->copyAllData($versaoOld);
 
             return redirect()->to(base_url('/sys/versao'));
-        } 
-        else 
+        }
+        else
         {
             $data['erros'] = $versaoModel->errors(); //o(s) erro(s)
             return redirect()->to(base_url('/sys/versao'))->with('erros', $data['erros'])->withInput(); //retora com os erros e os inputs
