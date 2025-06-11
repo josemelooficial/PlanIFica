@@ -68,6 +68,6 @@ class PDF
 
 		//echo $render;
 		
-		$this->dompdf->stream($file_name . ".pdf", ['Attachment' => 0]);
+		$this->dompdf->stream($file_name . ".pdf", ['Attachment' => 1]);
 	}
 }
