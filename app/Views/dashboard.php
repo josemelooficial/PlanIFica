@@ -254,12 +254,11 @@
 					<a class="navbar-brand brand-logo-mini" href="<?php echo base_url("/sys/home") ?>"><img src="<?php echo base_url("assets/images/logo-ifro-mini.png"); ?>" alt="logo" /></a>
 				</div>
 				<div class="navbar-menu-wrapper flex-grow d-flex align-items-stretch">
-					<button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+					<button id="navbar-toggle" class="navbar-toggler align-self-center" type="button" data-toggle="minimize">
 						<span class="mdi mdi-menu"></span>
 					</button>
 
 					<ul class="navbar-nav navbar-nav-right">
-
 						<li class="nav-item">
 							<a class="nav-link count-indicator" id="indicadorVersao" href="<?php echo base_url('sys/versao'); ?>">
 								<i class="mdi mdi-multicast"></i> Versão ativa: <span class="badge badge-primary"> <?php echo $versao_nome; ?> </span>

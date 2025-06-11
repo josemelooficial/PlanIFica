@@ -321,11 +321,22 @@
 
         <!-- Seção de Aulas Pendentes -->
         <div class="card left-column-section position-relative" style="flex: 1; min-height: 0;">
+
             <div class="card-body d-flex flex-column position-relative" style="height: 100%;">
-                <p class="text-center">
-                    Aulas Pendentes: &nbsp;
-                    <span class="badge badge-pill badge-info" id="aulasCounter">-</span>
-                </p>
+
+                <div class="row">
+                    <div class="col-9 text-sm-start">
+                        <small>
+                            Aulas Pendentes: 
+                            <span class="badge badge-pill badge-info" id="aulasCounter">-</span>
+                        </small>
+                    </div>
+                    <div class="col-3 text-sm-end">
+                        <button id="btn_limpar_horarios" type="button" class="btn btn-warning">
+                            <i class="mdi mdi-calendar-remove"></i> Limpar
+                        </button>
+                    </div>                    
+                </div>
 
                 <!--<div class="row">
                     <div class="col-12 text-center">
@@ -352,20 +363,10 @@
             <div class="card-body overflow-y-auto overflow-x-hidden">
                 <div class="row">
                     <div class="col-12">
-
-                        <!--<div id="alert-horarios-vazios" class="alert alert-fill-warning" style="display: none;">
-                            <i class="mdi mdi-alert-circle"></i>
-                            Há <span id="contador-horarios-vazios">0</span> aulas sem horário atribuído.
-                        </div>-->
-
                         <div class="table-responsive">
-
                             <table id="tabela-horarios" class="table table-bordered text-center mb-4">
-
                             </table>
-
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -389,6 +390,59 @@
 
     $(document).ready(function()
     {
+        function limparHorarios()
+        {
+            $('.horario-preenchido').each(function() 
+            {
+                const aulaId = $(this).data('aula-id');
+                var tempo_de_aula_id = $(this).attr('id').split('_')[1];
+
+                if($(`#horario_${tempo_de_aula_id}`).data('fixa') == 1)
+                {
+                    return;
+                }
+
+                // Requisição para remover a disciplina ao horário no backend
+                $.post('<?php echo base_url('sys/tabela-horarios/removerAula'); ?>', 
+                {
+                    aula_id: aulaId,
+                    tempo_de_aula_id: tempo_de_aula_id
+                },
+                function(data)
+                {
+                    if(data == "1")
+                    {
+                        moverDisciplinaParaPendentes($(`#horario_${tempo_de_aula_id}`));
+
+                        // Limpa o horário
+                        $(`#horario_${tempo_de_aula_id}`).html('')
+                            .removeClass('horario-preenchido')
+                            .addClass('horario-vazio')
+                            .removeData(['disciplina', 'professor', 'ambiente', 'aula-id', 'aulas-total', 'aulas-pendentes'])
+                            .off('click')
+                            .click(function() {
+                                horarioSelecionado = $(this);
+                                carregarDisciplinasPendentes($(this).attr('id'));
+                                modalAtribuirDisciplina.show();
+                            });
+
+                        configurarDragAndDrop();
+                    }
+                });
+            });
+
+            // Atualiza o contador de pendentes
+            atualizarContadorPendentes();
+        }
+
+        $("#btn_limpar_horarios").click(function() 
+        {
+            if(confirm("Você tem certeza que deseja limpar todos os horários preenchidos? Esta ação não pode ser desfeita.")) 
+            {
+                limparHorarios();
+            }            
+        });
+
         $("#selectAmbiente").select2( { dropdownParent: $('#modalSelecionarAmbiente') });
 
         // Define variáveis globais para armazenar os dados do modal
@@ -1762,15 +1816,14 @@
                 $(".loader-demo-box").css("visibility", "hidden");
             }
         });
-    });
-</script>
 
-<!--Referente ao select 2-->
-<script>
-    $(document).ready(function() {
         $('.js-example-basic-single').select2({
             placeholder: "Selecione uma opção:",
             width: '100%'
         });
+
+        $("body").addClass("sidebar-icon-only");
     });
 </script>
+        
+    
