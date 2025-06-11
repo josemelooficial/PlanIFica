@@ -711,7 +711,17 @@ class Relatorios extends BaseController
         $pdf = new \App\Libraries\PDF();
         $pdf->dompdf->loadHtml('<p>teste</p>');
 		$pdf->dompdf->render();
-		$pdf->dompdf->stream("teste.pdf", ['Attachment' => 0]);
+
+        global $_dompdf_warnings;
+        $_dompdf_warnings = array();
+        global $_dompdf_show_warnings;
+        $_dompdf_show_warnings = true;
+
+        header('Content-type: text/plain');
+        var_dump($_dompdf_warnings);
+        die();
+
+		//$pdf->dompdf->stream("teste.pdf", ['Attachment' => 0]);
         return;
 
         $tabelas = [];
