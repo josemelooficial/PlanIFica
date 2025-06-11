@@ -325,13 +325,13 @@
             <div class="card-body d-flex flex-column position-relative" style="height: 100%;">
 
                 <div class="row">
-                    <div class="col-9 text-sm-start">
+                    <div class="col-md-7 text-sm-start">
                         <small>
                             Aulas Pendentes: 
                             <span class="badge badge-pill badge-info" id="aulasCounter">-</span>
                         </small>
                     </div>
-                    <div class="col-3 text-sm-end">
+                    <div class="col-md-5 text-sm-end">
                         <button id="btn_limpar_horarios" type="button" class="btn btn-warning">
                             <i class="mdi mdi-calendar-remove"></i> Limpar
                         </button>
