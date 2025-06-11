@@ -63,6 +63,8 @@ class PDF
 		$render .= '</body>';
 		$render .= '</html>';
 
+		$render = preg_replace('/>\s+</', "><", $render);
+
 		$this->dompdf->loadHtml($render);
 		$this->dompdf->render();
 
