@@ -66,8 +66,8 @@ class PDF
 		$this->dompdf->loadHtml($render);
 		$this->dompdf->render();
 
-		//echo $render;
+		echo $render;
 		
-		$this->dompdf->stream($file_name . ".pdf", ['Attachment' => 1]);
+		//$this->dompdf->stream($file_name . ".pdf", ['Attachment' => 1]);
 	}
 }
