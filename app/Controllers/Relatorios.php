@@ -702,6 +702,11 @@ class Relatorios extends BaseController
 
     public function exportarCursoTurma($dados)
     {
+        $pdf = new \App\Libraries\PDF();
+        $pdf->appendHTML('<p>teste</p>');
+        $pdf->generatePDF("horarios_por_curso");
+        return;
+
         $tabelas = [];
 
         foreach ($dados as $key => $value)
@@ -760,7 +765,7 @@ class Relatorios extends BaseController
             }
         }
 
-        $pdf = new \App\Libraries\PDF();
+        
 
         $pdf->setCSS('
             @page { margin: 10 !important; padding: 0 !important; margin-top: 100px !important; }
@@ -791,13 +796,7 @@ class Relatorios extends BaseController
                         <h1>Horários por Cursos e Turmas</h1>
                     </td>
                 </tr>
-            </table>');
-
-        $pdf->appendHTML('<p>teste</p>');
-
-        $pdf->generatePDF("horarios_por_curso");
-
-        return;
+            </table>');        
 
         $nome_dia = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
 
