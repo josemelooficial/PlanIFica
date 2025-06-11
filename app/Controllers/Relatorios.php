@@ -702,28 +702,6 @@ class Relatorios extends BaseController
 
     public function exportarCursoTurma($dados)
     {
-        ini_set('display_errors', 1);
-        ini_set('display_startup_errors', 1);
-        error_reporting(E_ALL);
-        error_reporting(-1);
-        ini_set('error_reporting', E_ALL);
-
-        $pdf = new \App\Libraries\PDF();
-        $pdf->dompdf->loadHtml('<p>teste</p>');
-		$pdf->dompdf->render();
-
-        global $_dompdf_warnings;
-        $_dompdf_warnings = array();
-        global $_dompdf_show_warnings;
-        $_dompdf_show_warnings = true;
-
-        header('Content-type: text/plain');
-        var_dump($_dompdf_warnings);
-        die();
-
-		//$pdf->dompdf->stream("teste.pdf", ['Attachment' => 0]);
-        return;
-
         $tabelas = [];
 
         foreach ($dados as $key => $value)
@@ -782,7 +760,7 @@ class Relatorios extends BaseController
             }
         }
 
-        
+        $pdf = new \App\Libraries\PDF();       
 
         $pdf->setCSS('
             @page { margin: 10 !important; padding: 0 !important; margin-top: 100px !important; }
