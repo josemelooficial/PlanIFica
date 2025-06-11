@@ -762,9 +762,9 @@ class Relatorios extends BaseController
 
         $pdf = new \App\Libraries\PDF();
 
-        $pdf->setCSS('
+        /*$pdf->setCSS('
             @page { margin: 10 !important; padding: 0 !important; margin-top: 100px !important; }
-            body { font-size: 9px; padding: 10px; background: #fff; color: #000; }
+            body { font-family: Arial, sans-serif; font-size: 9px; padding: 10px; background: #fff; color: #000; }
             header { align-items: center; padding-bottom: 2px; margin-bottom: 10px; position: fixed; margin-top: -80px; width: 98%; }
             header img { height: 60px; margin-right: 10px; margin-left: 10px; }
             h1 { font-size: 13px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
@@ -792,7 +792,7 @@ class Relatorios extends BaseController
                     </td>
                 </tr>
             </table>');
-
+*/
         $nome_dia = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
 
         foreach ($tabelas as $curso => $turmas)
