@@ -8,10 +8,10 @@ use Dompdf\Dompdf;
 
 class PDF
 {
-	private $dompdf;
-	private $css;
-	private $html;
-	private $header;
+	public $dompdf;
+	public $css;
+	public $html;
+	public $header;
 
 	public function __construct()
 	{

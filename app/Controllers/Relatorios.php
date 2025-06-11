@@ -703,8 +703,9 @@ class Relatorios extends BaseController
     public function exportarCursoTurma($dados)
     {
         $pdf = new \App\Libraries\PDF();
-        $pdf->appendHTML('<p>teste</p>');
-        $pdf->generatePDF("horarios_por_curso");
+        $pdf->dompdf->loadHtml('<p>teste</p>');
+		$pdf->dompdf->render();
+		$pdf->dompdf->stream("teste.pdf", ['Attachment' => 1]);
         return;
 
         $tabelas = [];
