@@ -18,9 +18,9 @@ class PDF
 		$this->dompdf = new Dompdf();
 		$this->dompdf->setPaper('A4', 'landscape');
 
-		//$options = $this->dompdf->getOptions();
-		//$options->set('isHtml5ParserEnabled', true);
-		//$options->set('isRemoteEnabled', true);
+		$options = $this->dompdf->getOptions();
+		$options->set('isHtml5ParserEnabled', true);
+		$options->set('isRemoteEnabled', true);
 	}
 
 	public function setCSS($css)
@@ -51,7 +51,7 @@ class PDF
 	public function generatePDF($file_name)
 	{
 		$render = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8" />';
-		$render = '<style>';
+		$render .= '<style>';
 		$render .= $this->css;
 		$render .= '</style>';
 		$render .= '</head>';
@@ -68,6 +68,6 @@ class PDF
 
 		//echo $render;
 		
-		$this->dompdf->stream($file_name . ".pdf", ['Attachment' => 1]);
+		$this->dompdf->stream($file_name . ".pdf", ['Attachment' => 0]);
 	}
 }
