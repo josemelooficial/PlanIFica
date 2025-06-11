@@ -50,8 +50,8 @@ class PDF
 
 	public function generatePDF($file_name)
 	{
-		$render = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8" />';
-		$render .= '<style>';
+		//$render = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8" />';
+		$render = '<style>';
 		$render .= $this->css;
 		$render .= '</style>';
 		$render .= '</head>';
@@ -61,7 +61,7 @@ class PDF
 		$render .= '</header>';
 		$render .= $this->html;
 		$render .= '</body>';
-		$render .= '</html>';
+		//$render .= '</html>';
 
 		$this->dompdf->loadHtml($render);
 		$this->dompdf->render();
