@@ -97,6 +97,7 @@
                                 <th>Curso</th>
                                 <th>Turma</th>
                                 <th>Disciplina</th>
+                                <th>CH (sem)</th>
                                 <th>Professor(es)</th>
                                 <th></th>
                             </tr>
@@ -204,12 +205,13 @@
                     { data: 'curso_nome' },
                     { data: 'turma_sigla' },
                     { data: 'disciplina_nome' },
+                    { data: 'disciplina_ch_semanal' },
                     { data: 'professores_nome' },
                     { data: null }
                 ],
                 columnDefs: [
                     {
-                        targets: 5,
+                        targets: 6,
                         data: null,
                         className: 'dt-left',
                         render: function (data, type, row, meta) {
@@ -262,7 +264,17 @@
                             `;
                         }
                     }
-                ]
+                ],
+                footerCallback: function (row, data, start, end, display)
+                {
+                    let api = this.api();
+                    // Total over this page
+                    pageTotal = api
+                        .column(4, { page: 'current' })
+                        .data()
+                        .reduce((a, b) => parseInt(a) + parseInt(b), 0);
+                    api.column(4).footer().innerHTML = pageTotal;
+                }
             });
 
             $('#modal-edit-aula').on('show.bs.modal', function(event) 

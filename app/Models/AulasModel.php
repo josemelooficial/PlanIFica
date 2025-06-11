@@ -76,6 +76,11 @@ class AulasModel extends Model
                 turma.id as turma_id,
                 disciplina.nome as disciplina_nome,
                 disciplina.id as disciplina_id,
+                disciplina.ch as disciplina_ch,
+                CASE 
+                    WHEN curso.regime = 1 THEN CAST((disciplina.ch / 40) as INT)
+                    WHEN curso.regime = 2 THEN CAST((disciplina.ch / 20) as INT)
+                END AS disciplina_ch_semanal,
                 curso.nome as curso_nome,
                 curso.id as curso_id,
                 GROUP_CONCAT(professores.nome) as professores_nome,
