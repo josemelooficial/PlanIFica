@@ -702,7 +702,12 @@ class Relatorios extends BaseController
 
     public function exportarCursoTurma($dados)
     {
-        ini_set('display_errors',true);
+        ini_set('display_errors', 1);
+        ini_set('display_startup_errors', 1);
+        error_reporting(E_ALL);
+        error_reporting(-1);
+        ini_set('error_reporting', E_ALL);
+
         $pdf = new \App\Libraries\PDF();
         $pdf->dompdf->loadHtml('<p>teste</p>');
 		$pdf->dompdf->render();
