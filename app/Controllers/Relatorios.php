@@ -770,7 +770,7 @@ class Relatorios extends BaseController
             h1 { font-size: 13px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
             h2 { font-size: 12px; color: #1a5d1a; padding: 0px; margin: 0px; }
             h3 { font-size: 11px; color: #1a5d1a; padding: 0px; margin: 0px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout:fixed; page-break-inside: avoid; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout:fixed; }
             .caption { font-size: 13px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 2px; border-radius: 4px 4px 0 0; text-align: center; }
             .periodo { font-size: 10px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 0px; text-align: center; border: none }
             th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; }
@@ -794,6 +794,8 @@ class Relatorios extends BaseController
             </table>');        
 
         $nome_dia = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
+
+        $conta = 0;
 
         foreach ($tabelas as $curso => $turmas)
         {
@@ -915,6 +917,11 @@ class Relatorios extends BaseController
                         </tbody>
                     </table>
                 ');
+
+                $conta++;
+
+                if ($conta < sizeof($tabelas))
+                    $pdf->appendHTML('<div class="page_break"></div>');
             }
         }
 
