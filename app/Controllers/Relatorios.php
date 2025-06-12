@@ -749,16 +749,22 @@ class Relatorios extends BaseController
             }
             else
             {
-                if ($tabelas[$value['curso']][$value['turma']][$value['dia_semana']][$value['hora_inicio']]['professor'] != $value['professor'])
+                if (strpos($tabelas[$value['curso']][$value['turma']][$value['dia_semana']][$value['hora_inicio']]['professor'], $value['professor']) === false)
                 {
                     $tabelas[$value['curso']][$value['turma']][$value['dia_semana']][$value['hora_inicio']]['professor'] .= ', ' . $value['professor'];
                 }
-                else if ($tabelas[$value['curso']][$value['turma']][$value['dia_semana']][$value['hora_inicio']]['ambiente'] != $value['ambiente'])
+                
+                if (strpos($tabelas[$value['curso']][$value['turma']][$value['dia_semana']][$value['hora_inicio']]['ambiente'], $value['ambiente']) === false)
                 {
                     $tabelas[$value['curso']][$value['turma']][$value['dia_semana']][$value['hora_inicio']]['ambiente'] .= ', ' . $value['ambiente'];
                 }
             }
         }
+
+        /*echo "<pre>";
+        print_r($tabelas);
+        echo "</pre>";
+        die();*/
 
         $pdf = new \App\Libraries\PDF();       
 
