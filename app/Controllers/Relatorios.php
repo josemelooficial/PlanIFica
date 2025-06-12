@@ -927,7 +927,7 @@ class Relatorios extends BaseController
 
                 $conta++;
 
-                if ($conta < sizeof($tabelas))
+                //if ($conta < sizeof($tabelas))
                     $pdf->appendHTML('<div class="page_break"></div>');
             }
         }
