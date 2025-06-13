@@ -806,6 +806,9 @@ class Relatorios extends BaseController
         $total = 0;
         foreach ($tabelas as $curso => $turmas)
             $total += sizeof($turmas);
+        echo $total;
+        die();
+
 
         foreach ($tabelas as $curso => $turmas)
         {
