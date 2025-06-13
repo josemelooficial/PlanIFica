@@ -803,12 +803,12 @@ class Relatorios extends BaseController
         $nome_dia = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
 
         $conta = 0;
-        $total = 0;
+        $total = sizeof($tabelas);
+        foreach ($tabelas as $curso => $turmas)
+            $total += sizeof($turmas);
 
         foreach ($tabelas as $curso => $turmas)
         {
-            $total += sizeof($turmas);
-
             foreach ($turmas as $turma => $dias)
             {
                 $temDias = [];
