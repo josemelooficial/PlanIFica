@@ -113,10 +113,13 @@
 
                         <br>
 
-                        <p class="fade-in" style="font-size: 13px;">Gustavo Lage dos Santos</p>                        
-                        <p class="fade-in" style="font-size: 13px;">Luis Henrique Bergonzini Souza</p>                        
-                        <p class="fade-in" style="font-size: 13px;">Poliana Carvalho Lima</p>                        
-                        <p class="fade-in" style="font-size: 13px;">Wagner José Nascimento Relvas</p>
+                        <p class="fade-in" style="font-size: 13px;">Gustavo Lage dos Santos</p>
+                        <p class="fade-in" style="font-size: 13px;">Jorge Domingos de Sousa Neto</p>
+                        <p class="fade-in" style="font-size: 13px;">Kassandra de Oliveira Rodrigues</p>
+                        <p class="fade-in" style="font-size: 13px;">Levir Menezes de Souza</p>
+                        <p class="fade-in" style="font-size: 13px;">Luis Henrique Bergonzini Souza</p>
+                        <p class="fade-in" style="font-size: 13px;">Poliana Carvalho Lima</p>
+                        <p class="fade-in" style="font-size: 13px;">Wagner José Nascimento Relvas</p>                        
 
                         <br>
 
@@ -124,7 +127,6 @@
                         <p class="fade-in" style="font-size: 13px; color: gray; text-decoration: line-through">Maria Luiza Botelho Guimarães</p>
                         <p class="fade-in" style="font-size: 13px; color: gray; text-decoration: line-through">Paloma Carvalho Lima</p>
                         <p class="fade-in" style="font-size: 13px; color: gray; text-decoration: line-through">Sanmara Letícia Nunes de Souza</p>
-                        <p class="fade-in" style="font-size: 13px; color: gray; text-decoration: line-through">Vitória Oliveira de Lima</p>
                         <p class="fade-in" style="font-size: 13px; color: gray; text-decoration: line-through">Luis Marcelo Fabrício Guimarães</p>
                         <p class="fade-in" style="font-size: 13px; color: gray; text-decoration: line-through">Igor Vinícius Medonça Barreto</p>
                         <p class="fade-in" style="font-size: 13px; color: gray; text-decoration: line-through">José Claion Martins de Sousa</p>
