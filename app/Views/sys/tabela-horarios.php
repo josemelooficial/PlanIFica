@@ -161,10 +161,6 @@
                                     <i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>
                                     <small class="text-secondary"><span id="modalAmbienteProfessor"></span></small>
                                 </div>
-                                <!--<div class="d-flex align-items-center">
-                                    <i class="mdi mdi-door fs-6 text-muted me-1"></i>
-                                    <small class="text-secondary"><span id="modalAmbienteAulas"></span></small>
-                                </div>-->
                             </div>
                         </div>
                     </div>
@@ -200,13 +196,13 @@
     </div>
 </div>
 
-<!-- Modal de Confirmação de Remoção -->
+<!-- Modal de Análise do Horário -->
 <div class="modal fade" id="modalConfirmarRemocao" tabindex="-1" aria-labelledby="modalConfirmarRemocaoLabel" aria-hidden="true" style="z-index: 10001;">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header border-secondary">
                 <h5 class="modal-title text-white" id="modalConfirmarRemocaoLabel">
-                    <i class="mdi mdi-alert-circle-outline me-2 text-warning"></i> Confirmar Remoção
+                    <i class="mdi mdi-alert-circle-outline me-2 text-warning"></i> Análise de Horário
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -257,20 +253,40 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <p class="text-light">Deseja remover esta disciplina do horário?</p>
-                    <div class="card bg-dark border-warning mb-3">
-                        <div class="card-body p-2">
-                            <h6 class="text-warning mb-1" id="modalRemocaoDisciplina"></h6>
-                            <small class="text-muted" id="modalRemocaoProfessor"></small><br />
-                            <small class="text-muted" id="modalRemocaoAmbiente"></small>
+                <div class="row" id="rowAlterarAmbiente">
+                    <div class="card bg-dark border-primary mb-3">
+                        <div class="card-body p-1">                            
+                            <label for="selectAmbiente">
+                                <h6 class="text-primary">Selecione o(s) ambiente(s) para alterar:</h6>
+                            </label>
+                            <select class="form-select" id="alteraAmbiente" multiple="multiple" name="alteraAmbiente[]" style="width:100%;">
+                                <?php foreach ($ambientes as $ambiente): ?>
+                                    <option value="<?php echo esc($ambiente['id']) ?>"><?php echo esc($ambiente['nome']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="text-end p-1">
+                                <button type="button" class="btn btn-primary" id="confirmarAlterarAmbiente">Alterar Ambiente</button>
+                            </div>                            
                         </div>
                     </div>
                 </div>
+
+                <div class="row">                    
+                    <div class="card bg-dark border-warning mb-3">
+                        <div class="card-body p-1">
+                            <p class="text-warning mb-1"><strong>Deseja remover esta disciplina do horário?</strong></p>
+                            <h6 class="text-muted mb-0" id="modalRemocaoDisciplina"></h6>
+                            <small class="text-muted" id="modalRemocaoProfessor"></small><br />
+                            <small class="text-muted" id="modalRemocaoAmbiente"></small>
+                        </div>
+                        <div class="text-end p-1">
+                            <button type="button" class="btn btn-danger" id="confirmarRemocao">Remover</button>
+                        </div>  
+                    </div>                    
+                </div>
             </div>
             <div class="modal-footer border-secondary">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmarRemocao">Remover</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>                
             </div>
         </div>
     </div>
@@ -444,14 +460,17 @@
         });
 
         $("#selectAmbiente").select2( { dropdownParent: $('#modalSelecionarAmbiente') });
+        $("#alteraAmbiente").select2( { dropdownParent: $('#modalConfirmarRemocao') });
 
         // Define variáveis globais para armazenar os dados do modal
         const modalAtribuirDisciplinaElement = document.getElementById('modalAtribuirDisciplina');
         const modalSelecionarAmbienteElement = document.getElementById('modalSelecionarAmbiente');
+        const modalConfirmarRemocaoElement = document.getElementById('modalConfirmarRemocao');
 
         // Inicializa os modais usando a API do Bootstrap 5
         const modalAtribuirDisciplina = new bootstrap.Modal(modalAtribuirDisciplinaElement);
         const modalSelecionarAmbiente = new bootstrap.Modal(modalSelecionarAmbienteElement);
+        const modalConfirmarRemocao = new bootstrap.Modal(modalConfirmarRemocaoElement);
 
         //Algumas globais pra controle dos modals
         let horarioSelecionado = null;
@@ -597,15 +616,22 @@
             const $horario = $(horarioElement);
             const aulaId = $horario.data('aula-id');
 
-            const modalConfirmarRemocao = new bootstrap.Modal(document.getElementById('modalConfirmarRemocao'));
+            //const modalConfirmarRemocao = new bootstrap.Modal(document.getElementById('modalConfirmarRemocao'));
+
+            // Adiciona os dados ao horário
+            $("#modalConfirmarRemocao")
+                .data('aula-id', aulaId)
+                .data('aula_horario_id', $horario.data('aula_horario_id'))
+                .data('horario_id', $horario.attr('id').split('_')[1]);
 
             // Preenche os dados no modal
             $('#modalRemocaoDisciplina').text($horario.data('disciplina'));
-            $('#modalRemocaoProfessor').text('Professor: ' + $horario.data('professor'));
-            $('#modalRemocaoAmbiente').text('Ambiente: ' + $horario.data('ambienteNome').join(", "));
+            $('#modalRemocaoProfessor').text('Professor(es): ' + $horario.data('professor'));
+            $('#modalRemocaoAmbiente').text('Ambiente(s): ' + $horario.data('ambienteNome').join(", "));
 
             $('#rowRestricao').hide();
             $('#rowConflito').hide();
+            //$('#rowAlterarAmbiente').hide();
             $('#rowTresTurnos').hide();
             $('#rowIntervalo').hide();
 
@@ -617,6 +643,15 @@
             {
                 $("#confirmarRemocao").prop("disabled", false);
             }
+
+            var selectedAmbientes = [];
+
+            $.each($horario.data('ambienteNome'), function(index, value) {
+                selectedAmbientes.push(getAmbienteId(value));
+            });
+
+            $('#alteraAmbiente').val(selectedAmbientes);
+            $('#alteraAmbiente').trigger('change');
 
             //Verificar e preencher dados do conflito
             if($horario.data('tresturnos') > 0)
@@ -663,6 +698,7 @@
                 }, 'json');
 
                 $('#rowIntervalo').show();
+
             }
             else if($horario.data('restricao') > 0)
             {
@@ -676,43 +712,49 @@
                 {                    
                     $('#modalRemocaoConflitoCurso').text("Curso: " + data[0].curso);
                     $('#modalRemocaoConflitoTurma').text("Turma: " + data[0].turma);
-                    $('#modalRemocaoConflitoDisciplina').text("Disciplina: " + data[0].disciplina);
+                    $('#modalRemocaoConflitoDisciplina').text("Disciplina: " + data[0].disciplina);                    
 
                     if($horario.data('conflitoProfessor') == 1)
                     {
                             $('#modalRemocaoConflitoProfessor')
-                                .html('<i class="fa fa-exclamation-circle me-1"></i> ' + 'Professor: ' + data[0].professor)
+                                .html('<i class="fa fa-exclamation-circle me-1"></i> ' + 'Professor(es): ' + data[0].professor)
                                 .addClass('text-danger')
                                 .removeClass('text-warning');
                     }
                     else
                     {
-                            $('#modalRemocaoConflitoProfessor')
-                                .text("Professor: " + data[0].professor)
-                                .addClass('text-warning')
-                                .removeClass('text-danger');
-                        }
-
+                        $('#modalRemocaoConflitoProfessor')
+                            .text("Professor(es): " + data[0].professor)
+                            .addClass('text-warning')
+                            .removeClass('text-danger');
+                    }
 
                     if($horario.data('conflitoAmbiente') == 1)
                     {
-                            $('#modalRemocaoConflitoAmbiente')
-                                .html('<i class="fa fa-exclamation-circle me-1"></i> ' + 'Ambiente(s): ')
-                                .addClass('text-danger')
-                                .removeClass('text-warning');
+                        $('#modalRemocaoConflitoAmbiente')
+                            .html('<i class="fa fa-exclamation-circle me-1"></i> ' + 'Ambiente(s): ')
+                            .addClass('text-danger')
+                            .removeClass('text-warning');                        
+
+                        //$('#rowAlterarAmbiente').show();
                     }
                     else
                     {
-                            $('#modalRemocaoConflitoAmbiente')
-                                .text("Ambiente(s): ")
-                                .addClass('text-warning')
-                                .removeClass('text-danger');
-                        }
+                        $('#modalRemocaoConflitoAmbiente')
+                            .text("Ambiente(s): ")
+                            .addClass('text-warning')
+                            .removeClass('text-danger');
+                    }
 
-                        $.each(data, function(index, value) {
+                    $.each(data, function(index, value)
+                    {
+                        if($('#modalRemocaoConflitoAmbiente').html().indexOf(value.ambiente) < 0)
+                        {
                             $('#modalRemocaoConflitoAmbiente').append(value.ambiente + " | ");
-                        });
-                    }, 'json');
+                        }                        
+                    });
+
+                }, 'json');
 
                 $('#rowConflito').show();
             }
@@ -895,15 +937,15 @@
                 {
                     if(data == "0") 
                     {
-                            $.toast({
-                                heading: 'Erro',
-                                text: 'Ocorreu um erro ao atribuir a disciplina ao horário.',
-                                showHideTransition: 'slide',
-                                icon: 'error',
-                                loaderBg: '#f96868',
-                                position: 'top-center'
-                            });
-                            return;
+                        $.toast({
+                            heading: 'Erro',
+                            text: 'Ocorreu um erro ao atribuir a disciplina ao horário.',
+                            showHideTransition: 'slide',
+                            icon: 'error',
+                            loaderBg: '#f96868',
+                            position: 'top-center'
+                        });
+                        return;
                     }
                     else if(data.indexOf("OK") >= 0 || data.indexOf("CONFLITO") >= 0 || data.indexOf("RESTRICAO") >= 0 || data.indexOf("TRES-TURNOS") >= 0 || data.indexOf("INTERVALO") >= 0)
                     {
@@ -1076,24 +1118,150 @@
                             // Se zerou, remove o card
                         if (aulasPendentes <= 0) 
                         {
-                                cardAula.remove();
-                            }
-
-                            atualizarContadorPendentes();
-                            modalSelecionarAmbiente.hide();
-
-                            // Mostra feedback de sucesso
-                            $.toast({
-                                heading: 'Sucesso',
-                                text: 'A disciplina foi atribuída ao horário.',
-                                showHideTransition: 'slide',
-                                icon: 'success',
-                                loaderBg: '#f96868',
-                                position: 'top-center'
-                            });
+                            cardAula.remove();
                         }
-                    });
+
+                        atualizarContadorPendentes();
+                        modalSelecionarAmbiente.hide();
+
+                        // Mostra feedback de sucesso
+                        $.toast({
+                            heading: 'Sucesso',
+                            text: 'A disciplina foi atribuída ao horário.',
+                            showHideTransition: 'slide',
+                            icon: 'success',
+                            loaderBg: '#f96868',
+                            position: 'top-center'
+                        });
+                    }
+                });
             }
+        });
+
+        // Configura o evento de confirmação do ambiente
+        $("#confirmarAlterarAmbiente").click(function(e)
+        {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const ambienteSelecionadoId = $("#alteraAmbiente").val();
+
+            var ambientesSelecionadosNome = [];
+
+            var data = $('#alteraAmbiente').select2('data');
+            data.forEach(function (item)
+            { 
+                ambientesSelecionadosNome.push(item.text);
+            });
+
+            const aulaId = $('#modalConfirmarRemocao').data('aula-id');
+            const aula = getAulaById(aulaId);            
+            const cardAula = $(`#aula_${aulaId}`);
+            const horarioId = $('#modalConfirmarRemocao').data('horario_id');
+
+            // Requisição para atribuir a disciplina ao horário no backend
+            $.post('<?php echo base_url('sys/tabela-horarios/atribuirAula'); ?>', 
+            {
+                aula_id: aulaId,
+                tempo_de_aula_id: horarioId,
+                ambiente_id: ambienteSelecionadoId
+            },
+            function(data) 
+            {
+                if(data == "0") 
+                {
+                    $.toast({
+                        heading: 'Erro',
+                        text: 'Ocorreu um erro ao tentar alterar o ambiente.',
+                        showHideTransition: 'slide',
+                        icon: 'error',
+                        loaderBg: '#f96868',
+                        position: 'top-center'
+                    });
+                    return;
+                }
+                else if(data.indexOf("OK") >= 0 || data.indexOf("CONFLITO") >= 0)
+                {
+                    var conflitoStyle = "text-primary";
+                    var conflitoIcon = "fa-mortar-board";
+                    var aulaConflito = 0;
+                    var tresTurnos = 0;
+                    var restricao = 0;
+                    var intervalo = 0;
+                    var conflitoAmbiente = 0;
+                    var conflitoProfessor = 0;
+
+                    var aulaHorarioId = data.split("-")[0];
+
+                    if(data.indexOf("AMBIENTE") >= 0)
+                    {
+                            aulaConflito = data.split("-")[3];
+                            conflitoStyle = "text-warning";
+                            conflitoIcon = "fa-warning";
+                            conflitoAmbiente = 1;
+                    }
+
+                    // Preenche o horário selecionado
+                    $(`#horario_${horarioId}`).html(`
+                        <div class="card border-1 shadow-sm bg-gradient" style="cursor: pointer; height: 100%;">
+                            <div class="card-body p-1 d-flex flex-column justify-content-center align-items-center text-center">
+                                <h6 class="text-wrap mb-0 fs-6 ${conflitoStyle}" style="font-size: 0.75rem !important; margin-right: 15px">
+                                    <i class="fa ${conflitoIcon} me-1"></i>
+                                    ${aula.disciplina}
+                                </h6>
+                                <div class="d-flex align-items-center mb-0 py-0">
+                                    <i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>
+                                    <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${aula.professores.join(", ")}</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-door fs-6 text-muted me-1"></i>
+                                    <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${ambientesSelecionadosNome.join("<br />")}</small>
+                                </div>
+                                <div style="width: 100%; text-align: right; top: 0; position: absolute">
+                                    <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${aulaHorarioId}"></i><br />
+                                    <i class="mdi mdi-lock fs-6 text-primary me-1" id="btnFixar_horario_${aulaHorarioId}"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+
+                    // Adiciona os dados ao horário
+                    $(`#horario_${horarioId}`)
+                        .data('disciplina', aula.disciplina)
+                        .data('professor', aula.professores.join(", "))
+                        .data('ambiente', ambienteSelecionadoId)
+                        .data('ambienteNome', ambientesSelecionadosNome)
+                        .data('aula-id', aulaId)
+                        .data('aulas-total', cardAula.data('aulas-total'))
+                        .data('aulas-pendentes', cardAula.data('aulas-pendentes'))
+                        .data('conflito', aulaConflito)
+                        .data('conflitoAmbiente', conflitoAmbiente)
+                        .data('conflitoProfessor', conflitoProfessor)
+                        .data('restricao', restricao)
+                        .data('tresturnos', tresTurnos)
+                        .data('intervalo', intervalo)
+                        .data('aula_horario_id', aulaHorarioId)
+                        .data('fixa', 0)
+                        .removeClass('horario-vazio')
+                        .addClass('horario-preenchido')
+                        .off()
+                        .click(function() {
+                            mostrarModalConfirmacaoRemocao(this);
+                        });
+                }
+
+                modalConfirmarRemocao.hide();
+
+                // Mostra feedback de sucesso
+                $.toast({
+                    heading: 'Sucesso',
+                    text: 'Ambiente(s) alterado(s) com sucesso.',
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    loaderBg: '#f96868',
+                    position: 'top-center'
+                });
+            });
         });
 
         // Carrega as disciplinas pendentes no modal
@@ -1216,6 +1384,21 @@
             });
 
             return ambienteNome;
+        }
+
+        function getAmbienteId(nome)
+        {
+            var ambienteId = -1;
+
+            $("#selectAmbiente option").each(function() 
+            {
+                if ($(this).text() == nome) 
+                {
+                    ambienteId = $(this).val();
+                }
+            });
+
+            return ambienteId;
         }
 
         $("#btn_atribuir_automaticamente").click(function() 
