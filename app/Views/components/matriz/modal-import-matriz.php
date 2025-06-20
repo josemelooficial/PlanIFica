@@ -46,7 +46,7 @@
 </div>
 <script>
     const dropArea = document.getElementById('drop-area');
-    const fileInput = document.getElementById('arquivo');
+    const inputArquivo = document.getElementById('arquivo');
     const dropText = document.getElementById('drop-text');
 
     //looping para prever falhas no DOM em cada um desses eventos dentro da "drop-area"
@@ -57,10 +57,11 @@
 
     dropArea.addEventListener('dragover', () => dropArea.classList.add('dragover'));
     dropArea.addEventListener('dragleave', () => dropArea.classList.remove('dragover'));
+
     dropArea.addEventListener('drop', (e) => { 
         dropArea.classList.remove('dragover');
         if (e.dataTransfer.files.length > 0) {
-            fileInput.files = e.dataTransfer.files;
+            inputArquivo.files = e.dataTransfer.files;
             dropText.placeholder = `${e.dataTransfer.files[0].name}`;
         }
     });
