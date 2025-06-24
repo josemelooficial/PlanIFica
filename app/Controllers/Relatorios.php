@@ -302,17 +302,17 @@ class Relatorios extends BaseController
         $pdf = new \App\Libraries\PDF();
 
         $pdf->setCSS('
-            @page { margin: 10 !important; padding: 0 !important; margin-top: 100px !important; }
+            @page { margin: 10 !important; padding: 0 !important; margin-top: 90px !important; }
             body { font-family: Arial, sans-serif; font-size: 9px; padding: 10px; background: #fff; color: #000; }
-            header { align-items: center; padding-bottom: 2px; margin-bottom: 10px; position: fixed; margin-top: -80px; width: 98%; }
-            header img { height: 60px; margin-right: 10px; margin-left: 10px; }
-            h1 { font-size: 13px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
-            h2 { font-size: 12px; color: #1a5d1a; padding: 0px; margin: 0px; }
-            h3 { font-size: 11px; color: #1a5d1a; padding: 0px; margin: 0px; }
+            header { align-items: center; padding-bottom: 2px; margin-bottom: 10px; position: fixed; margin-top: -65px; width: 98%; }
+            header img { height: 50px; margin-right: 10px; margin-left: 10px; }
+            h1 { font-size: 11px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
+            h2 { font-size: 11px; color: #1a5d1a; padding: 0px; margin: 0px; }
+            h3 { font-size: 10px; color: #1a5d1a; padding: 0px; margin: 0px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout:fixed;  }
             .caption { font-size: 13px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 2px; border-radius: 4px 4px 0 0; text-align: center; }
             .periodo { font-size: 10px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 0px; text-align: center; border: none }
-            th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; }
+            th, td { border: 1px solid #ccc; padding: 2px; text-align: center; vertical-align: middle; }
             th { background-color: #d1e7d1; color: #1a5d1a; }
             tr:nth-child(even) td { background-color: #f5fdf5; }
             .hora { font-weight: bold; }
@@ -323,8 +323,8 @@ class Relatorios extends BaseController
         $pdf->setHeader('
             <table>
                 <tr>
-                    <td width="25%"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
-                    <td width="75%">
+                    <td width="20%"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
+                    <td width="80%">
                         <h1>Instituto Federal de Educação, Ciência e Tecnologia de Rondônia</h1>
                         <h2><i>Campus</i> Porto Velho Calama</h2>
                         <h3>Departamento de Apoio ao Ensino - DAPE</h3>
