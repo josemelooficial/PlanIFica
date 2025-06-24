@@ -368,12 +368,12 @@ class Relatorios extends BaseController
                             </td>
                         </tr>
                         <tr>
-                            <th width="5%">Horário</th>');
+                            <th width="4%">Horário</th>');
 
             foreach ($temDias as $dia)
             {
                 $pdf->appendHTML('
-                    <th width="19%">' . $nome_dia[$dia] . '</th>
+                    <th width="20%">' . $nome_dia[$dia] . '</th>
                 ');
             }
 
@@ -592,12 +592,12 @@ class Relatorios extends BaseController
                             </td>
                         </tr>
                         <tr>
-                            <th width="5%">Horário</th>');
+                            <th width="4%">Horário</th>');
 
             foreach ($temDias as $dia)
             {
                 $pdf->appendHTML('
-                    <th width="19%">' . $nome_dia[$dia] . '</th>
+                    <th width="20%">' . $nome_dia[$dia] . '</th>
                 ');
             }
 
@@ -643,7 +643,8 @@ class Relatorios extends BaseController
                                 $pdf->appendHTML('</small>');
 
                             $pdf->appendHTML('<br />');
-                            $pdf->appendHTML('<em>');
+                            
+                            /*$pdf->appendHTML('<em>');
 
                             if (strlen($tabelas[$professor][$dia][$horario]['curso']) >= 40)
                                 $pdf->appendHTML('<small>');
@@ -653,7 +654,7 @@ class Relatorios extends BaseController
                             if (strlen($tabelas[$professor][$dia][$horario]['curso']) >= 40)
                                 $pdf->appendHTML('</small>');
 
-                            $pdf->appendHTML('<br />');
+                            $pdf->appendHTML('<br />');*/
 
                             if (strlen($tabelas[$professor][$dia][$horario]['turma']) >= 40)
                                 $pdf->appendHTML('<small>');
