@@ -643,9 +643,10 @@ class Relatorios extends BaseController
                                 $pdf->appendHTML('</small>');
 
                             $pdf->appendHTML('<br />');
-                            
-                            /*$pdf->appendHTML('<em>');
 
+                            $pdf->appendHTML('<em>');
+                            
+                            /*
                             if (strlen($tabelas[$professor][$dia][$horario]['curso']) >= 40)
                                 $pdf->appendHTML('<small>');
 
