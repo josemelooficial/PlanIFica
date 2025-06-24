@@ -420,6 +420,8 @@ class Relatorios extends BaseController
                             $pdf->appendHTML('<br />');
                             $pdf->appendHTML('<em>');
 
+                            /*
+
                             if (strlen($tabelas[$ambiente][$dia][$horario]['curso']) >= 40)
                                 $pdf->appendHTML('<small>');
 
@@ -430,6 +432,8 @@ class Relatorios extends BaseController
 
                             $pdf->appendHTML('<br />');
 
+                            */
+
                             if (strlen($tabelas[$ambiente][$dia][$horario]['turma']) >= 40)
                                 $pdf->appendHTML('<small>');
 
@@ -439,6 +443,22 @@ class Relatorios extends BaseController
                                 $pdf->appendHTML('</small>');
 
                             $pdf->appendHTML('<br />');
+
+                            $virgulas = substr_count($tabelas[$ambiente][$dia][$horario]['professor'],",");
+
+                            //Reduzir sobrenomes dos professores caso haja mais de um
+                            if($virgulas >= 1)
+                            {
+                                $professores = explode(", ", $tabelas[$ambiente][$dia][$horario]['professor']);
+                                foreach($professores as $k=>$v)
+                                {
+                                    $nomes = explode(" ", $v);
+                                    $professores[$k] = $nomes[0];
+                                    $professores[$k] .= " ";
+                                    $professores[$k] .= (strlen($nomes[1]) > 3) ? $nomes[1] : $nomes[1] . " " . $nomes[2];
+                                }
+                                $tabelas[$ambiente][$dia][$horario]['professor'] = implode(", ",$professores);
+                            }
 
                             if (strlen($tabelas[$ambiente][$dia][$horario]['professor']) >= 40)
                                 $pdf->appendHTML('<small>');
@@ -645,7 +665,7 @@ class Relatorios extends BaseController
                             $pdf->appendHTML('<br />');
 
                             $pdf->appendHTML('<em>');
-                            
+
                             /*
                             if (strlen($tabelas[$professor][$dia][$horario]['curso']) >= 40)
                                 $pdf->appendHTML('<small>');
