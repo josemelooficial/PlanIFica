@@ -119,6 +119,21 @@
   /*Fundo da seleção de opções do select2*/
 }
 
+
+.drop-area {
+  border: 2px dashed #007bff !important;
+  padding: 30px !important;
+  text-align: center !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  background-color: #1f1f1f !important;
+  color: white !important;
+  transition: background-color 0.2s ease !important;
+}
+.drop-area.dragover {
+  background-color: #2b2b2b !important;
+}
+
 body {
   background-color: #000;
 }
