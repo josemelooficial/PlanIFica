@@ -840,12 +840,12 @@ class Relatorios extends BaseController
                                 </td>
                             </tr>
                             <tr>
-                                <th width="5%">Horário</th>');
+                                <th width="4%">Horário</th>');
 
                 foreach ($temDias as $dia)
                 {
                     $pdf->appendHTML('
-                        <th width="19%">' . $nome_dia[$dia] . '</th>
+                        <th width="20%">' . $nome_dia[$dia] . '</th>
                     ');
                 }
 
@@ -891,6 +891,22 @@ class Relatorios extends BaseController
 
                                 $pdf->appendHTML('<br />');
                                 $pdf->appendHTML('<em>');
+
+                                $virgulas = substr_count($tabelas[$curso][$turma][$dia][$horario]['professor'],",");
+
+                                //Reduzir sobrenomes dos professores caso haja mais de um
+                                if($virgulas >= 1)
+                                {
+                                    $professores = explode(", ", $tabelas[$curso][$turma][$dia][$horario]['professor']);
+                                    foreach($professores as $k=>$v)
+                                    {
+                                        $nomes = explode(" ", $v);
+                                        $professores[$k] = $nomes[0];
+                                        $professores[$k] .= " ";
+                                        $professores[$k] .= (strlen($nomes[1]) > 3) ? $nomes[1] : $nomes[1] . " " . $nomes[2];
+                                    }
+                                    $tabelas[$curso][$turma][$dia][$horario]['professor'] = implode(", ",$professores);
+                                }
 
                                 if (strlen($tabelas[$curso][$turma][$dia][$horario]['professor']) >= 40)
                                     $pdf->appendHTML('<small>');
