@@ -343,7 +343,7 @@
 
             $('#filtroTurma').on('change', function()
             {
-                table.columns(2).search($('#filtroTurma option:selected').text());
+                table.columns(2).search($('#filtroTurma option:selected').text(), false, false, {boundary: true, exact: true});
                 table.draw();
             });
 
