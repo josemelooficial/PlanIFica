@@ -324,7 +324,7 @@
         //Seleciona opção do filtro para a tabela
         $('#filtroCurso').on('change', function() 
         {
-            $('#filtroTurma').find('option').remove().end().append('<option value="0">-</option>');
+            /*$('#filtroTurma').find('option').remove().end().append('<option value="0">-</option>');
             $('#filtroTurma option[value="0"]').prop('selected', true);
 
             //Buscar turmas do curso selecionado.
@@ -337,7 +337,7 @@
                         $('#filtroTurma').append('<option value="' + obj.id + '">' + obj.sigla + '</option>');
                     });
                 }, 'json')
-            }
+            }*/
 
             table.columns(1).search($('#filtroCurso option:selected').text());
             table.draw();
@@ -345,7 +345,7 @@
 
         $('#filtroTurma').on('change', function()
         {
-            table.columns(2).search($('#filtroTurma option:selected').text());
+            table.columns(2).search($('#filtroTurma option:selected').text(), false, false, {boundary: true, exact: true});
             table.draw();
         });
 
