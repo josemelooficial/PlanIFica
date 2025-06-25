@@ -207,26 +207,31 @@
             },
             stateLoadCallback: function(settings) 
             {
-                let myJson = JSON.parse( localStorage.getItem( 'DataTables_' + settings.sInstance ));
-                
-                if (myJson.hasOwnProperty("columns")) 
+                let myJson = null;
+
+                if(localStorage.getItem( 'DataTables_' + settings.sInstance ) !== null)
                 {
-                    var valueCurso = $("#filtroCurso option").filter(function()
+                    myJson = JSON.parse( localStorage.getItem( 'DataTables_' + settings.sInstance ));
+                
+                    if (myJson.hasOwnProperty("columns")) 
                     {
-                        return $(this).text() == myJson.columns[1].search.search;
-                    }).val();
-
-                    $("#filtroCurso").val(valueCurso).trigger("change");
-
-                    setTimeout(function() {
-                        var valueTurma = $("#filtroTurma option").filter(function()
+                        var valueCurso = $("#filtroCurso option").filter(function()
                         {
-                            return $(this).text() == myJson.columns[2].search.search;
+                            return $(this).text() == myJson.columns[1].search.search;
                         }).val();
 
-                        $("#filtroTurma").val(valueTurma);
-                        $('#filtroTurma').trigger("change");
-                    }, 2000);
+                        $("#filtroCurso").val(valueCurso).trigger("change");
+
+                        setTimeout(function() {
+                            var valueTurma = $("#filtroTurma option").filter(function()
+                            {
+                                return $(this).text() == myJson.columns[2].search.search;
+                            }).val();
+
+                            $("#filtroTurma").val(valueTurma);
+                            $('#filtroTurma').trigger("change");
+                        }, 2000);
+                    }
                 }
                 
                 return myJson;
