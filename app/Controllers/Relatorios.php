@@ -552,7 +552,7 @@ class Relatorios extends BaseController
             @page { margin: 8 !important; padding: 0 !important; margin-top: 70px !important; }
             body { font-family: Arial, sans-serif; font-size: 9px; padding: 10px; background: #fff; color: #000; }
             header { align-items: center; padding-bottom: 1px; margin-bottom: 8px; position: fixed; margin-top: -65px; width: 98%; }
-            header img { height: 60px; margin-right: 10px; margin-left: 10px; }
+            header img { height: 50px; margin-right: 10px; margin-left: 10px; }
             h1 { font-size: 11px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
             h2 { font-size: 11px; color: #1a5d1a; padding: 0px; margin: 0px; }
             h3 { font-size: 10px; color: #1a5d1a; padding: 0px; margin: 0px; }
