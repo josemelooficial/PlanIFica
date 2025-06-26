@@ -92,10 +92,6 @@
     .drag-over {
         background-color: #6c7293 !important;
     }
-
-    .botaoFixar {
-        z-index: 9999;
-    }
 </style>
 
 <!-- Modal -->
@@ -565,6 +561,80 @@
                 });
         }
 
+        function bypassarAulaHorario(tipo, aula_horario_id, aula_id)
+        {
+            elemento = $(`#horario_${aula_id}`);
+
+            $.post('<?php echo base_url('sys/tabela-horarios/bypassAula'); ?>', 
+            {
+                tipo: tipo, //1 = bypass, 0 = desbypass
+                aula_horario_id: aula_horario_id
+            },
+            function(data)
+            {
+                if(data == "1")
+                {
+                    //encontrar o botão pelo nomezim e mudar a cor
+                    if(tipo == 1)
+                    {
+                        $("#btnBypass_horario_" + aula_horario_id)
+                            .removeClass("text-primary")
+                            .addClass("text-warning")
+                            .off()
+                            .click(function(e) 
+                            {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                bypassarAulaHorario(0, aula_horario_id, aula_id); //desbypassar
+                            });
+
+                        $.toast({
+                            heading: 'Sucesso',
+                            text: 'A aula foi marcada como bypass no horário.',
+                            showHideTransition: 'slide',
+                            icon: 'success',
+                            loaderBg: '#f96868',
+                            position: 'top-center'
+                        });
+                    }
+                    else
+                    {
+                        $("#btnBypass_horario_" + aula_horario_id)
+                            .removeClass("text-warning")
+                            .addClass("text-primary")
+                            .off()
+                            .click(function(e) 
+                            {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                bypassarAulaHorario(1, aula_horario_id, aula_id); //bypassar
+                            });
+
+                        $.toast({
+                            heading: 'Sucesso',
+                            text: 'A aula foi desmarcada como bypass no horário.',
+                            showHideTransition: 'slide',
+                            icon: 'success',
+                            loaderBg: '#f96868',
+                            position: 'top-center'
+                        });
+                    }
+                }
+                else
+                {
+                    // Mostra feedback de erro
+                    $.toast({
+                        heading: 'Erro',
+                        text: 'Ocorreu um erro ao tentar adicionar ou remover bypass da aula no horário.',
+                        showHideTransition: 'slide',
+                        icon: 'error',
+                        loaderBg: '#f96868',
+                        position: 'top-center'
+                    });
+                }
+            });
+        }
+
         // Função para mover disciplina de volta para pendentes
         function moverDisciplinaParaPendentes(horarioElement) 
         {
@@ -1011,7 +1081,8 @@
                                     </div>
                                     <div style="width: 100%; text-align: right; top: 0; position: absolute">
                                         <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${aulaHorarioId}"></i><br />
-                                        <i class="mdi mdi-lock fs-6 text-primary me-1" id="btnFixar_horario_${aulaHorarioId}"></i>
+                                        <i class="mdi mdi-lock fs-6 text-primary me-1" id="btnFixar_horario_${aulaHorarioId}"></i><br />
+                                        <i class="mdi mdi-account-multiple fs-6 text-primary me-1" id="btnBypass_horario_${aulaHorarioId}"></i>
                                     </div>
                                 </div>
                             </div>
@@ -1022,6 +1093,13 @@
                             e.preventDefault();
                             e.stopPropagation();
                             fixarAulaHorario(1, aulaHorarioId, horarioId);
+                        });
+
+                        $("#btnBypass_horario_" + aulaHorarioId).off().click(function(e) 
+                        {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            bypassarAulaHorario(1, aulaHorarioId, horarioId);
                         });
 
                         $("#btnRemover_horario_" + aulaHorarioId).off().click(function(e) 
@@ -1219,7 +1297,8 @@
                                 </div>
                                 <div style="width: 100%; text-align: right; top: 0; position: absolute">
                                     <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${aulaHorarioId}"></i><br />
-                                    <i class="mdi mdi-lock fs-6 text-primary me-1" id="btnFixar_horario_${aulaHorarioId}"></i>
+                                    <i class="mdi mdi-lock fs-6 text-primary me-1" id="btnFixar_horario_${aulaHorarioId}"></i><br />
+                                    <i class="mdi mdi-account-multiple fs-6 text-primary me-1" id="btnBypass_horario_${aulaHorarioId}"></i>
                                 </div>
                             </div>
                         </div>
@@ -1843,6 +1922,11 @@
                                 if(obj.fixa == 1)
                                     btnFixar = "text-warning";
 
+                                var btnBypass = "text-primary";
+
+                                if(obj.bypass == 1)
+                                    btnBypass = "text-warning";
+
                                 // Preenche o horário selecionado
                                 horarioSelecionado.html(`
                                     <div class="card border-1 shadow-sm bg-gradient" style="cursor: pointer; height: 100%;">
@@ -1851,7 +1935,7 @@
                                                 <i class="fa ${conflitoIcon} me-1"></i>
                                                 ${aula.disciplina}
                                             </h6>
-                                            <div class="d-flex align-items-center mb-0 py-0">
+                                            <div class="d-flex align-items-center mb-0 py-0" style="margin-right: 15px">
                                                 <i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>
                                                 <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${aula.professores.join(", ")}</small>
                                             </div>
@@ -1861,7 +1945,8 @@
                                             </div>
                                             <div style="width: 100%; text-align: right; top: 0; position: absolute">
                                                 <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${obj.id}"></i><br />
-                                                <i class="mdi mdi-lock fs-6 ${btnFixar} me-1" id="btnFixar_horario_${obj.id}"></i>
+                                                <i class="mdi mdi-lock fs-6 ${btnFixar} me-1" id="btnFixar_horario_${obj.id}"></i><br />
+                                                <i class="mdi mdi-account-multiple fs-6 ${btnBypass} me-1" id="btnBypass_horario_${obj.id}"></i>
                                             </div>
                                         </div>
                                     </div>
@@ -1875,6 +1960,16 @@
                                         fixarAulaHorario(0, obj.id, obj.tempo_de_aula_id); //desfixar
                                     else
                                         fixarAulaHorario(1, obj.id, obj.tempo_de_aula_id); //fixar
+                                });
+
+                                $("#btnBypass_horario_" + obj.id).off().click(function(e) 
+                                {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if(obj.bypass == 1)
+                                        bypassarAulaHorario(0, obj.id, obj.tempo_de_aula_id); //desbypass
+                                    else
+                                        bypassarAulaHorario(1, obj.id, obj.tempo_de_aula_id); //bypass
                                 });
 
                                 $("#btnRemover_horario_" + obj.id).off().click(function(e) 

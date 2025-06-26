@@ -125,6 +125,16 @@ class AulaHorarioModel extends Model
         $this->db->simpleQuery("UPDATE aula_horario SET fixa = 0 WHERE id = '$tempo_de_aula_id'");
     }
 
+    public function bypassarAulaHorario($tempo_de_aula_id)
+    {
+        $this->db->simpleQuery("UPDATE aula_horario SET bypass = 1 WHERE id = '$tempo_de_aula_id'");
+    }
+
+    public function desBypassarAulaHorario($tempo_de_aula_id)
+    {
+        $this->db->simpleQuery("UPDATE aula_horario SET bypass = 0 WHERE id = '$tempo_de_aula_id'");
+    }
+
     /*public function checkAulaHorarioByVersao($versao)
     {
         $builder = $this->db->table($this->table);
