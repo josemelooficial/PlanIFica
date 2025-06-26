@@ -292,25 +292,30 @@ class Relatorios extends BaseController
             }
             else
             {
-                if ($tabelas[$value['ambiente']][$value['dia_semana']][$value['hora_inicio']]['professor'] != $value['professor'])
+                if (strpos($tabelas[$value['ambiente']][$value['dia_semana']][$value['hora_inicio']]['professor'], $value['professor']) === false)
                 {
                     $tabelas[$value['ambiente']][$value['dia_semana']][$value['hora_inicio']]['professor'] .= ', ' . $value['professor'];
                 }
+
+                /*if ($tabelas[$value['ambiente']][$value['dia_semana']][$value['hora_inicio']]['professor'] != $value['professor'])
+                {
+                    $tabelas[$value['ambiente']][$value['dia_semana']][$value['hora_inicio']]['professor'] .= ', ' . $value['professor'];
+                }*/
             }
         }
 
         $pdf = new \App\Libraries\PDF();
 
         $pdf->setCSS('
-            @page { margin: 8 !important; padding: 0 !important; margin-top: 70px !important; }
+            @page { margin: 8 !important; padding: 0 !important; margin-top: 65px !important; }
             body { font-family: Arial, sans-serif; font-size: 9px; padding: 10px; background: #fff; color: #000; }
-            header { align-items: center; padding-bottom: 1px; margin-bottom: 8px; position: fixed; margin-top: -65px; width: 98%; }
+            header { align-items: center; padding-bottom: 1px; margin-bottom: 3px; position: fixed; margin-top: -58px; width: 98%; }
             header img { height: 50px; margin-right: 10px; margin-left: 10px; }
             h1 { font-size: 11px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
             h2 { font-size: 11px; color: #1a5d1a; padding: 0px; margin: 0px; }
             h3 { font-size: 10px; color: #1a5d1a; padding: 0px; margin: 0px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout:fixed;  }
-            .caption { font-size: 13px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 1px; border-radius: 4px 4px 0 0; text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 6px; table-layout:fixed;  }
+            .caption { font-size: 12px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 1px; border-radius: 4px 4px 0 0; text-align: center; }
             .periodo { font-size: 10px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 0px; text-align: center; border: none }
             th, td { border: 1px solid #ccc; padding: 1px; text-align: center; vertical-align: middle; }
             th { background-color: #d1e7d1; color: #1a5d1a; }
