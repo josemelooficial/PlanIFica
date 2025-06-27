@@ -296,11 +296,6 @@ class Relatorios extends BaseController
                 {
                     $tabelas[$value['ambiente']][$value['dia_semana']][$value['hora_inicio']]['professor'] .= ', ' . $value['professor'];
                 }
-
-                /*if ($tabelas[$value['ambiente']][$value['dia_semana']][$value['hora_inicio']]['professor'] != $value['professor'])
-                {
-                    $tabelas[$value['ambiente']][$value['dia_semana']][$value['hora_inicio']]['professor'] .= ', ' . $value['professor'];
-                }*/
             }
         }
 
@@ -493,13 +488,35 @@ class Relatorios extends BaseController
             }
         }
 
+        //Forma para mostrar todos os horários, mesmo vagos
+        $db = \Config\Database::connect();
+        $query = $db->query("SELECT DISTINCT(CONCAT(LPAD(tempos_de_aula.hora_inicio, 2, '0'), ':', LPAD(tempos_de_aula.minuto_inicio, 2, '0'))) as res FROM `tempos_de_aula`");
+
         foreach ($dados as $key => $value)
+        {
+            foreach ($query->getResult('array') as $row) 
+            {            
+                if (!in_array($value['hora_inicio'], $tabelas[$value['professor']][$value['dia_semana']]))
+                {
+                    $tabelas[$value['professor']][$value['dia_semana']][$row['res']] = [];
+                }
+            }            
+        }
+
+        /*echo "<pre>";
+        print_r($tabelas);
+        echo "</pre>";
+        die();*/
+
+
+        //Forma para mostrar apenas os horários que tem aula
+        /*foreach ($dados as $key => $value)
         {
             if (!in_array($value['hora_inicio'], $tabelas[$value['professor']][$value['dia_semana']]))
             {
                 $tabelas[$value['professor']][$value['dia_semana']][$value['hora_inicio']] = [];
             }
-        }
+        }*/
 
         foreach ($dados as $key => $value)
         {
@@ -603,7 +620,6 @@ class Relatorios extends BaseController
 
             $ultimoTurno = 0;
 
-
             foreach ($temHorarios as $horario)
             {
                 $horarioAtual = (int)(substr($horario, 0, 2));
@@ -628,8 +644,8 @@ class Relatorios extends BaseController
                 {
                     if (isset($tabelas[$professor][$dia]))
                     {
-                        if (isset($tabelas[$professor][$dia][$horario]))
-                        {
+                        if (isset($tabelas[$professor][$dia][$horario]) && isset($tabelas[$professor][$dia][$horario]['disciplina']))
+                        {                            
                             $pdf->appendHTML('<td>');
 
                             if (strlen($tabelas[$professor][$dia][$horario]['disciplina']) >= 40)
@@ -643,17 +659,6 @@ class Relatorios extends BaseController
                             $pdf->appendHTML('<br />');
 
                             $pdf->appendHTML('<em>');
-
-                            /*
-                            if (strlen($tabelas[$professor][$dia][$horario]['curso']) >= 40)
-                                $pdf->appendHTML('<small>');
-
-                            $pdf->appendHTML($tabelas[$professor][$dia][$horario]['curso']);
-
-                            if (strlen($tabelas[$professor][$dia][$horario]['curso']) >= 40)
-                                $pdf->appendHTML('</small>');
-
-                            $pdf->appendHTML('<br />');*/
 
                             if (strlen($tabelas[$professor][$dia][$horario]['turma']) >= 40)
                                 $pdf->appendHTML('<small>');
@@ -675,6 +680,7 @@ class Relatorios extends BaseController
 
                             $pdf->appendHTML('</em>');
                             $pdf->appendHTML('</td>');
+                            
                         }
                         else
                         {
