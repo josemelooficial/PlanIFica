@@ -108,7 +108,6 @@
                         <p class="fade-in" style="font-size: 13px; font-weight: bold;">MEMBROS DO GRUPO:</p> <br>
 
                         <p class="fade-in" style="font-size: 13px;">Prof. Leandro Ferrarezi Valiante</p>
-                        <p class="fade-in" style="font-size: 13px;">Prof. Paulo Sérgio Tomé</p>
                         <p class="fade-in" style="font-size: 13px;">Prof. Willians de Paula Pereira</p>
 
                         <br>
