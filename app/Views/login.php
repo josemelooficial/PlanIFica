@@ -87,7 +87,7 @@
                 <footer class="footer-login">
                   <div class="d-flex justify-content-center">
                     <span class="text-muted text-center">
-                      © 2024 Gerenciador de Horários -
+                      ©2024~ | PlanIFica - Gestão de Horários Acadêmicos | 
                       <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal-2">Calama Devs.</a>
                     </span>
                   </div>
