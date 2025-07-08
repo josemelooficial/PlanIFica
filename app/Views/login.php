@@ -113,7 +113,6 @@
 
                         <br>
 
-                        <p class="fade-in" style="font-size: 13px;">Gustavo Lage dos Santos</p>
                         <p class="fade-in" style="font-size: 13px;">Jorge Domingos de Sousa Neto</p>
                         <p class="fade-in" style="font-size: 13px;">Kassandra de Oliveira Rodrigues</p>
                         <p class="fade-in" style="font-size: 13px;">Levir Menezes de Souza</p>
