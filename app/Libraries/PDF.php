@@ -12,22 +12,11 @@ class PDF
 	public $css;
 	public $html;
 	public $header;
+	public $footer;
 
 	public function __construct()
 	{
 		$this->dompdf = new Dompdf();
-
-		/*$this->dompdf = new Dompdf([
-			"logOutputFile" => "log.html",
-			"debugPng" => false, // extra messaging
-			"debugKeepTemp" => false, // don't delete temp files
-			'debugCss' => false, // output Style parsing information and frame details for every frame in the document
-			'debugLayout' => false, // draw boxes around frames
-			'debugLayoutLines' => false, // line boxes
-			'debugLayoutBlocks' => false, // block frames
-			'debugLayoutInline' => false, // inline frames
-			'debugLayoutPaddingBox' => false // padding box
-		]);*/
 
 		$this->dompdf->setPaper('A4', 'landscape');
 
@@ -35,8 +24,6 @@ class PDF
 		$options->set('isHtml5ParserEnabled', true);
 		$options->set('isRemoteEnabled', true);
 		$options->set('defaultFont', 'Courier');
-		//$options->set('rootDir',"/path/goes/here/dompdf/dompdf");
-		//$options->set('tempDir',"/path/goes/here/tmpdir/"); 
 		$options->set('isPhpEnabled', true);
 		$options->set('isRemoteEnabled', true);
 		$options->set('isJavascriptEnabled',true);
@@ -56,6 +43,11 @@ class PDF
 	public function setHeader($header)
 	{
 		$this->header = $header;
+	}
+
+	public function setFooter($footer)
+	{
+		$this->footer = $footer;
 	}
 
 	public function setBody($html)
@@ -79,6 +71,9 @@ class PDF
 		$render .= '<header>';
 		$render .= $this->header;
 		$render .= '</header>';
+		$render .= '<footer>';
+		$render .= $this->footer;
+		$render .= '</footer>';
 		$render .= $this->html;
 		$render .= '</body>';
 		$render .= '</html>';
