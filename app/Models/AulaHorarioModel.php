@@ -173,7 +173,10 @@ class AulaHorarioModel extends Model
         $builder = $this->select('ambiente_id, tempo_de_aula_id')
             ->join('aula_horario_ambiente', 'aula_horario_ambiente.aula_horario_id = aula_horario.id')
             ->where('aula_horario.id', $aulaHorarioId)
-            //->where('bypass !=','1')
+            ->groupStart()
+                ->where('bypass is null')
+                ->orWhere('bypass', '0')
+            ->groupEnd()
             ->where('versao_id', (new VersoesModel())->getVersaoByUser(auth()->id()))
             ->get();
 
@@ -191,13 +194,18 @@ class AulaHorarioModel extends Model
                 ->join('tempos_de_aula', 'aula_horario.tempo_de_aula_id = tempos_de_aula.id')
                 ->join('aula_horario_ambiente', 'aula_horario_ambiente.aula_horario_id = aula_horario.id')
                 ->where('aula_horario.id !=', $aulaHorarioId)
-                //->where('bypass !=','1')
+                ->groupStart()
+                    ->where('bypass is null')
+                    ->orWhere('bypass', '0')
+                ->groupEnd()
                 ->where('aula_horario_ambiente.ambiente_id', $ambiente)
                 ->where('tempos_de_aula.dia_semana', $dia_semana)
                 ->where('(tempos_de_aula.hora_inicio * 60 + tempos_de_aula.minuto_inicio) <=', $hora_inicio * 60 + $minuto_inicio)
                 ->where('(tempos_de_aula.hora_fim * 60 + tempos_de_aula.minuto_fim) >', $hora_inicio * 60 + $minuto_inicio)
                 ->where('versao_id', (new VersoesModel())->getVersaoByUser(auth()->id()))
                 ->get();
+
+                //die($this->db->getLastQuery());
 
             if ($builder3->getNumRows() > 0)
             {
@@ -213,7 +221,10 @@ class AulaHorarioModel extends Model
         $builder = $this->select('professor_id, tempo_de_aula_id')
             ->join('aula_professor', 'aula_professor.aula_id = aula_horario.aula_id')
             ->where('aula_horario.id', $aulaHorarioId)
-            //->where('bypass !=','1')
+            ->groupStart()
+                ->where('bypass is null')
+                ->orWhere('bypass', '0')
+            ->groupEnd()
             ->where('versao_id', (new VersoesModel())->getVersaoByUser(auth()->id()))
             ->get();
 
@@ -231,7 +242,10 @@ class AulaHorarioModel extends Model
                 ->join('tempos_de_aula', 'aula_horario.tempo_de_aula_id = tempos_de_aula.id')
                 ->join('aula_professor', 'aula_professor.aula_id = aula_horario.aula_id')
                 ->where('aula_horario.id !=', $aulaHorarioId)
-                //->where('bypass !=','1')
+                ->groupStart()
+                    ->where('bypass is null')
+                    ->orWhere('bypass !=', '1')
+                ->groupEnd()
                 ->where('aula_professor.professor_id', $professor)
                 ->where('tempos_de_aula.dia_semana', $dia_semana)
                 ->where('(tempos_de_aula.hora_inicio * 60 + tempos_de_aula.minuto_inicio) <=', $hora_inicio * 60 + $minuto_inicio)
