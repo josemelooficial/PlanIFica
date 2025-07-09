@@ -173,7 +173,7 @@ class AulaHorarioModel extends Model
         $builder = $this->select('ambiente_id, tempo_de_aula_id')
             ->join('aula_horario_ambiente', 'aula_horario_ambiente.aula_horario_id = aula_horario.id')
             ->where('aula_horario.id', $aulaHorarioId)
-            ->where('bypass !=','1')
+            //->where('bypass !=','1')
             ->where('versao_id', (new VersoesModel())->getVersaoByUser(auth()->id()))
             ->get();
 
@@ -212,7 +212,7 @@ class AulaHorarioModel extends Model
         $builder = $this->select('professor_id, tempo_de_aula_id')
             ->join('aula_professor', 'aula_professor.aula_id = aula_horario.aula_id')
             ->where('aula_horario.id', $aulaHorarioId)
-            ->where('bypass !=','1')
+            //->where('bypass !=','1')
             ->where('versao_id', (new VersoesModel())->getVersaoByUser(auth()->id()))
             ->get();
 
