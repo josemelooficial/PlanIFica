@@ -116,8 +116,16 @@ class AulasModel extends Model
     {
         $id = $id['id'];
 
-        $professores = $this->db->table('aula_professor')->where('aula_id', $id)->get()->getNumRows();
-        $horarios = $this->db->table('aula_horario')->where('aula_id', $id)->get()->getNumRows();
+        $professores = $this->db->table('aula_professor')
+                        ->where('aula_id', $id)
+                        ->get()
+                        ->getNumRows();
+
+        $horarios = $this->db->table('aula_horario')
+                        ->where('aula_id', $id)
+                        ->where('versao_id', (new \App\Models\VersoesModel())->getVersaoByUser(auth()->id()))
+                        ->get()
+                        ->getNumRows();
 
         $restricoes = [
             'professores' => $professores, 
