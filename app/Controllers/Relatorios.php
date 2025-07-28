@@ -9,6 +9,7 @@ use App\Models\CursosModel;
 use App\Models\TurmasModel;
 use App\Models\ProfessorModel;
 use App\Models\GruposAmbientesModel;
+use App\Models\VersoesModel;
 
 class Relatorios extends BaseController
 {
@@ -18,6 +19,7 @@ class Relatorios extends BaseController
     protected $turmasModel;
     protected $professorModel;
     protected $gruposAmbientesModel;
+    private $versao_nome;
 
     public function __construct()
     {
@@ -27,6 +29,12 @@ class Relatorios extends BaseController
         $this->turmasModel = new TurmasModel();
         $this->professorModel = new ProfessorModel();
         $this->gruposAmbientesModel = new GruposAmbientesModel();
+
+        $this->versao_nome = '';
+        $versaoModel = new VersoesModel();
+        $versao = $versaoModel->getVersaoByUser(auth()->id());
+        $versao = $versaoModel->find($versao);
+        $this->versao_nome = $versao['nome'];        
     }
 
     public function index()
@@ -306,6 +314,8 @@ class Relatorios extends BaseController
             body { font-family: Arial, sans-serif; font-size: 9px; padding: 10px; background: #fff; color: #000; }
             header { align-items: center; padding-bottom: 1px; margin-bottom: 3px; position: fixed; margin-top: -50px; width: 98%; }
             header img { height: 45px; margin-right: 10px; margin-left: 10px; }
+            footer { position: fixed; bottom: -10px; left: 0px; right: 0px; height: 20px; }
+            footer .pagenum:before { content: counter(page); }
             h1 { font-size: 11px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
             h2 { font-size: 10px; color: #1a5d1a; padding: 0px; margin: 0px; }
             h3 { font-size: 10px; color: #1a5d1a; padding: 0px; margin: 0px; }
@@ -323,11 +333,15 @@ class Relatorios extends BaseController
         $pdf->setHeader('
             <table>
                 <tr>
-                    <td width="20%"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
-                    <td width="80%">
+                    <td width="15%" style="border: none;"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
+                    <td width="65%">
                         <h1>Instituto Federal de Educação, Ciência e Tecnologia de Rondônia</h1>
                         <h2><i>Campus</i> Porto Velho Calama</h2>
                         <h1>Horários por Ambiente</h1>
+                    </td>
+                    <td width="15%" style="text-align: center; border: none;">
+                        <img style="height: 25px; margin-bottom: 2px;" src="' . base_url("assets/images/Planifica.png") . '" alt="Logo IFRO">
+                        <h1>Horário ' . $this->versao_nome . '</h1>
                     </td>
                 </tr>
             </table>');
@@ -462,6 +476,15 @@ class Relatorios extends BaseController
             $conta++;
         }
 
+        $pdf->setFooter('
+            <table style="width: 100%">
+                <tr>
+                    <td style="text-align: left; font-size: 8px; border: none;">Versão ' . $this->versao_nome . '</td>
+                    <td style="text-align: center; font-size: 8px; border: none;">Gerado em ' . date('d/m/Y H:i') . 'h</td>
+                    <td style="text-align: right; font-size: 8px; border: none;">Página <span class="pagenum"></span></td>
+                </tr>
+            </table>');
+
         $pdf->generatePDF("horarios_por_ambiente");
     }
 
@@ -547,7 +570,9 @@ class Relatorios extends BaseController
             @page { margin: 8 !important; padding: 0 !important; margin-top: 70px !important; }
             body { font-family: Arial, sans-serif; font-size: 9px; padding: 10px; background: #fff; color: #000; }
             header { align-items: center; padding-bottom: 1px; margin-bottom: 8px; position: fixed; margin-top: -65px; width: 98%; }
-            header img { height: 50px; margin-right: 10px; margin-left: 10px; }
+            header img { height: 50px; margin-right: 5px; margin-left: 5px; }
+            footer { position: fixed; bottom: -10px; left: 0px; right: 0px; height: 20px; }
+            footer .pagenum:before { content: counter(page); }
             h1 { font-size: 11px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
             h2 { font-size: 11px; color: #1a5d1a; padding: 0px; margin: 0px; }
             h3 { font-size: 10px; color: #1a5d1a; padding: 0px; margin: 0px; }
@@ -565,13 +590,26 @@ class Relatorios extends BaseController
         $pdf->setHeader('
             <table>
                 <tr>
-                    <td width="25%"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
-                    <td width="75%">
+                    <td width="15%" style="border: none;"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
+                    <td width="65%">
                         <h1>Instituto Federal de Educação, Ciência e Tecnologia de Rondônia</h1>
                         <h2><i>Campus</i> Porto Velho Calama</h2>
                         <h3>Departamento de Apoio ao Ensino - DAPE</h3>
                         <h1>Horários por Professor</h1>
                     </td>
+                    <td width="15%" style="text-align: center; border: none;">
+                        <img style="height: 25px; margin-bottom: 2px;" src="' . base_url("assets/images/Planifica.png") . '" alt="Logo IFRO">
+                        <h1>Horário ' . $this->versao_nome . '</h1>
+                    </td>
+                </tr>
+            </table>');
+
+        $pdf->setFooter('
+            <table style="width: 100%">
+                <tr>
+                    <td style="text-align: left; font-size: 8px; border: none;">Versão ' . $this->versao_nome . '</td>
+                    <td style="text-align: center; font-size: 8px; border: none;">Gerado em ' . date('d/m/Y H:i') . 'h</td>
+                    <td style="text-align: right; font-size: 8px; border: none;">Página <span class="pagenum"></span></td>
                 </tr>
             </table>');
 
@@ -703,6 +741,8 @@ class Relatorios extends BaseController
                 $pdf->appendHTML('<div class="page_break"></div>');
         }
 
+        
+
         $pdf->generatePDF("horarios_por_professor");
     }
 
@@ -778,7 +818,9 @@ class Relatorios extends BaseController
             @page { margin: 10 !important; padding: 0 !important; margin-top: 100px !important; }
             body { font-family: Arial, sans-serif; font-size: 9px; padding: 10px; background: #fff; color: #000; }
             header { align-items: center; padding-bottom: 2px; margin-bottom: 10px; position: fixed; margin-top: -80px; width: 98%; }
-            header img { height: 60px; margin-right: 10px; margin-left: 10px; }
+            header img { height: 50px; margin-right: 10px; margin-left: 10px; }
+            footer { position: fixed; bottom: -10px; left: 0px; right: 0px; height: 20px; }
+            footer .pagenum:before { content: counter(page); }
             h1 { font-size: 13px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
             h2 { font-size: 12px; color: #1a5d1a; padding: 0px; margin: 0px; }
             h3 { font-size: 11px; color: #1a5d1a; padding: 0px; margin: 0px; }
@@ -796,15 +838,28 @@ class Relatorios extends BaseController
         $pdf->setHeader('
             <table>
                 <tr>
-                    <td width="25%"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
-                    <td width="75%">
+                    <td width="15%" style="border: none;"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
+                    <td width="65%">
                         <h1>Instituto Federal de Educação, Ciência e Tecnologia de Rondônia</h1>
                         <h2><i>Campus</i> Porto Velho Calama</h2>
                         <h3>Departamento de Apoio ao Ensino - DAPE</h3>
-                        <h1>Horários por Cursos e Turmas</h1>
+                        <h1>Horários por Professor</h1>
+                    </td>
+                    <td width="15%" style="text-align: center; border: none;">
+                        <img style="height: 25px; margin-bottom: 2px;" src="' . base_url("assets/images/Planifica.png") . '" alt="Logo IFRO">
+                        <h1>Horário ' . $this->versao_nome . '</h1>
                     </td>
                 </tr>
-            </table>');        
+            </table>');
+            
+        $pdf->setFooter('
+            <table style="width: 100%">
+                <tr>
+                    <td style="text-align: left; font-size: 8px; border: none;">Versão ' . $this->versao_nome . '</td>
+                    <td style="text-align: center; font-size: 8px; border: none;">Gerado em ' . date('d/m/Y H:i') . 'h</td>
+                    <td style="text-align: right; font-size: 8px; border: none;">Página <span class="pagenum"></span></td>
+                </tr>
+            </table>');
 
         $nome_dia = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
 

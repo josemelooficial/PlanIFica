@@ -404,7 +404,7 @@
 				<footer class="footer">
 					<div class="d-sm-flex justify-content-center justify-content-sm-between">
 
-						<span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright© 2024~ <a href="javascript: void()">Calama Devs</a>.</span>
+						<span class="text-muted text-center text-sm-left d-block d-sm-inline-block">PlanIFica :: <a href="javascript: void()">Calama Devs</a>.</span>
 
 						<?php if (auth()->user()->inGroup('admin')): ?>
 							<span class="text-muted text-center text-sm-left d-block d-sm-inline-block">
