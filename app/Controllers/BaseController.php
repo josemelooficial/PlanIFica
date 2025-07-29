@@ -65,6 +65,7 @@ abstract class BaseController extends Controller
         {
             $versaoModel = new VersoesModel();
             $versao = $versaoModel->getVersaoByUser(auth()->id());
+            $versaoOfc = $versaoModel->getVersaoOficial();
 
             if (empty($versao)) 
             {
@@ -72,14 +73,24 @@ abstract class BaseController extends Controller
                 $versaoModel->setVersaoByUser(auth()->id(), $versao);
             }
 
-            if ($versao > 0) 
+            if (empty($versaoOfc))
+            {
+                $versaoOfc = $versaoModel->getLastVersion();
+                $versaoModel->setVersaoOficial($versaoOfc);
+            }
+
+            if ($versao > 0 && $versaoOfc > 0) 
             {
                 $versao = $versaoModel->find($versao);
                 $this->content_data['versao_nome'] = $versao['nome'];
+
+                $versaoOfc = $versaoModel->find($versaoOfc);
+                $this->content_data['versao_oficial'] = $versaoOfc['nome'];
             } 
             else 
             {
                 $this->content_data['versao_nome'] = 'Sem versão';
+                $this->content_data['versao_oficial'] = 'Sem versão';
 
                 if($this->request->getUri() != site_url('/sys/versao') && 
                     $this->request->getUri() != site_url('/sys/versao/salvar') && 

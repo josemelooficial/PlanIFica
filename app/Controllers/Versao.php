@@ -18,6 +18,7 @@ class Versao extends BaseController
         $data['versoes'] = $versao->orderBy('nome', 'asc')->findAll();
 
         $data['versao_nome'] = $this->content_data['versao_nome'];
+        $data['versao_oficial'] = $this->content_data['versao_oficial'];
 
         $this->content_data['content'] = view('sys/versoes', $data);
         return view('dashboard', $this->content_data);
@@ -145,6 +146,24 @@ class Versao extends BaseController
             $data['erros'] = $versaoModel->errors();
             return redirect()->to(base_url('/sys/versao'))->with('erros', $data['erros']);
         }
+    }
+
+    public function definirVersaoOficial()
+    {
+        $dadosPost = $this->request->getPost();
+
+        $versao = strip_tags($dadosPost['id']);
+
+        $versaoModel = new VersoesModel();
+
+        if ($versaoModel->setVersaoOficial($versao)) {
+            session()->setFlashdata('sucesso', 'Versão oficial definida com sucesso.');
+            return redirect()->to(base_url('/sys/versao'));
+        } else {
+            $data['erros'] = $versaoModel->errors();
+            return redirect()->to(base_url('/sys/versao'))->with('erros', $data['erros']);
+        }
+
     }
 
     public function duplicar()
