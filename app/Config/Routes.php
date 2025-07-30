@@ -153,6 +153,7 @@ $routes->group('sys', function ($routes)
         $routes->post('atualizar', 'Versao::atualizar');
         $routes->post('deletar', 'Versao::deletar');
         $routes->post('ativar', 'Versao::ativar');
+        $routes->post('definirVersaoVigente', 'Versao::definirVersaoVigente');
         $routes->post('duplicar', 'Versao::duplicar');
     });
 

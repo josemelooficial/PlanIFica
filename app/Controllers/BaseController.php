@@ -65,6 +65,9 @@ abstract class BaseController extends Controller
         {
             $versaoModel = new VersoesModel();
             $versao = $versaoModel->getVersaoByUser(auth()->id());
+            $versaoVigente = $versaoModel->getVersaoVigente();
+
+            $this->content_data['versao_vigente'] = $versaoVigente['nome'] ?? 'Sem versão';
 
             if (empty($versao)) 
             {
