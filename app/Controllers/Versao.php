@@ -18,7 +18,7 @@ class Versao extends BaseController
         $data['versoes'] = $versao->orderBy('nome', 'asc')->findAll();
 
         $data['versao_nome'] = $this->content_data['versao_nome'];
-        $data['versao_oficial'] = $this->content_data['versao_oficial'];
+        $data['versao_vigente'] = $this->content_data['versao_vigente'];
 
         $this->content_data['content'] = view('sys/versoes', $data);
         return view('dashboard', $this->content_data);
@@ -148,7 +148,7 @@ class Versao extends BaseController
         }
     }
 
-    public function definirVersaoOficial()
+    public function definirVersaoVigente()
     {
         $dadosPost = $this->request->getPost();
 
@@ -156,8 +156,8 @@ class Versao extends BaseController
 
         $versaoModel = new VersoesModel();
 
-        if ($versaoModel->setVersaoOficial($versao)) {
-            session()->setFlashdata('sucesso', 'Versão oficial definida com sucesso.');
+        if ($versaoModel->setVersaoVigente($versao)) {
+            session()->setFlashdata('sucesso', 'Versão vigente definida com sucesso.');
             return redirect()->to(base_url('/sys/versao'));
         } else {
             $data['erros'] = $versaoModel->errors();

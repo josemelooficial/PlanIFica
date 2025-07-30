@@ -4,7 +4,7 @@
 <?php echo view('components/versoes/modal-deletar-versoes') ?>
 <?php echo view('components/versoes/modal-copiar-versao') ?>
 <?php echo view('components/versoes/modal-ativar-versao') ?>
-<?php echo view('components/versoes/modal-definir-versao-oficial') ?>
+<?php echo view('components/versoes/modal-definir-versao-vigente') ?>
 
 <div class="page-header">
     <h3 class="page-title">GERENCIAR VERSÕES</h3>
@@ -76,16 +76,15 @@
                                                 <td>
                                                     <div class="d-flex">
 
-                                                        <span data-bs-toggle="tooltip" data-placement="top" title="<?php echo ($versao_oficial == $versao['nome']) ? "Versão oficial" : "Definir versão oficial"; ?>">
-                                                            <button <?php echo ($versao_oficial == $versao['nome']) ? "disabled" : ""; ?>
+                                                        <span data-bs-toggle="tooltip" data-placement="top" title="<?php echo ($versao_vigente == $versao['nome']) ? "Versão vigente" : "Definir versão vigente"; ?>">
+                                                            <button <?php echo ($versao_vigente == $versao['nome']) ? "disabled" : ""; ?>
                                                                 type="button"
                                                                 class="justify-content-center align-items-center d-flex btn btn-inverse-warning button-trans-warning btn-icon me-1"
                                                                 data-bs-toggle="modal"
-                                                                data-bs-target="#modal-definir-versao-oficial"
-                                                                data-oficial-id="<?php echo esc($versao['id']); ?>"
-                                                                data-oficial-nome="<?php echo esc($versao['nome']); ?>">
+                                                                data-bs-target="#modal-definir-versao-vigente"
+                                                                data-vigente-id="<?php echo esc($versao['id']); ?>"
+                                                                data-vigente-nome="<?php echo esc($versao['nome']); ?>">
                                                                 <i class="fa fa-check-circle-o"></i>
-                                                                <!-- <i class="fa-solid fa-medal"></i> -->
                                                             </button>
                                                         </span>
 
@@ -98,7 +97,6 @@
                                                                 data-ativar-id="<?php echo esc($versao['id']); ?>"
                                                                 data-ativar-nome="<?php echo esc($versao['nome']); ?>">
                                                                 <i class="fa fa-check-square-o"></i>
-                                                                <!-- <i class="fa-solid fa-medal"></i> -->
                                                             </button>
                                                         </span>
 
@@ -167,7 +165,7 @@
         <div class="row">
             <div class="col-12 mt-4 d-flex justify-content-end">Legenda</div>
             <div class="col-12 mt-4 d-flex justify-content-end gap-3">
-                <p class="card-description text-end"><i class="fa fa-check-circle-o text-warning me-2"></i>Definir Como Versão Oficial &nbsp; &nbsp; </p>
+                <p class="card-description text-end"><i class="fa fa-check-circle-o text-warning me-2"></i>Definir Como Versão Vigente &nbsp; &nbsp; </p>
                 <p class="card-description text-end"><i class="fa fa-check-square-o text-info me-2"></i>Ativar &nbsp; &nbsp; </p>
                 <p class="card-description text-end"><i class="fa fa-copy text-primary me-2"></i>Criar Cópia &nbsp; &nbsp; </p>
                 <p class="card-description text-end"><i class="fa fa-edit text-success me-2"></i>Editar &nbsp; &nbsp; </p>
@@ -283,11 +281,11 @@
                 modal.find('#ativar-nome').text(nome);
             });
 
-            $('#modal-definir-versao-oficial').on('show.bs.modal', function(event) {
+            $('#modal-definir-versao-vigente').on('show.bs.modal', function(event) {
                 var button = $(event.relatedTarget);
 
-                var nome = button.data('oficial-nome');
-                var id = button.data('oficial-id');
+                var nome = button.data('vigente-nome');
+                var id = button.data('vigente-id');
 
                 var modal = $(this);
                 modal.find('#definir-id').val(id);

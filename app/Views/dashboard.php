@@ -260,8 +260,8 @@
 
 					<ul class="navbar-nav navbar-nav-right">
 						<li class="nav-item">
-							<a class="nav-link count-indicator" id="indicadorVersaoOficial" href="<?php echo base_url('sys/versao'); ?>">
-								<i class="mdi mdi-multicast"></i> Versão oficial: <span class="badge badge-info"> <?php echo $versao_oficial; ?> </span>
+							<a class="nav-link count-indicator" id="indicadorVersaoVigente" href="<?php echo base_url('sys/versao'); ?>">
+								<i class="mdi mdi-multicast"></i> Versão vigente: <span class="badge badge-info"> <?php echo $versao_vigente; ?> </span>
 							</a>
 						</li>
 						<li class="nav-item">

@@ -4,12 +4,12 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class AddColumnOficialVersoes extends Migration
+class AddColumnVigenteVersoes extends Migration
 {
     public function up()
     {
         $fields = [
-            'oficial' => [
+            'vigente' => [
                 'type'              => 'TINYINT', 
                 'constraint'        => 1, 
                 'null'              => TRUE, 
@@ -22,6 +22,6 @@ class AddColumnOficialVersoes extends Migration
 
     public function down()
     {
-        $this->forge->dropColumn('versoes', 'oficial');
+        $this->forge->dropColumn('versoes', 'vigente');
     }
 }

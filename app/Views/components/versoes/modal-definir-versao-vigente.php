@@ -1,4 +1,4 @@
-<div class="modal fade" id="modal-definir-versao-oficial" tabindex="-1" aria-labelledby="ModalLabel" style="display: none;" aria-hidden="true">
+<div class="modal fade" id="modal-definir-versao-vigente" tabindex="-1" aria-labelledby="ModalLabel" style="display: none;" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,10 +8,10 @@
                 </button>
             </div>
             
-            <form id="definirVersao" class="forms-sample" method="post" action='<?php echo base_url('sys/versao/definirOficial'); ?>'>
+            <form id="definirVersaoVigente" class="forms-sample" method="post" action='<?php echo base_url('sys/versao/definirVersaoVigente'); ?>'>
                 <?php echo csrf_field() ?>
                 <input type="hidden" id="definir-id" name="id" />
-                <div class="modal-body text-break">Confirma a definição da versão <strong id='definir-nome'></strong> como oficial?</div>
+                <div class="modal-body text-break">Confirma a definição da versão <strong id='definir-nome'></strong> como vigente?</div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-danger me-2">Definir</button>
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
