@@ -9,6 +9,7 @@ use App\Models\VersoesModel;
 use App\Models\AmbientesModel;
 use App\Models\AulaHorarioModel;
 use App\Models\AulaHorarioAmbienteModel;
+use App\Models\AulasModel;
 
 class TabelaHorarios extends BaseController
 {
@@ -22,20 +23,18 @@ class TabelaHorarios extends BaseController
 
         $versaoModel = new VersoesModel();
         $versao = $versaoModel->getVersaoByUser(auth()->id());
-        if (empty($versao))
-        {
+        if (empty($versao)) {
             $versao = $versaoModel->getLastVersion();
             $versaoModel->setVersaoByUser(auth()->id(), $versao);
         }
 
-        if ($versao > 0)
-        {
+        if ($versao > 0) {
             $versao = $versaoModel->find($versao);
             $data['semestre'] = $versao['semestre'];
         }
 
         $this->content_data['content'] = view('sys/tabela-horarios.php', $data);
-        
+
         return view('dashboard', $this->content_data);
     }
 
@@ -44,30 +43,32 @@ class TabelaHorarios extends BaseController
         $dadosPost = $this->request->getPost();
         $dado['aula_id'] = strip_tags($dadosPost['aula_id']);
         $dado['tempo_de_aula_id'] = strip_tags($dadosPost['tempo_de_aula_id']);
-        
+
         $versaoModel = new VersoesModel();
         $dado['versao_id'] = $versaoModel->getVersaoByUser(auth()->id());
+
+        // Obter o valor de destaque da aula original
+        $aulaModel = new AulasModel();
+        $aula = $aulaModel->find($dado['aula_id']);
+        $dado['destaque'] = $aula['destaque'] ?? 0;
 
         $aulaHorarioModel = new AulaHorarioModel();
 
         //verificar se já existe para fazer a substituição
         $aulaHorarioModel->deleteAulaNoHorario($dado['aula_id'], $dado['tempo_de_aula_id'], $dado['versao_id']);
 
-        if ($aulaHorarioModel->insert($dado))
-        {
+        if ($aulaHorarioModel->insert($dado)) {
             $aulaHorarioId = $aulaHorarioModel->getInsertID();
 
             $aulaHorarioAmbienteModel = new AulaHorarioAmbienteModel();
 
-            if(is_array($dadosPost['ambiente_id'])) //se tiver mais de um ambiente
+            if (is_array($dadosPost['ambiente_id'])) //se tiver mais de um ambiente
             {
-                foreach ($dadosPost['ambiente_id'] as $k => $v)
-                {
+                foreach ($dadosPost['ambiente_id'] as $k => $v) {
                     $insert = ["aula_horario_id" => $aulaHorarioId, "ambiente_id" => $v];
                     $aulaHorarioAmbienteModel->insert($insert);
                 }
-            }
-            else  //apenas um ambiente
+            } else  //apenas um ambiente
             {
                 $insert = ["aula_horario_id" => $aulaHorarioId, "ambiente_id" => $dadosPost['ambiente_id']];
                 $aulaHorarioAmbienteModel->insert($insert);
@@ -75,48 +76,41 @@ class TabelaHorarios extends BaseController
 
             $tresturnos = $aulaHorarioModel->verificarTresTurnos($aulaHorarioId);
 
-            if ($tresturnos > 0)
-            {
+            if ($tresturnos > 0) {
                 echo "$aulaHorarioId-TRES-TURNOS";
                 return;
             }
 
             $restricao = $aulaHorarioModel->restricaoDocente($aulaHorarioId);
 
-            if ($restricao > 0)
-            {
+            if ($restricao > 0) {
                 echo "$aulaHorarioId-RESTRICAO-PROFESSOR-$restricao"; // restrição de professor
                 return;
             }
 
             $choque = $aulaHorarioModel->choqueAmbiente($aulaHorarioId);
 
-            if ($choque > 0)
-            {
+            if ($choque > 0) {
                 echo "$aulaHorarioId-CONFLITO-AMBIENTE-$choque"; // choque de ambiente
                 return;
             }
 
             $choque = $aulaHorarioModel->choqueDocente($aulaHorarioId);
 
-            if ($choque > 0)
-            {
+            if ($choque > 0) {
                 echo "$aulaHorarioId-CONFLITO-PROFESSOR-$choque"; // choque de professor
                 return;
             }
 
             $intervalo = $aulaHorarioModel->verificarTempoEntreTurnos($aulaHorarioId);
 
-            if ($intervalo > 0)
-            {
+            if ($intervalo > 0) {
                 echo "$intervalo-INTERVALO";
                 return;
             }
 
             echo "$aulaHorarioId-OK"; // tudo certo e sem choques
-        }
-        else
-        {
+        } else {
             echo "0"; //erro de inserção .. sera?
         }
     }
@@ -146,12 +140,9 @@ class TabelaHorarios extends BaseController
 
         $aulaHorarioModel = new AulaHorarioModel();
 
-        if($dadosPost['tipo'] == 1)
-        {
+        if ($dadosPost['tipo'] == 1) {
             $aulaHorarioModel->fixarAulaHorario($dado['aula_horario_id']);
-        }
-        else
-        {
+        } else {
             $aulaHorarioModel->desfixarAulaHorario($dado['aula_horario_id']);
         }
         echo "1";
@@ -164,12 +155,9 @@ class TabelaHorarios extends BaseController
 
         $aulaHorarioModel = new AulaHorarioModel();
 
-        if($dadosPost['tipo'] == 1)
-        {
+        if ($dadosPost['tipo'] == 1) {
             $aulaHorarioModel->bypassarAulaHorario($dado['aula_horario_id']);
-        }
-        else
-        {
+        } else {
             $aulaHorarioModel->desBypassarAulaHorario($dado['aula_horario_id']);
         }
         echo "1";
@@ -189,5 +177,18 @@ class TabelaHorarios extends BaseController
         echo json_encode($data);
     }
 
+    public function destacarAula()
+    {
+        $dadosPost = $this->request->getPost();
+        $dado['aula_horario_id'] = strip_tags($dadosPost['aula_horario_id']);
 
+        $aulaHorarioModel = new AulaHorarioModel();
+
+        if ($dadosPost['tipo'] == 1) {
+            $aulaHorarioModel->destacarAulaHorario($dado['aula_horario_id']);
+        } else {
+            $aulaHorarioModel->desDestacarAulaHorario($dado['aula_horario_id']);
+        }
+        echo "1";
+    }
 }
