@@ -154,11 +154,32 @@
 
         // Chamada quando o modal de edição é aberto
         $('#modal-edit-aula').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget); // Botão que acionou o modal
-            var aulaId = button.data('aula-id'); // Extrai informação dos atributos data-*
+            var button = $(event.relatedTarget);
 
-            // Chama a função para carregar os dados da aula
-            carregarDadosAula(aulaId);
+            var id = button.data('id');
+            var curso = button.data('curso');
+            var curso_id = button.data('curso_id');
+            var disciplina = button.data('disciplina');
+            var disciplina_id = button.data('disciplina_id');
+            var turma = button.data('turma');
+            var turma_id = button.data('turma_id');
+            var profs_id = button.data('profs_id') + "";
+            var prof = (profs_id.indexOf(",") > -1) ? profs_id.split(',') : profs_id;
+            var destaque = button.data('destaque'); // Adicione esta linha
+
+            var modal = $(this);
+            modal.find('#edit-id').val(id);
+            modal.find('#cursoEdit').val(curso_id).change();
+            modal.find('#turmaEdit').val(turma_id).change();
+            modal.find('#disciplinaEdit').val(disciplina_id).change();
+            modal.find('.select2-professoresEdit').val(prof).change();
+
+            // Adicione esta parte para o destaque
+            if (destaque == 1) {
+                modal.find('#destaqueEdit').prop('checked', true);
+            } else {
+                modal.find('#destaqueEdit').prop('checked', false);
+            }
         });
 
     })(jQuery);
