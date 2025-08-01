@@ -47,13 +47,16 @@ class Aulas extends BaseController
 		$aula_prof = new AulaProfessorModel();
 		$versaoModel = new VersoesModel();
 
-		foreach ($dadosPost['turmas'] as $k => $v)
-		{
-			$insert = ["disciplina_id" => $dadosPost['disciplina'], "turma_id" => $v, "versao_id" => $versaoModel->getVersaoByUser(auth()->id())];
-			if ($id_aula = $aula->insert($insert))
-			{
-				foreach ($dadosPost['professores'] as $k2 => $v2)
-				{
+		foreach ($dadosPost['turmas'] as $k => $v) {
+			$insert = [
+				"disciplina_id" => $dadosPost['disciplina'],
+				"turma_id" => $v,
+				"versao_id" => $versaoModel->getVersaoByUser(auth()->id()),
+				"destaque" => isset($dadosPost['destaque']) ? 1 : 0
+			];
+
+			if ($id_aula = $aula->insert($insert)) {
+				foreach ($dadosPost['professores'] as $k2 => $v2) {
 					$prof_insert = ["professor_id" => $v2, "aula_id" => $id_aula];
 					$aula_prof->insert($prof_insert);
 				}
@@ -61,15 +64,6 @@ class Aulas extends BaseController
 		}
 
 		echo "ok";
-
-		//Criar e testar uma FLAG pra informar se foi sucesso mesmo.
-		//Importante efetuar o rollback de tudo que der errado pra não deixar dados-fantasma no banco
-		//session()->setFlashdata('sucesso', 'Aula(s) cadastrada(s) com sucesso!');
-		//return redirect()->to(base_url('/sys/aulas'));
-		/*
-			$data['erros'] = $aula->errors(); //o(s) erro(s)
-			return redirect()->to(base_url('/sys/aulas'))->with('erros', $data['erros'])->withInput();
-		*/
 	}
 
 	public function atualizar()
@@ -83,22 +77,24 @@ class Aulas extends BaseController
 		$aula_prof = new AulaProfessorModel();
 		$aula_prof->where('aula_id', $id)->delete();
 
-		foreach ($dadosPost['professores'] as $k => $v)
-		{
+		foreach ($dadosPost['professores'] as $k => $v) {
 			$prof_insert = ["professor_id" => $v, "aula_id" => $id];
 			$aula_prof->insert($prof_insert);
 		}
 
-		$update = ["id" => $id, "disciplina_id" => $dadosPost['disciplina'], "turma_id" => $dadosPost['turma'], "versao_id" => $versaoModel->getVersaoByUser(auth()->id())];
+		$update = [
+			"id" => $id,
+			"disciplina_id" => $dadosPost['disciplina'],
+			"turma_id" => $dadosPost['turma'],
+			"versao_id" => $versaoModel->getVersaoByUser(auth()->id()),
+			"destaque" => isset($dadosPost['destaque']) ? 1 : 0
+		];
 
-		if ($aula->save($update))
-		{
+		if ($aula->save($update)) {
 			session()->setFlashdata('sucesso', 'Dados da Aula atualizados com sucesso!');
 			return redirect()->to(base_url('/sys/aulas'));
-		}
-		else
-		{
-			$data['erros'] = $aula->errors(); //o(s) erro(s)
+		} else {
+			$data['erros'] = $aula->errors();
 			return redirect()->to(base_url('/sys/aulas'))->with('erros', $data['erros']);
 		}
 	}
@@ -109,39 +105,29 @@ class Aulas extends BaseController
 		$id = (int)strip_tags($dadosPost['id']);
 
 		$aulasModel = new AulasModel();
-		try
-		{
+		try {
 			$restricoes = $aulasModel->getRestricoes(['id' => $id]);
 
-			if (!$restricoes['horarios'])
-			{
+			if (!$restricoes['horarios']) {
 				$aulaProfModel = new AulaProfessorModel();
 				$aulaProfModel->where('aula_id', $id)->delete();
 
-				if ($aulasModel->delete($id))
-				{
+				if ($aulasModel->delete($id)) {
 					session()->setFlashdata('sucesso', 'Aula excluída com sucesso!');
 					return redirect()->to(base_url('/sys/aulas'));
-				}
-				else
-				{
+				} else {
 					return redirect()->to(base_url('/sys/aulas'))->with('erro', 'Erro inesperado ao excluir Aula!');
 				}
-			}
-			else
-			{
+			} else {
 				$mensagem = "A aula não pode ser excluída.<br>Esta aula possui ";
 
-				if ($restricoes['professores'] && $restricoes['horarios'])
-				{
+				if ($restricoes['professores'] && $restricoes['horarios']) {
 					$mensagem = $mensagem . "horário(s) relacionado(s) a ela!";
 				}
 
 				throw new ReferenciaException($mensagem);
 			}
-		}
-		catch (ReferenciaException $e)
-		{
+		} catch (ReferenciaException $e) {
 			session()->setFlashdata('erro', $e->getMessage());
 			return redirect()->to(base_url('/sys/aulas'));
 		}
@@ -151,19 +137,16 @@ class Aulas extends BaseController
 	{
 		$selecionados = $this->request->getPost('selecionados');
 
-        if (empty($selecionados))
-        {
-            die('Nenhuma aula selecionada para exclusão.');
-        }
+		if (empty($selecionados)) {
+			die('Nenhuma aula selecionada para exclusão.');
+		}
 
-        foreach ($selecionados as $k => $id)
-		{
+		foreach ($selecionados as $k => $id) {
 			$aulasModel = new AulasModel();
-			
+
 			$restricoes = $aulasModel->getRestricoes(['id' => $id]);
 
-			if (!$restricoes['horarios'])
-			{
+			if (!$restricoes['horarios']) {
 				$aulaProfModel = new AulaProfessorModel();
 				$aulaProfModel->where('aula_id', $id)->delete();
 				$aulasModel->delete($id);
@@ -176,7 +159,7 @@ class Aulas extends BaseController
 	public function getAulasFromTurma($turma)
 	{
 		$aula = new AulasModel();
-		
+
 		$aulas = $aula->select('aulas.id, disciplinas.nome as disciplina, disciplinas.ch, professores.nome as professor')
 			->join('disciplinas', 'disciplinas.id = aulas.disciplina_id')
 			->join('aula_professor', 'aula_professor.aula_id = aulas.id')
@@ -193,5 +176,13 @@ class Aulas extends BaseController
 		$aulaModel = new AulasModel();
 		$aulas = $aulaModel->getAulasComTurmaDisciplinaEProfessores();
 		return trim(json_encode($aulas));
+	}
+
+	public function getAulaData($aulaId)
+	{
+		$aulaModel = new AulasModel();
+		$aula = $aulaModel->find($aulaId);
+
+		return $this->response->setJSON($aula);
 	}
 }

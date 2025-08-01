@@ -46,6 +46,16 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <div class="form-check form-check-flat">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input" id="destaqueEdit" name="destaque" value="1">
+                                Marcar como aula em destaque
+                                <i class="input-helper"></i>
+                            </label>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary me-2">Salvar</button>
@@ -56,8 +66,7 @@
     </div>
 </div>
 
-<script>  
-
+<script>
     function updateSelectTurmasEdit() {
         $('#turmaEdit').empty();
         turmas.forEach(function(obj) {
@@ -73,7 +82,7 @@
     function getMatrizFromCursoEdit() {
         var matriz = -1;
         cursos.forEach(function(obj) {
-            if(obj.id == $("#cursoEdit option:selected").val()) {
+            if (obj.id == $("#cursoEdit option:selected").val()) {
                 matriz = obj.matriz;
             }
         });
@@ -99,8 +108,8 @@
         if ($(".select2-professoresEdit").length) {
             $(".select2-professoresEdit").select2({
                 language: {
-                    noResults:function(){
-                        return"Nenhum resultado encontrado"
+                    noResults: function() {
+                        return "Nenhum resultado encontrado"
                     }
                 },
                 dropdownParent: $('#modal-edit-aula')
@@ -110,8 +119,8 @@
         if ($("#disciplinaEdit").length) {
             $("#disciplinaEdit").select2({
                 language: {
-                    noResults:function(){
-                        return"Nenhum resultado encontrado"
+                    noResults: function() {
+                        return "Nenhum resultado encontrado"
                     }
                 },
                 dropdownParent: $('#modal-edit-aula')
@@ -123,6 +132,34 @@
             updateSelectDisciplinasEdit();
         });
 
+        // Função para carregar os dados da aula ao abrir o modal de edição
+        function carregarDadosAula(aulaId) {
+            $.ajax({
+                url: '<?php echo base_url('sys/aulas/getAulaData/') ?>' + aulaId,
+                type: 'GET',
+                success: function(response) {
+                    var aulaData = JSON.parse(response);
+
+                    // Preenche os outros campos como já deve estar fazendo...
+
+                    // Define o status da checkbox de destaque
+                    if (aulaData.destaque == 1) {
+                        $('#destaqueEdit').prop('checked', true);
+                    } else {
+                        $('#destaqueEdit').prop('checked', false);
+                    }
+                }
+            });
+        }
+
+        // Chamada quando o modal de edição é aberto
+        $('#modal-edit-aula').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget); // Botão que acionou o modal
+            var aulaId = button.data('aula-id'); // Extrai informação dos atributos data-*
+
+            // Chama a função para carregar os dados da aula
+            carregarDadosAula(aulaId);
+        });
+
     })(jQuery);
-    
 </script>
