@@ -91,11 +91,9 @@ class Aulas extends BaseController
 		];
 
 		if ($aula->save($update)) {
-			session()->setFlashdata('sucesso', 'Dados da Aula atualizados com sucesso!');
-			return redirect()->to(base_url('/sys/aulas'));
+			echo "ok"; // Alterado para retornar "ok" em vez de redirect
 		} else {
-			$data['erros'] = $aula->errors();
-			return redirect()->to(base_url('/sys/aulas'))->with('erros', $data['erros']);
+			echo "Erro ao atualizar a aula";
 		}
 	}
 

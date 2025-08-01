@@ -165,7 +165,7 @@
             var turma_id = button.data('turma_id');
             var profs_id = button.data('profs_id') + "";
             var prof = (profs_id.indexOf(",") > -1) ? profs_id.split(',') : profs_id;
-            var destaque = button.data('destaque'); // Adicione esta linha
+            var destaque = button.data('destaque');
 
             var modal = $(this);
             modal.find('#edit-id').val(id);
@@ -174,12 +174,57 @@
             modal.find('#disciplinaEdit').val(disciplina_id).change();
             modal.find('.select2-professoresEdit').val(prof).change();
 
-            // Adicione esta parte para o destaque
             if (destaque == 1) {
                 modal.find('#destaqueEdit').prop('checked', true);
             } else {
                 modal.find('#destaqueEdit').prop('checked', false);
             }
+        });
+
+        // Adiciona o evento de submit do formulário de edição
+        $("#editarAula").on("submit", function(e) {
+            e.preventDefault();
+
+            if ($("#disciplinaEdit").val() == "0") {
+                alert("Selecione uma disciplina válida.");
+                return;
+            }
+
+            let form = $(this);
+            let url = form.attr('action');
+            let data = form.serialize();
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                success: function(response) {
+                    if (response == "ok") {
+                        // Fechar o modal
+                        $('#modal-edit-aula').modal('hide');
+
+                        // Mensagem de sucesso
+                        $.toast({
+                            heading: 'Sucesso',
+                            text: 'Aula atualizada com sucesso!',
+                            showHideTransition: 'slide',
+                            icon: 'success',
+                            loaderBg: '#46c35f',
+                            position: 'top-center'
+                        });
+
+                        // Recarregar a tabela
+                        if (typeof table !== 'undefined') {
+                            table.ajax.reload();
+                        }
+                    } else {
+                        alert("Erro ao atualizar a aula: " + response);
+                    }
+                },
+                error: function() {
+                    alert("Erro inesperado ao atualizar a aula.");
+                }
+            });
         });
 
     })(jQuery);
