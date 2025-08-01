@@ -11,7 +11,7 @@
             <form id="deletarAulas" class="forms-sample" method="post" action='<?php echo base_url('sys/aulas/deletarMulti'); ?>'>
                 <?php echo csrf_field() ?>
                 <div class="modal-body text-break">
-                    Confirma a exclusão das <span id="quantidade-aulas-selecionadas">0</span> aulas selecionadas?
+                    Confirma a exclusão de <span id="quantidade-aulas-selecionadas" class="fw-bold">0</span> aula(s) selecionada(s)?
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-danger me-2">Excluir</button>
@@ -24,19 +24,38 @@
 
 <script>
     $(document).ready(function() {
+        // Atualiza a contagem quando o modal é aberto
+        $('#modal-deletar-aulas').on('show.bs.modal', function() {
+            updateSelectedCount();
+        });
+
+        // Função para atualizar a contagem de aulas selecionadas
+        function updateSelectedCount() {
+            const selectedCount = $('input[name="selecionados[]"]:checked').length;
+            $('#quantidade-aulas-selecionadas').text(selectedCount);
+
+            // Atualiza também o texto no botão de submit
+            const submitBtn = $('#deletarAulas').find('button[type="submit"]');
+            if (selectedCount > 0) {
+                submitBtn.prop('disabled', false);
+                submitBtn.text(`Excluir ${selectedCount} aula(s)`);
+            } else {
+                submitBtn.prop('disabled', true);
+                submitBtn.text('Excluir');
+            }
+        }
+
+        // Atualiza a contagem quando qualquer checkbox é alterado
+        $(document).on('change', 'input[name="selecionados[]"]', function() {
+            updateSelectedCount();
+        });
+
+        // Submit do formulário
         $('#deletarAulas').submit(function(e) {
             e.preventDefault();
 
-            let form = $(this);
-            let url = form.attr('action');
-            let data = [];
-
-            // Coletar os IDs das aulas selecionadas
-            $('input[name="selecionados[]"]:checked').each(function() {
-                data.push($(this).val());
-            });
-
-            if (data.length === 0) {
+            const selectedCount = $('input[name="selecionados[]"]:checked').length;
+            if (selectedCount === 0) {
                 $.toast({
                     heading: 'Aviso',
                     text: 'Nenhuma aula selecionada para exclusão',
@@ -48,63 +67,50 @@
                 return;
             }
 
+            const form = $(this);
+            const url = form.attr('action');
+            const data = [];
+
+            $('input[name="selecionados[]"]:checked').each(function() {
+                data.push($(this).val());
+            });
+
             $.ajax({
                 type: 'POST',
                 url: url,
                 data: {
                     selecionados: data
                 },
+                beforeSend: function() {
+                    // Mostrar loading
+                    $('#modal-deletar-aulas').find('button[type="submit"]')
+                        .prop('disabled', true)
+                        .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processando...');
+                },
                 success: function(response) {
                     if (response == "ok") {
-                        // Fechar o modal
                         $('#modal-deletar-aulas').modal('hide');
-
-                        // Mensagem de sucesso
                         $.toast({
                             heading: 'Sucesso',
-                            text: 'Todas as aulas selecionadas foram excluídas com sucesso!',
+                            text: `${selectedCount} aula(s) excluída(s) com sucesso!`,
                             showHideTransition: 'slide',
                             icon: 'success',
                             loaderBg: '#46c35f',
                             position: 'top-center'
                         });
-
-                        // Recarregar a tabela
-                        if (typeof table !== 'undefined') {
-                            table.ajax.reload();
-                        }
+                        table.ajax.reload();
                     } else {
-                        // Fechar o modal mesmo com erros parciais
                         $('#modal-deletar-aulas').modal('hide');
-
-                        // Verificar se é um erro complexo (com tags HTML)
-                        if (response.includes('<br>')) {
-                            // Mostrar em um toast mais elaborado ou modal de erros
-                            $.toast({
-                                heading: 'Atenção',
-                                text: response.replace(/<br>/g, '\n'),
-                                showHideTransition: 'fade',
-                                icon: 'warning',
-                                loaderBg: '#ffc107',
-                                position: 'top-center',
-                                hideAfter: false // Permanece até o usuário fechar
-                            });
-                        } else {
-                            // Erro simples
-                            $.toast({
-                                heading: 'Erro',
-                                text: response,
-                                showHideTransition: 'fade',
-                                icon: 'error',
-                                loaderBg: '#dc3545',
-                                position: 'top-center'
-                            });
-                        }
-
-                        // Recarregar a tabela mesmo com erros (pode ter havido exclusões parciais)
-                        if (typeof table !== 'undefined') {
-                            table.ajax.reload();
-                        }
+                        $.toast({
+                            heading: response.includes('<br>') ? 'Atenção' : 'Erro',
+                            text: response.replace(/<br>/g, '\n'),
+                            showHideTransition: 'fade',
+                            icon: response.includes('<br>') ? 'warning' : 'error',
+                            loaderBg: response.includes('<br>') ? '#ffc107' : '#dc3545',
+                            position: 'top-center',
+                            hideAfter: !response.includes('<br>')
+                        });
+                        table.ajax.reload();
                     }
                 },
                 error: function() {
@@ -116,6 +122,11 @@
                         loaderBg: '#dc3545',
                         position: 'top-center'
                     });
+                },
+                complete: function() {
+                    $('#modal-deletar-aulas').find('button[type="submit"]')
+                        .prop('disabled', false)
+                        .text('Excluir');
                 }
             });
         });
