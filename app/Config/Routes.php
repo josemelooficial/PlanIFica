@@ -37,6 +37,8 @@ $routes->group('sys', function ($routes)
         $routes->post('removerAula', 'TabelaHorarios::removerAula');
         $routes->get('dadosDaAula/(:num)', 'TabelaHorarios::dadosDaAula/$1');
         $routes->post('fixarAula', 'TabelaHorarios::fixarAula');
+        $routes->get('verificar-todos-conflitos', 'AulaHorarioController::verificarConflitosRotina');
+
     });
 
     $routes->group('cadastro-ambientes', function ($routes) 
