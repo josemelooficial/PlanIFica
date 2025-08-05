@@ -602,28 +602,29 @@
                 });
         }
 
-        function favoritarAulaHorario(aula_horario_id, horarioId) {
-            const btn = $(`#btnFavoritar_horario_${aula_horario_id}`);
-            const isFavorita = btn.hasClass("mdi-star"); // Verifica se já está favoritada
+        // A função completa deve ficar assim:
+        function destacarAulaHorario(aula_horario_id, horarioId) {
+            const btn = $(`#btnDestacar_horario_${aula_horario_id}`);
+            const isDestaque = btn.hasClass("mdi-star"); // Verifica se já está destacada
 
             // Alterna entre as classes
-            if (isFavorita) {
+            if (isDestaque) {
                 btn.removeClass("mdi-star text-warning").addClass("mdi-star-outline text-primary");
             } else {
                 btn.removeClass("mdi-star-outline text-primary").addClass("mdi-star text-warning");
             }
 
             // Atualiza o estado no front-end imediatamente (sem esperar resposta do servidor)
-            $(`#horario_${horarioId}`).data('favorita', isFavorita ? 0 : 1);
+            $(`#horario_${horarioId}`).data('destacada', isDestaque ? 0 : 1);
 
             // Envia a requisição para o servidor
-            $.post('<?php echo base_url('sys/tabela-horarios/favoritarAula'); ?>', {
-                tipo: isFavorita ? 0 : 1, // Alterna entre 0 e 1
+            $.post('<?php echo base_url('sys/tabela-horarios/destacarAula'); ?>', {
+                tipo: isDestaque ? 0 : 1, // Alterna entre 0 e 1
                 aula_horario_id: aula_horario_id
             }, function(data) {
                 if (data != "1") {
                     // Se houve erro, reverte a mudança visual
-                    if (isFavorita) {
+                    if (isDestaque) {
                         btn.removeClass("mdi-star-outline text-primary").addClass("mdi-star text-warning");
                     } else {
                         btn.removeClass("mdi-star text-warning").addClass("mdi-star-outline text-primary");
@@ -631,7 +632,7 @@
 
                     $.toast({
                         heading: 'Erro',
-                        text: 'Ocorreu um erro ao favoritar/desfavoritar a aula.',
+                        text: 'Ocorreu um erro ao destacar/remover destaque da aula.',
                         showHideTransition: 'slide',
                         icon: 'error',
                         loaderBg: '#f96868',
@@ -640,7 +641,7 @@
                 } else {
                     $.toast({
                         heading: 'Sucesso',
-                        text: isFavorita ? 'Aula desmarcada como favorita!' : 'Aula marcada como favorita!',
+                        text: isDestaque ? 'Destaque removido da aula!' : 'Aula destacada com sucesso!',
                         showHideTransition: 'slide',
                         icon: 'success',
                         loaderBg: '#f96868',
@@ -1039,7 +1040,7 @@
                                         <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${aulaHorarioId}"></i><br />
                                         <i class="mdi mdi-lock fs-6 text-primary me-1" id="btnFixar_horario_${aulaHorarioId}"></i><br />
                                         <i class="mdi mdi-account-multiple fs-6 text-primary me-1" id="btnBypass_horario_${aulaHorarioId}"></i><br />
-                                        <i class="mdi mdi-star-outline text-primary fs-6 me-1" id="btnFavoritar_horario_${aulaHorarioId}"></i>
+                                        <i class="mdi mdi-star-outline text-primary fs-6 me-1" id="btndestacar_horario_${aulaHorarioId}"></i>
                                     </div>
                                 </div>
                             </div>
@@ -1057,10 +1058,10 @@
                                 bypassarAulaHorario(1, aulaHorarioId, horarioId);
                             });
 
-                            $("#btnFavoritar_horario_" + aulaHorarioId).off().click(function(e) {
+                            $("#btndestacar_horario_" + aulaHorarioId).off().click(function(e) {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                favoritarAulaHorario(aulaHorarioId, horarioId);
+                                destacarAulaHorario(aulaHorarioId, horarioId);
                             });
 
                             $("#btnRemover_horario_" + aulaHorarioId).off().click(function(e) {
@@ -1135,7 +1136,7 @@
                                 .data('intervalo', intervalo)
                                 .data('aula_horario_id', aulaHorarioId)
                                 .data('fixa', 0)
-                                .data('favorita', 0)
+                                .data('destaca', 0)
                                 .removeClass('horario-vazio')
                                 .addClass('horario-preenchido')
                                 .off()
@@ -1245,7 +1246,7 @@
                                     <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${aulaHorarioId}"></i><br />
                                     <i class="mdi mdi-lock fs-6 text-primary me-1" id="btnFixar_horario_${aulaHorarioId}"></i><br />
                                     <i class="mdi mdi-account-multiple fs-6 text-primary me-1" id="btnBypass_horario_${aulaHorarioId}"></i><br />
-                                    <i class="mdi mdi-star-outline text-primary fs-6 me-1" id="btnFavoritar_horario_${aulaHorarioId}"></i>
+                                    <i class="mdi mdi-star-outline text-primary fs-6 me-1" id="btndestacar_horario_${aulaHorarioId}"></i>
                                 </div>
                             </div>
                         </div>
@@ -1268,7 +1269,7 @@
                             .data('intervalo', intervalo)
                             .data('aula_horario_id', aulaHorarioId)
                             .data('fixa', 0)
-                            .data('favorita', 0)
+                            .data('destaca', 0)
                             .removeClass('horario-vazio')
                             .addClass('horario-preenchido')
                             .off()
@@ -1809,38 +1810,36 @@
                                     if (obj.bypass == 1)
                                         btnBypass = "text-warning";
 
-                                    var btnFavoritar = "mdi-star-outline text-primary";
+                                    var btndestacar = "mdi-star-outline text-primary";
 
-                                    if (obj.favorita == 1)
-                                        btnFavoritar = "mdi-star text-warning";
+                                    if (obj.destacada == 1)
+                                        btndestacar = "mdi-star text-warning";
 
                                     // Preenche o horário selecionado
                                     horarioSelecionado.html(`
-                                    <div class="card border-1 shadow-sm bg-gradient" style="cursor: pointer; height: 100%;">
-                                        <div class="card-body p-1 d-flex flex-column justify-content-center align-items-center text-center">
-                                            <div class="card-content">
-                                                <h6 class="text-wrap mb-0 fs-6 ${conflitoStyle}" style="font-size: 0.75rem !important;">
-                                                    <i class="fa ${conflitoIcon} me-1"></i>
-                                                    ${aula.disciplina}
-                                                </h6>
-                                                <div class="d-flex align-items-center mb-0 py-0">
-                                                    <i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>
-                                                    <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${aula.professores.join(", ")}</small>
-                                                </div>
-                                                <div class="d-flex align-items-center">
-                                                    <i class="mdi mdi-door fs-6 text-muted me-1"></i>
-                                                    <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${ambientesSelecionadosNome.join("<br />")}</small>
-                                                </div>
-                                            </div>
-                                            <div class="action-icons">
-                                                <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${obj.id}"></i>
-                                                <i class="mdi mdi-lock fs-6 ${btnFixar} me-1" id="btnFixar_horario_${obj.id}"></i>
-                                                <i class="mdi mdi-account-multiple fs-6 ${btnBypass} me-1" id="btnBypass_horario_${obj.id}"></i>
-                                                <i class="mdi ${btnFavoritar} fs-6 me-1" id="btnFavoritar_horario_${obj.id}"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `);
+    <div class="card border-1 shadow-sm bg-gradient" style="cursor: pointer; height: 100%;">
+        <div class="card-body p-1 d-flex flex-column justify-content-center align-items-center text-center">
+            <h6 class="text-wrap mb-0 fs-6 ${conflitoStyle}" style="font-size: 0.75rem !important; margin-right: 15px">
+                <i class="fa ${conflitoIcon} me-1"></i>
+                ${aula.disciplina}
+            </h6>
+            <div class="d-flex align-items-center mb-0 py-0" style="margin-right: 15px">
+                <i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>
+                <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${aula.professores.join(", ")}</small>
+            </div>
+            <div class="d-flex align-items-center" style="margin-right: 15px">
+                <i class="mdi mdi-door fs-6 text-muted me-1"></i>
+                <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${ambientesSelecionadosNome.join("<br />")}</small>
+            </div>
+            <div style="width: 100%; text-align: right; top: 0; position: absolute">
+                <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${obj.id}"></i><br />
+                <i class="mdi mdi-lock fs-6 ${btnFixar} me-1" id="btnFixar_horario_${obj.id}"></i><br />
+                <i class="mdi mdi-account-multiple fs-6 ${btnBypass} me-1" id="btnBypass_horario_${obj.id}"></i><br />
+                <i class="mdi ${btndestacar} fs-6 me-1" id="btnDestacar_horario_${obj.id}"></i>
+            </div>
+        </div>
+    </div>
+`);
 
                                     $("#btnFixar_horario_" + obj.id).off().click(function(e) {
                                         e.preventDefault();
@@ -1860,10 +1859,10 @@
                                             bypassarAulaHorario(1, obj.id, obj.tempo_de_aula_id); //bypass
                                     });
 
-                                    $("#btnFavoritar_horario_" + obj.id).off().click(function(e) {
+                                    $("#btnDestacar_horario_" + obj.id).off().click(function(e) {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        favoritarAulaHorario(obj.id, obj.tempo_de_aula_id);
+                                        destacarAulaHorario(obj.id, obj.tempo_de_aula_id);
                                     });
 
                                     $("#btnRemover_horario_" + obj.id).off().click(function(e) {
@@ -1938,7 +1937,7 @@
                                         .data('intervalo', obj.intervalo)
                                         .data('aula_horario_id', obj.id)
                                         .data('fixa', obj.fixa)
-                                        .data('favorita', obj.favorita)
+                                        .data('destacada', obj.destacada)
                                         .removeClass('horario-vazio')
                                         .addClass('horario-preenchido')
                                         .off()
