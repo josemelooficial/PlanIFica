@@ -604,44 +604,50 @@
 
         function favoritarAulaHorario(aula_horario_id, horarioId) {
             const btn = $(`#btnFavoritar_horario_${aula_horario_id}`);
-            const isFavorita = btn.hasClass("mdi-star");
-            const novoEstado = isFavorita ? 0 : 1; // Alterna entre 0 e 1
+            const isFavorita = btn.hasClass("mdi-star"); // Verifica se já está favoritada
 
+            // Alterna entre as classes
+            if (isFavorita) {
+                btn.removeClass("mdi-star text-warning").addClass("mdi-star-outline text-primary");
+            } else {
+                btn.removeClass("mdi-star-outline text-primary").addClass("mdi-star text-warning");
+            }
+
+            // Atualiza o estado no front-end imediatamente (sem esperar resposta do servidor)
+            $(`#horario_${horarioId}`).data('favorita', isFavorita ? 0 : 1);
+
+            // Envia a requisição para o servidor
             $.post('<?php echo base_url('sys/tabela-horarios/favoritarAula'); ?>', {
-                    tipo: novoEstado,
-                    aula_horario_id: aula_horario_id
-                },
-                function(data) {
-                    if (data == "1") {
-                        // Alterna as classes da estrela
-                        if (isFavorita) {
-                            btn.removeClass("mdi-star text-warning").addClass("mdi-star-outline text-primary");
-                        } else {
-                            btn.removeClass("mdi-star-outline text-primary").addClass("mdi-star text-warning");
-                        }
-
-                        // Atualiza o estado no elemento do horário
-                        $(`#horario_${horarioId}`).data('favorita', novoEstado);
-
-                        $.toast({
-                            heading: 'Sucesso',
-                            text: novoEstado ? 'Aula marcada como favorita!' : 'Aula desmarcada como favorita.',
-                            showHideTransition: 'slide',
-                            icon: 'success',
-                            loaderBg: '#f96868',
-                            position: 'top-center'
-                        });
+                tipo: isFavorita ? 0 : 1, // Alterna entre 0 e 1
+                aula_horario_id: aula_horario_id
+            }, function(data) {
+                if (data != "1") {
+                    // Se houve erro, reverte a mudança visual
+                    if (isFavorita) {
+                        btn.removeClass("mdi-star-outline text-primary").addClass("mdi-star text-warning");
                     } else {
-                        $.toast({
-                            heading: 'Erro',
-                            text: 'Ocorreu um erro ao favoritar/desfavoritar a aula.',
-                            showHideTransition: 'slide',
-                            icon: 'error',
-                            loaderBg: '#f96868',
-                            position: 'top-center'
-                        });
+                        btn.removeClass("mdi-star text-warning").addClass("mdi-star-outline text-primary");
                     }
-                });
+
+                    $.toast({
+                        heading: 'Erro',
+                        text: 'Ocorreu um erro ao favoritar/desfavoritar a aula.',
+                        showHideTransition: 'slide',
+                        icon: 'error',
+                        loaderBg: '#f96868',
+                        position: 'top-center'
+                    });
+                } else {
+                    $.toast({
+                        heading: 'Sucesso',
+                        text: isFavorita ? 'Aula desmarcada como favorita!' : 'Aula marcada como favorita!',
+                        showHideTransition: 'slide',
+                        icon: 'success',
+                        loaderBg: '#f96868',
+                        position: 'top-center'
+                    });
+                }
+            });
         }
 
         // Função para mover disciplina de volta para pendentes
