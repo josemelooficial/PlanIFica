@@ -52,6 +52,8 @@ class TabelaHorarios extends BaseController
         $aula = $aulaModel->find($dado['aula_id']);
         $dado['destaque'] = $aula['destaque'] ?? 0;
 
+        log_message('debug', 'Dados para inserção: ' . print_r($dado, true)); // Log para depuração
+
         $aulaHorarioModel = new AulaHorarioModel();
 
         //verificar se já existe para fazer a substituição
@@ -59,59 +61,62 @@ class TabelaHorarios extends BaseController
 
         if ($aulaHorarioModel->insert($dado)) {
             $aulaHorarioId = $aulaHorarioModel->getInsertID();
+            log_message('debug', 'Aula horário inserida com ID: ' . $aulaHorarioId); // Log para depuração
 
             $aulaHorarioAmbienteModel = new AulaHorarioAmbienteModel();
 
-            if (is_array($dadosPost['ambiente_id'])) //se tiver mais de um ambiente
-            {
+            if (is_array($dadosPost['ambiente_id'])) {
                 foreach ($dadosPost['ambiente_id'] as $k => $v) {
                     $insert = ["aula_horario_id" => $aulaHorarioId, "ambiente_id" => $v];
                     $aulaHorarioAmbienteModel->insert($insert);
                 }
-            } else  //apenas um ambiente
-            {
+            } else {
                 $insert = ["aula_horario_id" => $aulaHorarioId, "ambiente_id" => $dadosPost['ambiente_id']];
                 $aulaHorarioAmbienteModel->insert($insert);
             }
 
+            // Obter os dados completos da aula horário para retornar ao front-end
+            $aulaHorarioCompleta = $aulaHorarioModel->find($aulaHorarioId);
+            log_message('debug', 'Aula horário completa: ' . print_r($aulaHorarioCompleta, true)); // Log para depuração
+
             $tresturnos = $aulaHorarioModel->verificarTresTurnos($aulaHorarioId);
 
             if ($tresturnos > 0) {
-                echo "$aulaHorarioId-TRES-TURNOS";
+                echo "$aulaHorarioId-TRES-TURNOS-$aulaHorarioCompleta[destaque]";
                 return;
             }
 
             $restricao = $aulaHorarioModel->restricaoDocente($aulaHorarioId);
 
             if ($restricao > 0) {
-                echo "$aulaHorarioId-RESTRICAO-PROFESSOR-$restricao"; // restrição de professor
+                echo "$aulaHorarioId-RESTRICAO-PROFESSOR-$restricao-$aulaHorarioCompleta[destaque]";
                 return;
             }
 
             $choque = $aulaHorarioModel->choqueAmbiente($aulaHorarioId);
 
             if ($choque > 0) {
-                echo "$aulaHorarioId-CONFLITO-AMBIENTE-$choque"; // choque de ambiente
+                echo "$aulaHorarioId-CONFLITO-AMBIENTE-$choque-$aulaHorarioCompleta[destaque]";
                 return;
             }
 
             $choque = $aulaHorarioModel->choqueDocente($aulaHorarioId);
 
             if ($choque > 0) {
-                echo "$aulaHorarioId-CONFLITO-PROFESSOR-$choque"; // choque de professor
+                echo "$aulaHorarioId-CONFLITO-PROFESSOR-$choque-$aulaHorarioCompleta[destaque]";
                 return;
             }
 
             $intervalo = $aulaHorarioModel->verificarTempoEntreTurnos($aulaHorarioId);
 
             if ($intervalo > 0) {
-                echo "$intervalo-INTERVALO";
+                echo "$intervalo-INTERVALO-$aulaHorarioCompleta[destaque]";
                 return;
             }
 
-            echo "$aulaHorarioId-OK"; // tudo certo e sem choques
+            echo "$aulaHorarioId-OK-$aulaHorarioCompleta[destaque]";
         } else {
-            echo "0"; //erro de inserção .. sera?
+            echo "0";
         }
     }
 

@@ -65,11 +65,15 @@ class AulaHorarioModel extends Model
 
     public function getAulasFromTurma($turma_id)
     {
-        return $this->select('aula_horario.*')
+        $result = $this->select('aula_horario.*, aula_horario.destaque')
             ->join('aulas', 'aulas.id = aula_horario.aula_id')
             ->where('aulas.turma_id', $turma_id)
             ->where('aula_horario.versao_id', (new VersoesModel())->getVersaoByUser(auth()->id()))
             ->findAll();
+
+        log_message('debug', 'Aulas da turma: ' . print_r($result, true)); // Log para depuração
+
+        return $result;
     }
 
     public function getAmbientesFromAulaHorario($aulaHorarioId)

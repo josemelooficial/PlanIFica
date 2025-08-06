@@ -374,16 +374,16 @@
 </div>
 
 <script>
-    //Vertozão global pra guardar dados dos horários da turma
+    // Vertozão global pra guardar dados dos horários da turma
     var horarios = [];
 
-    //Vertozão global pra guardar dados dos cursos
+    // Vertozão global pra guardar dados dos cursos
     var cursos = [];
 
-    //Vertozão global pra guardar dados das aulas da turma
+    // Vertozão global pra guardar dados das aulas da turma
     var aulas = [];
 
-    //Referencia para os nomes dos dias da semana
+    // Referencia para os nomes dos dias da semana
     var nome_dia = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
 
     $(document).ready(function() {
@@ -459,7 +459,7 @@
         const modalSelecionarAmbiente = new bootstrap.Modal(modalSelecionarAmbienteElement);
         const modalConfirmarRemocao = new bootstrap.Modal(modalConfirmarRemocaoElement);
 
-        //Algumas globais pra controle dos modals
+        // Algumas globais pra controle dos modals
         let horarioSelecionado = null;
 
         // Função para atualizar contador de pendentes
@@ -602,19 +602,18 @@
                 });
         }
 
-        // A função completa deve ficar assim:
         function destacarAulaHorario(aula_horario_id, horarioId) {
             const btn = $(`#btnDestacar_horario_${aula_horario_id}`);
             const isDestaque = btn.hasClass("mdi-star"); // Verifica se já está destacada
 
-            // Alterna entre as classes
+            // Alterna entre as classes visualmente primeiro para melhor experiência do usuário
             if (isDestaque) {
                 btn.removeClass("mdi-star text-warning").addClass("mdi-star-outline text-primary");
             } else {
                 btn.removeClass("mdi-star-outline text-primary").addClass("mdi-star text-warning");
             }
 
-            // Atualiza o estado no front-end imediatamente (sem esperar resposta do servidor)
+            // Atualiza o estado no front-end
             $(`#horario_${horarioId}`).data('destacada', isDestaque ? 0 : 1);
 
             // Envia a requisição para o servidor
@@ -626,8 +625,10 @@
                     // Se houve erro, reverte a mudança visual
                     if (isDestaque) {
                         btn.removeClass("mdi-star-outline text-primary").addClass("mdi-star text-warning");
+                        $(`#horario_${horarioId}`).data('destacada', 1);
                     } else {
                         btn.removeClass("mdi-star text-warning").addClass("mdi-star-outline text-primary");
+                        $(`#horario_${horarioId}`).data('destacada', 0);
                     }
 
                     $.toast({
@@ -667,22 +668,22 @@
                 cardAula.find('.aulas-pendentes').text(aulasPendentes);
             } else {
                 const cardAula = `
-                    <div id="aula_${aulaId}" draggable="true" data-aula-id="${aulaId}" data-disciplina="${disciplina}" data-professor="${professor}" data-aulas-total="${aulasTotal}" data-aulas-pendentes="1" class="card border-1 shadow-sm mx-4 my-1 bg-gradient" style="cursor: pointer;">
-                        <div class="card-body p-0 d-flex flex-column justify-content-center align-items-center text-center">
-                            <h6 class="text-primary">
-                                <i class="mdi mdi-book-outline me-1"></i> ${disciplina}
-                            </h6>
-                            <div class="d-flex align-items-center mb-0 py-0" id="professor_aula_${aulaId}">
-                                <i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>
-                                <small class="text-secondary">${professor}</small>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <i class="mdi mdi-door fs-6 text-muted me-1"></i>
-                                <small class="text-secondary"><span class="aulas-pendentes">1</span> aula(s)</small>
-                            </div>
+                <div id="aula_${aulaId}" draggable="true" data-aula-id="${aulaId}" data-disciplina="${disciplina}" data-professor="${professor}" data-aulas-total="${aulasTotal}" data-aulas-pendentes="1" class="card border-1 shadow-sm mx-4 my-1 bg-gradient" style="cursor: pointer;">
+                    <div class="card-body p-0 d-flex flex-column justify-content-center align-items-center text-center">
+                        <h6 class="text-primary">
+                            <i class="mdi mdi-book-outline me-1"></i> ${disciplina}
+                        </h6>
+                        <div class="d-flex align-items-center mb-0 py-0" id="professor_aula_${aulaId}">
+                            <i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>
+                            <small class="text-secondary">${professor}</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="mdi mdi-door fs-6 text-muted me-1"></i>
+                            <small class="text-secondary"><span class="aulas-pendentes">1</span> aula(s)</small>
                         </div>
                     </div>
-                `;
+                </div>
+            `;
 
                 $('#aulasContainer').append(cardAula);
 
@@ -697,8 +698,6 @@
             const $horario = $(horarioElement);
             const aulaId = $horario.data('aula-id');
 
-            //const modalConfirmarRemocao = new bootstrap.Modal(document.getElementById('modalConfirmarRemocao'));
-
             // Adiciona os dados ao horário
             $("#modalConfirmarRemocao")
                 .data('aula-id', aulaId)
@@ -712,7 +711,6 @@
 
             $('#rowRestricao').hide();
             $('#rowConflito').hide();
-            //$('#rowAlterarAmbiente').hide();
             $('#rowTresTurnos').hide();
             $('#rowIntervalo').hide();
 
@@ -735,9 +733,6 @@
             if ($horario.data('tresturnos') > 0) {
                 $('#rowTresTurnos').show();
             } else if ($horario.data('intervalo') != 0) {
-                /*<h6 class="text-warning mb-1" id="modalRemocaoIntervaloTipo">...</h6>
-                <h6 class="text-warning mb-1" id="modalRemocaoIntervaloTempo">...</h6>*/
-
                 // Requisição para buscar os dados da aula causando problema de intervalo
                 $.get('<?php echo base_url('sys/tabela-horarios/dadosDaAula/'); ?>' + $horario.data('intervalo').split('-')[2],
                     function(data) {
@@ -799,8 +794,6 @@
                                 .html('<i class="fa fa-exclamation-circle me-1"></i> ' + 'Ambiente(s): ')
                                 .addClass('text-danger')
                                 .removeClass('text-warning');
-
-                            //$('#rowAlterarAmbiente').show();
                         } else {
                             $('#modalRemocaoConflitoAmbiente')
                                 .text("Ambiente(s): ")
@@ -995,30 +988,11 @@
                             var conflitoProfessor = 0;
 
                             var aulaHorarioId = data.split("-")[0];
+                            var destaque = data.split("-")[3] || 0; // Captura o valor de destaque da resposta
 
-                            if (data.indexOf("TRES-TURNOS") >= 0) {
-                                conflitoStyle = "text-danger";
-                                conflitoIcon = "fa-warning";
-                                tresTurnos = 1;
-                            } else if (data.indexOf("RESTRICAO") >= 0) {
-                                conflitoStyle = "text-danger";
-                                conflitoIcon = "fa-warning";
-                                restricao = data.split("-")[3];
-                            } else if (data.indexOf("AMBIENTE") >= 0) {
-                                aulaConflito = data.split("-")[3];
-                                conflitoStyle = "text-warning";
-                                conflitoIcon = "fa-warning";
-                                conflitoAmbiente = 1;
-                            } else if (data.indexOf("PROFESSOR") >= 0) {
-                                aulaConflito = data.split("-")[3];
-                                conflitoStyle = "text-warning";
-                                conflitoIcon = "fa-warning";
-                                conflitoProfessor = 1;
-                            } else if (data.indexOf("INTERVALO") >= 0) {
-                                conflitoStyle = "text-info";
-                                conflitoIcon = "fa-warning";
-                                intervalo = data;
-                            }
+                            var btnFixar = "text-primary";
+                            var btnBypass = "text-primary";
+                            var btndestacar = destaque == 1 ? "mdi-star text-warning" : "mdi-star-outline text-primary";
 
                             // Preenche o horário selecionado
                             horarioSelecionado.html(`
@@ -1038,9 +1012,9 @@
                                     </div>
                                     <div style="width: 100%; text-align: right; top: 0; position: absolute">
                                         <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${aulaHorarioId}"></i><br />
-                                        <i class="mdi mdi-lock fs-6 text-primary me-1" id="btnFixar_horario_${aulaHorarioId}"></i><br />
-                                        <i class="mdi mdi-account-multiple fs-6 text-primary me-1" id="btnBypass_horario_${aulaHorarioId}"></i><br />
-                                        <i class="mdi mdi-star-outline text-primary fs-6 me-1" id="btndestacar_horario_${aulaHorarioId}"></i>
+                                        <i class="mdi mdi-lock fs-6 ${btnFixar} me-1" id="btnFixar_horario_${aulaHorarioId}"></i><br />
+                                        <i class="mdi mdi-account-multiple fs-6 ${btnBypass} me-1" id="btnBypass_horario_${aulaHorarioId}"></i><br />
+                                        <i class="mdi ${btndestacar} fs-6 me-1" id="btnDestacar_horario_${aulaHorarioId}"></i>
                                     </div>
                                 </div>
                             </div>
@@ -1058,7 +1032,7 @@
                                 bypassarAulaHorario(1, aulaHorarioId, horarioId);
                             });
 
-                            $("#btndestacar_horario_" + aulaHorarioId).off().click(function(e) {
+                            $("#btnDestacar_horario_" + aulaHorarioId).off().click(function(e) {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 destacarAulaHorario(aulaHorarioId, horarioId);
@@ -1136,7 +1110,7 @@
                                 .data('intervalo', intervalo)
                                 .data('aula_horario_id', aulaHorarioId)
                                 .data('fixa', 0)
-                                .data('destaca', 0)
+                                .data('destacada', destaque)
                                 .removeClass('horario-vazio')
                                 .addClass('horario-preenchido')
                                 .off()
@@ -1218,13 +1192,11 @@
                         var conflitoProfessor = 0;
 
                         var aulaHorarioId = data.split("-")[0];
+                        var destaque = $(`#horario_${horarioId}`).data('destacada') || 0;
 
-                        if (data.indexOf("AMBIENTE") >= 0) {
-                            aulaConflito = data.split("-")[3];
-                            conflitoStyle = "text-warning";
-                            conflitoIcon = "fa-warning";
-                            conflitoAmbiente = 1;
-                        }
+                        var btnFixar = "text-primary";
+                        var btnBypass = "text-primary";
+                        var btndestacar = destaque == 1 ? "mdi-star text-warning" : "mdi-star-outline text-primary";
 
                         // Preenche o horário selecionado
                         $(`#horario_${horarioId}`).html(`
@@ -1244,9 +1216,9 @@
                                 </div>
                                 <div style="width: 100%; text-align: right; top: 0; position: absolute">
                                     <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${aulaHorarioId}"></i><br />
-                                    <i class="mdi mdi-lock fs-6 text-primary me-1" id="btnFixar_horario_${aulaHorarioId}"></i><br />
-                                    <i class="mdi mdi-account-multiple fs-6 text-primary me-1" id="btnBypass_horario_${aulaHorarioId}"></i><br />
-                                    <i class="mdi mdi-star-outline text-primary fs-6 me-1" id="btndestacar_horario_${aulaHorarioId}"></i>
+                                    <i class="mdi mdi-lock fs-6 ${btnFixar} me-1" id="btnFixar_horario_${aulaHorarioId}"></i><br />
+                                    <i class="mdi mdi-account-multiple fs-6 ${btnBypass} me-1" id="btnBypass_horario_${aulaHorarioId}"></i><br />
+                                    <i class="mdi ${btndestacar} fs-6 me-1" id="btnDestacar_horario_${aulaHorarioId}"></i>
                                 </div>
                             </div>
                         </div>
@@ -1269,7 +1241,7 @@
                             .data('intervalo', intervalo)
                             .data('aula_horario_id', aulaHorarioId)
                             .data('fixa', 0)
-                            .data('destaca', 0)
+                            .data('destacada', destaque)
                             .removeClass('horario-vazio')
                             .addClass('horario-preenchido')
                             .off()
@@ -1306,13 +1278,13 @@
             // Verifica se há uma disciplina atribuída no horário selecionado
             if (horarioSelecionado && horarioSelecionado.data('disciplina')) {
                 const row = `
-                    <tr>
-                        <td>${horarioSelecionado.data('disciplina')}</td>
-                        <td>${horarioSelecionado.data('professor')}</td>
-                        <td>1 aula</td>
-                        <td><button class="btn btn-danger btn-sm btn-remover">Remover</button></td>
-                    </tr>
-                `;
+                <tr>
+                    <td>${horarioSelecionado.data('disciplina')}</td>
+                    <td>${horarioSelecionado.data('professor')}</td>
+                    <td>1 aula</td>
+                    <td><button class="btn btn-danger btn-sm btn-remover">Remover</button></td>
+                </tr>
+            `;
 
                 $("#tabelaDisciplinasModal tbody").append(row);
 
@@ -1481,15 +1453,15 @@
                                     //Adiciona o professor na aula já existente (visual do card)
                                     $('#professor_aula_' + obj.id).append(' &nbsp; ' +
                                         '<i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>' +
-                                        '<small class="text-secondary">' + obj.professor /*.split(" ")[0]*/ + '</small>'
+                                        '<small class="text-secondary">' + obj.professor + '</small>'
                                     );
 
                                     //Adiciona o professor na aula já existente (atributo data-professor)
-                                    $('#aula_' + obj.id).data('professor', $('#aula_' + obj.id).data('professor') + ',' + obj.professor /*.split(" ")[0]*/ );
+                                    $('#aula_' + obj.id).data('professor', $('#aula_' + obj.id).data('professor') + ',' + obj.professor);
 
                                     //Coloca o professor adicional no vetor da aula já existente
                                     let objetoAlterar = getAulaById(obj.id);
-                                    objetoAlterar.professores.push(obj.professor /*.split(" ")[0]*/ );
+                                    objetoAlterar.professores.push(obj.professor);
                                 }
                             });
 
@@ -1498,14 +1470,14 @@
                             //Se não encontrou a aula atual, adiciona na lista.
                             if (!found) {
                                 var cardAula = '' +
-                                    '<div id="aula_' + obj.id + '" draggable="true" data-aula-id="' + obj.id + '" data-disciplina="' + obj.disciplina + '" data-professor="' + obj.professor /*.split(" ")[0]*/ + '" data-aulas-total="' + (obj.ch / ((regime == 2) ? 20 : 40)) + '" data-aulas-pendentes="' + (obj.ch / ((regime == 2) ? 20 : 40)) + '" class="card border-1 shadow-sm mx-4 my-1 bg-gradient" style="cursor: pointer;">' +
+                                    '<div id="aula_' + obj.id + '" draggable="true" data-aula-id="' + obj.id + '" data-disciplina="' + obj.disciplina + '" data-professor="' + obj.professor + '" data-aulas-total="' + (obj.ch / ((regime == 2) ? 20 : 40)) + '" data-aulas-pendentes="' + (obj.ch / ((regime == 2) ? 20 : 40)) + '" class="card border-1 shadow-sm mx-4 my-1 bg-gradient" style="cursor: pointer;">' +
                                     '<div class="card-body p-0 d-flex flex-column justify-content-center align-items-center text-center">' +
                                     '<h6 class="text-primary">' +
                                     '<i class="mdi mdi-book-outline me-1"></i> ' + obj.disciplina +
                                     '</h6>' +
                                     '<div class="d-flex align-items-center mb-0 py-0" id="professor_aula_' + obj.id + '">' +
                                     '<i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>' +
-                                    '<small class="text-secondary">' + obj.professor /*.split(" ")[0]*/ + '</small>' +
+                                    '<small class="text-secondary">' + obj.professor + '</small>' +
                                     '</div>' +
                                     '<div class="d-flex align-items-center">' +
                                     '<i class="mdi mdi-door fs-6 text-muted me-1"></i>' +
@@ -1517,7 +1489,7 @@
                                 $('#aulasContainer').append(cardAula);
 
                                 //Coloca o professor no vetor da aula
-                                obj.professores.push(obj.professor /*.split(" ")[0]*/ );
+                                obj.professores.push(obj.professor);
 
                                 //adiciona a aula carregada no vetor de aulas
                                 aulas.push(obj);
@@ -1810,36 +1782,33 @@
                                     if (obj.bypass == 1)
                                         btnBypass = "text-warning";
 
-                                    var btndestacar = "mdi-star-outline text-primary";
-
-                                    if (obj.destacada == 1)
-                                        btndestacar = "mdi-star text-warning";
+                                    var btndestacar = obj.destaque == 1 ? "mdi-star text-warning" : "mdi-star-outline text-primary";
 
                                     // Preenche o horário selecionado
                                     horarioSelecionado.html(`
-    <div class="card border-1 shadow-sm bg-gradient" style="cursor: pointer; height: 100%;">
-        <div class="card-body p-1 d-flex flex-column justify-content-center align-items-center text-center">
-            <h6 class="text-wrap mb-0 fs-6 ${conflitoStyle}" style="font-size: 0.75rem !important; margin-right: 15px">
-                <i class="fa ${conflitoIcon} me-1"></i>
-                ${aula.disciplina}
-            </h6>
-            <div class="d-flex align-items-center mb-0 py-0" style="margin-right: 15px">
-                <i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>
-                <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${aula.professores.join(", ")}</small>
-            </div>
-            <div class="d-flex align-items-center" style="margin-right: 15px">
-                <i class="mdi mdi-door fs-6 text-muted me-1"></i>
-                <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${ambientesSelecionadosNome.join("<br />")}</small>
-            </div>
-            <div style="width: 100%; text-align: right; top: 0; position: absolute">
-                <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${obj.id}"></i><br />
-                <i class="mdi mdi-lock fs-6 ${btnFixar} me-1" id="btnFixar_horario_${obj.id}"></i><br />
-                <i class="mdi mdi-account-multiple fs-6 ${btnBypass} me-1" id="btnBypass_horario_${obj.id}"></i><br />
-                <i class="mdi ${btndestacar} fs-6 me-1" id="btnDestacar_horario_${obj.id}"></i>
-            </div>
-        </div>
-    </div>
-`);
+                                    <div class="card border-1 shadow-sm bg-gradient" style="cursor: pointer; height: 100%;">
+                                        <div class="card-body p-1 d-flex flex-column justify-content-center align-items-center text-center">
+                                            <h6 class="text-wrap mb-0 fs-6 ${conflitoStyle}" style="font-size: 0.75rem !important; margin-right: 15px">
+                                                <i class="fa ${conflitoIcon} me-1"></i>
+                                                ${aula.disciplina}
+                                            </h6>
+                                            <div class="d-flex align-items-center mb-0 py-0" style="margin-right: 15px">
+                                                <i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>
+                                                <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${aula.professores.join(", ")}</small>
+                                            </div>
+                                            <div class="d-flex align-items-center" style="margin-right: 15px">
+                                                <i class="mdi mdi-door fs-6 text-muted me-1"></i>
+                                                <small class="text-wrap text-secondary" style="font-size: 0.65rem !important;">${ambientesSelecionadosNome.join("<br />")}</small>
+                                            </div>
+                                            <div style="width: 100%; text-align: right; top: 0; position: absolute">
+                                                <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${obj.id}"></i><br />
+                                                <i class="mdi mdi-lock fs-6 ${btnFixar} me-1" id="btnFixar_horario_${obj.id}"></i><br />
+                                                <i class="mdi mdi-account-multiple fs-6 ${btnBypass} me-1" id="btnBypass_horario_${obj.id}"></i><br />
+                                                <i class="mdi ${btndestacar} fs-6 me-1" id="btnDestacar_horario_${obj.id}"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `);
 
                                     $("#btnFixar_horario_" + obj.id).off().click(function(e) {
                                         e.preventDefault();
@@ -1937,7 +1906,7 @@
                                         .data('intervalo', obj.intervalo)
                                         .data('aula_horario_id', obj.id)
                                         .data('fixa', obj.fixa)
-                                        .data('destacada', obj.destacada)
+                                        .data('destacada', obj.destaque)
                                         .removeClass('horario-vazio')
                                         .addClass('horario-preenchido')
                                         .off()
