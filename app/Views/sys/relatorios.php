@@ -465,6 +465,55 @@
 			$("#formExportar").submit();
 		});
 
+		$('#btnSubmitExportarXLSX').on('click', function(e) {
+		
+		var form = $('#formExportar');
+		e.preventDefault();
+		var originalAction = form.attr('action');
+
+		var tipo = $('#tipoRelatorio').val();
+		if (!tipo) {
+			$.toast({
+				heading: 'Atenção',
+				text: 'Selecione um tipo de relatório primeiro',
+				showHideTransition: 'slide',
+				icon: 'warning',
+				loaderBg: '#f96868',
+				position: 'top-center'
+			});
+			return;
+		}
+		// Verifica se pelo menos um filtro está preenchido ou se "Todos" está marcado
+		if ((dados.cursos && dados.cursos.length > 0) ||
+				(dados.turmas && dados.turmas.length > 0) ||
+				(dados.professores && dados.professores.length > 0) ||
+				(dados.ambientes && dados.ambientes.length > 0) ||
+				(dados.grupos_ambientes && dados.grupos_ambientes.length > 0) ||
+				$('#checkTodosCursos').is(':checked') ||
+				$('#checkTodasTurmas').is(':checked') ||
+				$('#checkTodosProfessores').is(':checked') ||
+				$('#checkTodosAmbientes').is(':checked') ||
+				$('#checkTodosGruposAmbientes').is(':checked')) {
+				filtroPreenchido = true;
+			}
+
+		if (!filtroPreenchido) {
+			$.toast({
+				heading: 'Atenção',
+				text: 'Selecione pelo menos um filtro para gerar o relatório',
+				showHideTransition: 'slide',
+				icon: 'warning',
+				loaderBg: '#f96868',
+				position: 'top-center'
+			});
+			return;
+		}
+
+		form.attr('action', '<?= base_url('sys/relatorios/exportarXLSX') ?>');
+		form.submit();
+		form.attr('action', originalAction);//volta ao estado inicial do botão
+	});
+
 		$('#btnGerarVisualizacao').on('click', function() {
 			var tipo = $('#tipoRelatorio').val();
 
