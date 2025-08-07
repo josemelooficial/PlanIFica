@@ -43,7 +43,7 @@
 					<button type="button" id="btnGerarVisualizacao" class="btn btn-primary me-2">
 						<i class="mdi mdi-eye-outline me-1"></i>Gerar Visualização
 					</button>
-					<button type="submit" id="btnSubmitExportar" class="btn btn-success">
+					<button type="submit" id="btnSubmitExportar" class="btn btn-success me-2">
 						<i class="mdi mdi-file-export me-1"></i>Exportar PDF
 					</button>
 					<button type="submit" id="btnSubmitExportarXLSX" class="btn btn-success ">
