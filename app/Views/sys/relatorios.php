@@ -46,6 +46,9 @@
 					<button type="submit" id="btnSubmitExportar" class="btn btn-success">
 						<i class="mdi mdi-file-export me-1"></i>Exportar PDF
 					</button>
+					<button type="submit" id="btnSubmitExportarXLSX" class="btn btn-success ">
+						<i class="mdi mdi-file-export me-1"></i>Exportar XLSX
+					</button>
 				</div>
 
 			</form>
