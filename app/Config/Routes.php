@@ -39,6 +39,7 @@ $routes->group('sys', function ($routes)
         $routes->post('fixarAula', 'TabelaHorarios::fixarAula');
         $routes->get('verificar-todos-conflitos', 'AulaHorarioController::verificarConflitosRotina');
 
+        $routes->post('bypassAula', 'TabelaHorarios::bypassAula');
     });
 
     $routes->group('cadastro-ambientes', function ($routes) 
@@ -154,6 +155,7 @@ $routes->group('sys', function ($routes)
         $routes->post('atualizar', 'Versao::atualizar');
         $routes->post('deletar', 'Versao::deletar');
         $routes->post('ativar', 'Versao::ativar');
+        $routes->post('definirVersaoVigente', 'Versao::definirVersaoVigente');
         $routes->post('duplicar', 'Versao::duplicar');
     });
 

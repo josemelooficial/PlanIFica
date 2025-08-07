@@ -9,6 +9,7 @@ use App\Models\CursosModel;
 use App\Models\TurmasModel;
 use App\Models\ProfessorModel;
 use App\Models\GruposAmbientesModel;
+use App\Models\VersoesModel;
 
 class Relatorios extends BaseController
 {
@@ -18,6 +19,7 @@ class Relatorios extends BaseController
     protected $turmasModel;
     protected $professorModel;
     protected $gruposAmbientesModel;
+    private $versao_nome;
 
     public function __construct()
     {
@@ -27,6 +29,12 @@ class Relatorios extends BaseController
         $this->turmasModel = new TurmasModel();
         $this->professorModel = new ProfessorModel();
         $this->gruposAmbientesModel = new GruposAmbientesModel();
+
+        $this->versao_nome = '';
+        $versaoModel = new VersoesModel();
+        $versao = $versaoModel->getVersaoByUser(auth()->id());
+        $versao = $versaoModel->find($versao);
+        $this->versao_nome = $versao['nome'];        
     }
 
     public function index()
@@ -292,7 +300,7 @@ class Relatorios extends BaseController
             }
             else
             {
-                if ($tabelas[$value['ambiente']][$value['dia_semana']][$value['hora_inicio']]['professor'] != $value['professor'])
+                if (strpos($tabelas[$value['ambiente']][$value['dia_semana']][$value['hora_inicio']]['professor'], $value['professor']) === false)
                 {
                     $tabelas[$value['ambiente']][$value['dia_semana']][$value['hora_inicio']]['professor'] .= ', ' . $value['professor'];
                 }
@@ -302,17 +310,19 @@ class Relatorios extends BaseController
         $pdf = new \App\Libraries\PDF();
 
         $pdf->setCSS('
-            @page { margin: 10 !important; padding: 0 !important; margin-top: 100px !important; }
+            @page { margin: 8 !important; padding: 0 !important; margin-top: 65px !important; }
             body { font-family: Arial, sans-serif; font-size: 9px; padding: 10px; background: #fff; color: #000; }
-            header { align-items: center; padding-bottom: 2px; margin-bottom: 10px; position: fixed; margin-top: -80px; width: 98%; }
-            header img { height: 60px; margin-right: 10px; margin-left: 10px; }
-            h1 { font-size: 13px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
-            h2 { font-size: 12px; color: #1a5d1a; padding: 0px; margin: 0px; }
-            h3 { font-size: 11px; color: #1a5d1a; padding: 0px; margin: 0px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout:fixed;  }
-            .caption { font-size: 13px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 2px; border-radius: 4px 4px 0 0; text-align: center; }
+            header { align-items: center; padding-bottom: 1px; margin-bottom: 3px; position: fixed; margin-top: -50px; width: 98%; }
+            header img { height: 45px; margin-right: 10px; margin-left: 10px; }
+            footer { position: fixed; bottom: -10px; left: 0px; right: 0px; height: 20px; }
+            footer .pagenum:before { content: counter(page); }
+            h1 { font-size: 11px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
+            h2 { font-size: 10px; color: #1a5d1a; padding: 0px; margin: 0px; }
+            h3 { font-size: 10px; color: #1a5d1a; padding: 0px; margin: 0px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 6px; table-layout:fixed;  }
+            .caption { font-size: 11px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 1px; border-radius: 4px 4px 0 0; text-align: center; }
             .periodo { font-size: 10px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 0px; text-align: center; border: none }
-            th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; }
+            th, td { border: 1px solid #ccc; padding: 1px; text-align: center; vertical-align: middle; }
             th { background-color: #d1e7d1; color: #1a5d1a; }
             tr:nth-child(even) td { background-color: #f5fdf5; }
             .hora { font-weight: bold; }
@@ -323,12 +333,15 @@ class Relatorios extends BaseController
         $pdf->setHeader('
             <table>
                 <tr>
-                    <td width="25%"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
-                    <td width="75%">
+                    <td width="15%" style="border: none;"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
+                    <td width="65%">
                         <h1>Instituto Federal de Educação, Ciência e Tecnologia de Rondônia</h1>
                         <h2><i>Campus</i> Porto Velho Calama</h2>
-                        <h3>Departamento de Apoio ao Ensino - DAPE</h3>
                         <h1>Horários por Ambiente</h1>
+                    </td>
+                    <td width="15%" style="text-align: center; border: none;">
+                        <img style="height: 25px; margin-bottom: 2px;" src="' . base_url("assets/images/Planifica.png") . '" alt="Logo IFRO">
+                        <h1>Horário ' . $this->versao_nome . '</h1>
                     </td>
                 </tr>
             </table>');
@@ -368,12 +381,12 @@ class Relatorios extends BaseController
                             </td>
                         </tr>
                         <tr>
-                            <th width="5%">Horário</th>');
+                            <th width="4%">Horário</th>');
 
             foreach ($temDias as $dia)
             {
                 $pdf->appendHTML('
-                    <th width="19%">' . $nome_dia[$dia] . '</th>
+                    <th width="20%">' . $nome_dia[$dia] . '</th>
                 ');
             }
 
@@ -409,44 +422,38 @@ class Relatorios extends BaseController
                         {
                             $pdf->appendHTML('<td>');
 
-                            if (strlen($tabelas[$ambiente][$dia][$horario]['disciplina']) >= 40)
-                                $pdf->appendHTML('<small>');
-
+                            $pdf->appendHTML('<small>');
                             $pdf->appendHTML('<strong>' . $tabelas[$ambiente][$dia][$horario]['disciplina'] . '</strong>');
-
-                            if (strlen($tabelas[$ambiente][$dia][$horario]['disciplina']) >= 40)
-                                $pdf->appendHTML('</small>');
+                            $pdf->appendHTML('</small>');
 
                             $pdf->appendHTML('<br />');
                             $pdf->appendHTML('<em>');
 
-                            if (strlen($tabelas[$ambiente][$dia][$horario]['curso']) >= 40)
-                                $pdf->appendHTML('<small>');
-
-                            $pdf->appendHTML($tabelas[$ambiente][$dia][$horario]['curso']);
-
-                            if (strlen($tabelas[$ambiente][$dia][$horario]['curso']) >= 40)
-                                $pdf->appendHTML('</small>');
-
-                            $pdf->appendHTML('<br />');
-
-                            if (strlen($tabelas[$ambiente][$dia][$horario]['turma']) >= 40)
-                                $pdf->appendHTML('<small>');
-
+                            $pdf->appendHTML('<small>');
                             $pdf->appendHTML($tabelas[$ambiente][$dia][$horario]['turma']);
-
-                            if (strlen($tabelas[$ambiente][$dia][$horario]['turma']) >= 40)
-                                $pdf->appendHTML('</small>');
+                            $pdf->appendHTML('</small>');
 
                             $pdf->appendHTML('<br />');
 
-                            if (strlen($tabelas[$ambiente][$dia][$horario]['professor']) >= 40)
-                                $pdf->appendHTML('<small>');
+                            $virgulas = substr_count($tabelas[$ambiente][$dia][$horario]['professor'],",");
 
+                            //Reduzir sobrenomes dos professores caso haja mais de um
+                            if($virgulas >= 1)
+                            {
+                                $professores = explode(", ", $tabelas[$ambiente][$dia][$horario]['professor']);
+                                foreach($professores as $k=>$v)
+                                {
+                                    $nomes = explode(" ", $v);
+                                    $professores[$k] = $nomes[0];
+                                    $professores[$k] .= " ";
+                                    $professores[$k] .= (strlen($nomes[1]) > 3) ? $nomes[1] : $nomes[1] . " " . $nomes[2];
+                                }
+                                $tabelas[$ambiente][$dia][$horario]['professor'] = implode(", ",$professores);
+                            }
+
+                            $pdf->appendHTML('<small>');
                             $pdf->appendHTML('<strong>' . $tabelas[$ambiente][$dia][$horario]['professor'] . '</strong>');
-
-                            if (strlen($tabelas[$ambiente][$dia][$horario]['professor']) >= 40)
-                                $pdf->appendHTML('</small>');
+                            $pdf->appendHTML('</small>');
 
                             $pdf->appendHTML('</em>');
                             $pdf->appendHTML('</td>');
@@ -468,6 +475,15 @@ class Relatorios extends BaseController
 
             $conta++;
         }
+
+        $pdf->setFooter('
+            <table style="width: 100%">
+                <tr>
+                    <td style="text-align: left; font-size: 8px; border: none;">Versão ' . $this->versao_nome . '</td>
+                    <td style="text-align: center; font-size: 8px; border: none;">Gerado em ' . date('d/m/Y H:i') . 'h</td>
+                    <td style="text-align: right; font-size: 8px; border: none;">Página <span class="pagenum"></span></td>
+                </tr>
+            </table>');
 
         $pdf->generatePDF("horarios_por_ambiente");
     }
@@ -495,13 +511,35 @@ class Relatorios extends BaseController
             }
         }
 
+        //Forma para mostrar todos os horários, mesmo vagos
+        $db = \Config\Database::connect();
+        $query = $db->query("SELECT DISTINCT(CONCAT(LPAD(tempos_de_aula.hora_inicio, 2, '0'), ':', LPAD(tempos_de_aula.minuto_inicio, 2, '0'))) as res FROM `tempos_de_aula`");
+
         foreach ($dados as $key => $value)
+        {
+            foreach ($query->getResult('array') as $row) 
+            {            
+                if (!in_array($value['hora_inicio'], $tabelas[$value['professor']][$value['dia_semana']]))
+                {
+                    $tabelas[$value['professor']][$value['dia_semana']][$row['res']] = [];
+                }
+            }            
+        }
+
+        /*echo "<pre>";
+        print_r($tabelas);
+        echo "</pre>";
+        die();*/
+
+
+        //Forma para mostrar apenas os horários que tem aula
+        /*foreach ($dados as $key => $value)
         {
             if (!in_array($value['hora_inicio'], $tabelas[$value['professor']][$value['dia_semana']]))
             {
                 $tabelas[$value['professor']][$value['dia_semana']][$value['hora_inicio']] = [];
             }
-        }
+        }*/
 
         foreach ($dados as $key => $value)
         {
@@ -529,17 +567,19 @@ class Relatorios extends BaseController
         $pdf = new \App\Libraries\PDF();
 
         $pdf->setCSS('
-            @page { margin: 10 !important; padding: 0 !important; margin-top: 100px !important; }
+            @page { margin: 8 !important; padding: 0 !important; margin-top: 70px !important; }
             body { font-family: Arial, sans-serif; font-size: 9px; padding: 10px; background: #fff; color: #000; }
-            header { align-items: center; padding-bottom: 2px; margin-bottom: 10px; position: fixed; margin-top: -80px; width: 98%; }
-            header img { height: 60px; margin-right: 10px; margin-left: 10px; }
-            h1 { font-size: 13px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
-            h2 { font-size: 12px; color: #1a5d1a; padding: 0px; margin: 0px; }
-            h3 { font-size: 11px; color: #1a5d1a; padding: 0px; margin: 0px; }
+            header { align-items: center; padding-bottom: 1px; margin-bottom: 8px; position: fixed; margin-top: -65px; width: 98%; }
+            header img { height: 50px; margin-right: 5px; margin-left: 5px; }
+            footer { position: fixed; bottom: -10px; left: 0px; right: 0px; height: 20px; }
+            footer .pagenum:before { content: counter(page); }
+            h1 { font-size: 11px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
+            h2 { font-size: 11px; color: #1a5d1a; padding: 0px; margin: 0px; }
+            h3 { font-size: 10px; color: #1a5d1a; padding: 0px; margin: 0px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout:fixed; }
             .caption { font-size: 13px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 2px; border-radius: 4px 4px 0 0; text-align: center; }
             .periodo { font-size: 10px; font-weight: bold; background-color: #1a5d1a; color: white; padding: 0px; text-align: center; border: none }
-            th, td { border: 1px solid #ccc; padding: 4px; text-align: center; vertical-align: middle; }
+            th, td { border: 1px solid #ccc; padding: 2px; text-align: center; vertical-align: middle; }
             th { background-color: #d1e7d1; color: #1a5d1a; }
             tr:nth-child(even) td { background-color: #f5fdf5; }
             .hora { font-weight: bold; }
@@ -550,13 +590,26 @@ class Relatorios extends BaseController
         $pdf->setHeader('
             <table>
                 <tr>
-                    <td width="25%"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
-                    <td width="75%">
+                    <td width="15%" style="border: none;"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
+                    <td width="65%">
                         <h1>Instituto Federal de Educação, Ciência e Tecnologia de Rondônia</h1>
                         <h2><i>Campus</i> Porto Velho Calama</h2>
                         <h3>Departamento de Apoio ao Ensino - DAPE</h3>
                         <h1>Horários por Professor</h1>
                     </td>
+                    <td width="15%" style="text-align: center; border: none;">
+                        <img style="height: 25px; margin-bottom: 2px;" src="' . base_url("assets/images/Planifica.png") . '" alt="Logo IFRO">
+                        <h1>Horário ' . $this->versao_nome . '</h1>
+                    </td>
+                </tr>
+            </table>');
+
+        $pdf->setFooter('
+            <table style="width: 100%">
+                <tr>
+                    <td style="text-align: left; font-size: 8px; border: none;">Versão ' . $this->versao_nome . '</td>
+                    <td style="text-align: center; font-size: 8px; border: none;">Gerado em ' . date('d/m/Y H:i') . 'h</td>
+                    <td style="text-align: right; font-size: 8px; border: none;">Página <span class="pagenum"></span></td>
                 </tr>
             </table>');
 
@@ -592,19 +645,18 @@ class Relatorios extends BaseController
                             </td>
                         </tr>
                         <tr>
-                            <th width="5%">Horário</th>');
+                            <th width="4%">Horário</th>');
 
             foreach ($temDias as $dia)
             {
                 $pdf->appendHTML('
-                    <th width="19%">' . $nome_dia[$dia] . '</th>
+                    <th width="20%">' . $nome_dia[$dia] . '</th>
                 ');
             }
 
             $pdf->appendHTML('</tr></thead><tbody>');
 
             $ultimoTurno = 0;
-
 
             foreach ($temHorarios as $horario)
             {
@@ -630,8 +682,8 @@ class Relatorios extends BaseController
                 {
                     if (isset($tabelas[$professor][$dia]))
                     {
-                        if (isset($tabelas[$professor][$dia][$horario]))
-                        {
+                        if (isset($tabelas[$professor][$dia][$horario]) && isset($tabelas[$professor][$dia][$horario]['disciplina']))
+                        {                            
                             $pdf->appendHTML('<td>');
 
                             if (strlen($tabelas[$professor][$dia][$horario]['disciplina']) >= 40)
@@ -643,17 +695,8 @@ class Relatorios extends BaseController
                                 $pdf->appendHTML('</small>');
 
                             $pdf->appendHTML('<br />');
+
                             $pdf->appendHTML('<em>');
-
-                            if (strlen($tabelas[$professor][$dia][$horario]['curso']) >= 40)
-                                $pdf->appendHTML('<small>');
-
-                            $pdf->appendHTML($tabelas[$professor][$dia][$horario]['curso']);
-
-                            if (strlen($tabelas[$professor][$dia][$horario]['curso']) >= 40)
-                                $pdf->appendHTML('</small>');
-
-                            $pdf->appendHTML('<br />');
 
                             if (strlen($tabelas[$professor][$dia][$horario]['turma']) >= 40)
                                 $pdf->appendHTML('<small>');
@@ -675,6 +718,7 @@ class Relatorios extends BaseController
 
                             $pdf->appendHTML('</em>');
                             $pdf->appendHTML('</td>');
+                            
                         }
                         else
                         {
@@ -696,6 +740,8 @@ class Relatorios extends BaseController
             if ($conta < sizeof($tabelas))
                 $pdf->appendHTML('<div class="page_break"></div>');
         }
+
+        
 
         $pdf->generatePDF("horarios_por_professor");
     }
@@ -772,7 +818,9 @@ class Relatorios extends BaseController
             @page { margin: 10 !important; padding: 0 !important; margin-top: 100px !important; }
             body { font-family: Arial, sans-serif; font-size: 9px; padding: 10px; background: #fff; color: #000; }
             header { align-items: center; padding-bottom: 2px; margin-bottom: 10px; position: fixed; margin-top: -80px; width: 98%; }
-            header img { height: 60px; margin-right: 10px; margin-left: 10px; }
+            header img { height: 50px; margin-right: 10px; margin-left: 10px; }
+            footer { position: fixed; bottom: -10px; left: 0px; right: 0px; height: 20px; }
+            footer .pagenum:before { content: counter(page); }
             h1 { font-size: 13px; color:rgb(5, 56, 5); padding: 0px; margin: 0px; }
             h2 { font-size: 12px; color: #1a5d1a; padding: 0px; margin: 0px; }
             h3 { font-size: 11px; color: #1a5d1a; padding: 0px; margin: 0px; }
@@ -790,15 +838,28 @@ class Relatorios extends BaseController
         $pdf->setHeader('
             <table>
                 <tr>
-                    <td width="25%"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
-                    <td width="75%">
+                    <td width="15%" style="border: none;"><img src="' . base_url("assets/images/logoifro.png") . '" alt="Logo IFRO"></td>
+                    <td width="65%">
                         <h1>Instituto Federal de Educação, Ciência e Tecnologia de Rondônia</h1>
                         <h2><i>Campus</i> Porto Velho Calama</h2>
                         <h3>Departamento de Apoio ao Ensino - DAPE</h3>
-                        <h1>Horários por Cursos e Turmas</h1>
+                        <h1>Horários por Curso e Turma</h1>
+                    </td>
+                    <td width="15%" style="text-align: center; border: none;">
+                        <img style="height: 25px; margin-bottom: 2px;" src="' . base_url("assets/images/Planifica.png") . '" alt="Logo IFRO">
+                        <h1>Horário ' . $this->versao_nome . '</h1>
                     </td>
                 </tr>
-            </table>');        
+            </table>');
+            
+        $pdf->setFooter('
+            <table style="width: 100%">
+                <tr>
+                    <td style="text-align: left; font-size: 8px; border: none;">Versão ' . $this->versao_nome . '</td>
+                    <td style="text-align: center; font-size: 8px; border: none;">Gerado em ' . date('d/m/Y H:i') . 'h</td>
+                    <td style="text-align: right; font-size: 8px; border: none;">Página <span class="pagenum"></span></td>
+                </tr>
+            </table>');
 
         $nome_dia = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
 

@@ -40,7 +40,7 @@
               <!--Logo do Instituto Federal -->
               <div class="d-flex flex-column flex-md-row align-items-center justify-content-md-start mb-4">
                 <img src="<?php echo base_url('assets/images/logo-ifro-mini.png'); ?>" alt="Instituto Federal" class="img-fluid mb-3 mb-md-0" style="width: 50px; margin-right: 20px;">
-                <h3 class="mb-0 text-center">Gerenciador de Horários</h3>
+                <h3 class="mb-0 text-center">PlanIFica - Acesso Restrito</h3>
               </div>
 
               <?php if (session()->getFlashdata('error')): ?>
@@ -87,7 +87,7 @@
                 <footer class="footer-login">
                   <div class="d-flex justify-content-center">
                     <span class="text-muted text-center">
-                      © 2024 Gerenciador de Horários -
+                      ©2024~ | PlanIFica - Gestão de Horários Acadêmicos | 
                       <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal-2">Calama Devs.</a>
                     </span>
                   </div>
@@ -108,12 +108,10 @@
                         <p class="fade-in" style="font-size: 13px; font-weight: bold;">MEMBROS DO GRUPO:</p> <br>
 
                         <p class="fade-in" style="font-size: 13px;">Prof. Leandro Ferrarezi Valiante</p>
-                        <p class="fade-in" style="font-size: 13px;">Prof. Paulo Sérgio Tomé</p>
                         <p class="fade-in" style="font-size: 13px;">Prof. Willians de Paula Pereira</p>
 
                         <br>
 
-                        <p class="fade-in" style="font-size: 13px;">Gustavo Lage dos Santos</p>
                         <p class="fade-in" style="font-size: 13px;">Jorge Domingos de Sousa Neto</p>
                         <p class="fade-in" style="font-size: 13px;">Kassandra de Oliveira Rodrigues</p>
                         <p class="fade-in" style="font-size: 13px;">Levir Menezes de Souza</p>

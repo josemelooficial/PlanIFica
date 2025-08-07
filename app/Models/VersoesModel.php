@@ -75,6 +75,18 @@ class VersoesModel extends Model
         return $builder->update();
     }
 
+    public function setVersaoVigente($versao) 
+    {
+        $builder = $this->db->table('versoes');
+        $builder->set('vigente', 0);
+        $builder->where('vigente', 1);
+        $builder->update();
+
+        $builder->set('vigente', 1);
+        $builder->where('id', $versao);
+        return $builder->update();
+    }
+
     public function retirarVersaoExcluidaDeUsuarios($versao)
     {
         $builder = $this->db->table('users');
@@ -89,11 +101,24 @@ class VersoesModel extends Model
         $builder->select('id');
         $builder->orderBy('id', 'DESC');
 
-        if($builder->countAllResults() == 0) {
-            return 0;
+        $versao = $builder->get()->getRowArray();
+
+        if ($versao) {
+            return $versao['id'];
         }
 
-        return $builder->get()->getRowArray()['id'];
+        return 0;
+    }
+
+    public function getVersaoVigente()
+    {
+        $builder = $this->db->table('versoes');
+        $builder->select('id, nome');
+        $builder->where('vigente', 1);
+
+        $versao = $builder->get()->getRowArray();
+
+        return $versao ?? 0;
     }
 
     public function copyAllData($versaoOld)

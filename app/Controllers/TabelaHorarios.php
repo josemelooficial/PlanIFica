@@ -157,6 +157,24 @@ class TabelaHorarios extends BaseController
         echo "1";
     }
 
+    public function bypassAula()
+    {
+        $dadosPost = $this->request->getPost();
+        $dado['aula_horario_id'] = strip_tags($dadosPost['aula_horario_id']);
+
+        $aulaHorarioModel = new AulaHorarioModel();
+
+        if($dadosPost['tipo'] == 1)
+        {
+            $aulaHorarioModel->bypassarAulaHorario($dado['aula_horario_id']);
+        }
+        else
+        {
+            $aulaHorarioModel->desBypassarAulaHorario($dado['aula_horario_id']);
+        }
+        echo "1";
+    }
+
     public function dadosDaAula($aulaHorarioId)
     {
         $aulaHorarioModel = new AulaHorarioModel();

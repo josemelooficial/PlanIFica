@@ -18,8 +18,8 @@ class AulaHorarioController extends BaseController
 
    $aulaHorarioModel = new AulaHorarioModel();
    $aulas = $aulaHorarioModel
+   ->where('bypass =', null)
    ->findAll();
-    // ->where('bypass !=', 1)
 
    $conflitos = [];
     //construindo o array de conflitos com o retorno das verificações
