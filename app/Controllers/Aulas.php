@@ -91,11 +91,9 @@ class Aulas extends BaseController
 		];
 
 		if ($aula->save($update)) {
-			session()->setFlashdata('sucesso', 'Dados da Aula atualizados com sucesso!');
-			return redirect()->to(base_url('/sys/aulas'));
+			echo "ok"; // Alterado para retornar "ok" em vez de redirect
 		} else {
-			$data['erros'] = $aula->errors();
-			return redirect()->to(base_url('/sys/aulas'))->with('erros', $data['erros']);
+			echo "Erro ao atualizar a aula";
 		}
 	}
 
@@ -113,10 +111,9 @@ class Aulas extends BaseController
 				$aulaProfModel->where('aula_id', $id)->delete();
 
 				if ($aulasModel->delete($id)) {
-					session()->setFlashdata('sucesso', 'Aula excluída com sucesso!');
-					return redirect()->to(base_url('/sys/aulas'));
+					echo "ok"; // Alterado para retornar string em vez de redirect
 				} else {
-					return redirect()->to(base_url('/sys/aulas'))->with('erro', 'Erro inesperado ao excluir Aula!');
+					echo "Erro inesperado ao excluir Aula!";
 				}
 			} else {
 				$mensagem = "A aula não pode ser excluída.<br>Esta aula possui ";
@@ -125,11 +122,10 @@ class Aulas extends BaseController
 					$mensagem = $mensagem . "horário(s) relacionado(s) a ela!";
 				}
 
-				throw new ReferenciaException($mensagem);
+				echo $mensagem;
 			}
 		} catch (ReferenciaException $e) {
-			session()->setFlashdata('erro', $e->getMessage());
-			return redirect()->to(base_url('/sys/aulas'));
+			echo $e->getMessage();
 		}
 	}
 
@@ -141,19 +137,41 @@ class Aulas extends BaseController
 			die('Nenhuma aula selecionada para exclusão.');
 		}
 
-		foreach ($selecionados as $k => $id) {
-			$aulasModel = new AulasModel();
+		$aulasModel = new AulasModel();
+		$aulaProfModel = new AulaProfessorModel();
+		$erros = [];
+		$sucessos = 0;
 
+		foreach ($selecionados as $id) {
 			$restricoes = $aulasModel->getRestricoes(['id' => $id]);
 
 			if (!$restricoes['horarios']) {
-				$aulaProfModel = new AulaProfessorModel();
-				$aulaProfModel->where('aula_id', $id)->delete();
-				$aulasModel->delete($id);
+				try {
+					$aulaProfModel->where('aula_id', $id)->delete();
+					if ($aulasModel->delete($id)) {
+						$sucessos++;
+					} else {
+						$erros[] = "Erro ao excluir aula ID $id";
+					}
+				} catch (\Exception $e) {
+					$erros[] = "Erro ao excluir aula ID $id: " . $e->getMessage();
+				}
+			} else {
+				$erros[] = "Aula ID $id não pode ser excluída - possui horários relacionados";
 			}
 		}
 
-		echo "ok";
+		if (empty($erros)) {
+			echo "ok"; // Todas excluídas com sucesso
+		} else {
+			if ($sucessos > 0) {
+				// Algumas excluídas, outras não
+				echo "Ações parciais: $sucessos aula(s) excluída(s), mas ocorreram erros:<br>" . implode("<br>", $erros);
+			} else {
+				// Nenhuma excluída
+				echo "Nenhuma aula pôde ser excluída:<br>" . implode("<br>", $erros);
+			}
+		}
 	}
 
 	public function getAulasFromTurma($turma)
