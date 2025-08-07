@@ -1,4 +1,11 @@
 <div class="row">
+    <div class="col-xl-12 col-sm-6 grid-margin stretch-card">
+        <div class="card">
+            <div class="row card-body" id="cards-conflitos">
+                Conflitos
+            </div>
+        </div>
+    </div>
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
@@ -239,3 +246,90 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    fetch('/horarios/public/sys/tabela-horarios/verificar-todos-conflitos')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('cards-conflitos');
+            container.innerHTML = ''; // limpar antes de renderizar
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-primary bg-dark text-light">Nenhum conflito encontrado.</div>
+                </div>`;
+                return;
+            }
+
+            const tipos = {
+                'CONFLITO-AMBIENTE': {
+                    cor: 'danger',
+                    icone: 'mdi-map-marker-off',
+                    texto: 'Conflitos de Ambiente'
+                },
+                'CONFLITO-PROFESSOR': {
+                    cor: 'warning',
+                    icone: 'mdi-account-alert',
+                    texto: 'Conflitos de Professor'
+                },
+                'CONFLITO-TURNOS': {
+                    cor: 'danger',
+                    icone: 'mdi-clock-alert-outline',
+                    texto: 'Conflitos de Turnos'
+                },
+                'RESTRIÇÃO-DOCENTE': {
+                    cor: 'warning',
+                    icone: 'mdi-account-cancel-outline',
+                    texto: 'Restrição de Professor'
+                },
+                'CONFLITO-INTERVALO': {
+                    cor: 'warning',
+                    icone: 'mdi-timer-sand-empty',
+                    texto: 'Conflitos de Intervalo'
+                },
+            };
+
+            const contagem = {};
+
+            //agrupando conflitos por tipo
+            data.forEach(c => {
+                if (!contagem[c.tipo]) contagem[c.tipo] = 0;
+                contagem[c.tipo]++;
+            });
+
+            Object.entries(contagem).forEach(([tipo, quantidade]) => {
+                const item = tipos[tipo];
+                container.innerHTML += `
+                <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                    <div class="card border ${item.cor === 'danger' ? 'border-danger' : 'border-warning'}">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-9">
+                                    <div class="d-flex align-items-center align-self-start">
+                                        <h3 class="mb-0">${quantidade}</h3>
+                                        <p class="text-${item.cor} ms-2 mb-0 font-weight-medium">
+                                            Aulas
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="icon icon-box-${item.cor}">
+                                        <span class="mdi ${item.icone} icon-item"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <h6 class="text-muted font-weight-normal">${item.texto}</h6>
+                        </div>
+                    </div>
+                </div>`;
+            })
+        })
+        .catch(error => {
+            document.getElementById('cards-conflitos').innerHTML =
+                '<div class="alert alert-danger">Erro ao carregar conflitos.</div>';
+            console.error('Erro ao buscar conflitos:', error);
+        });
+});
+</script>
+

@@ -843,7 +843,7 @@ class Relatorios extends BaseController
                         <h1>Instituto Federal de Educação, Ciência e Tecnologia de Rondônia</h1>
                         <h2><i>Campus</i> Porto Velho Calama</h2>
                         <h3>Departamento de Apoio ao Ensino - DAPE</h3>
-                        <h1>Horários por Professor</h1>
+                        <h1>Horários por Curso e Turma</h1>
                     </td>
                     <td width="15%" style="text-align: center; border: none;">
                         <img style="height: 25px; margin-bottom: 2px;" src="' . base_url("assets/images/Planifica.png") . '" alt="Logo IFRO">
