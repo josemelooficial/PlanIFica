@@ -484,18 +484,19 @@
 			return;
 		}
 		// Verifica se pelo menos um filtro está preenchido ou se "Todos" está marcado
-		if ((dados.cursos && dados.cursos.length > 0) ||
-				(dados.turmas && dados.turmas.length > 0) ||
-				(dados.professores && dados.professores.length > 0) ||
-				(dados.ambientes && dados.ambientes.length > 0) ||
-				(dados.grupos_ambientes && dados.grupos_ambientes.length > 0) ||
+		var filtroPreenchido = false;
+		if ( (($('#filtroCurso').val() && $('#filtroCurso').val().length > 0)) ||
+				(($('#filtroTurma').val() && $('#filtroTurma').val().length > 0)) ||
+				(($('#filtroProfessor').val() && $('#filtroProfessor').val().length > 0)) ||
+				(($('#filtroAmbiente').val() && $('#filtroAmbiente').val().length > 0)) ||
+				(($('#filtroGrupoAmbiente').val() && $('#filtroGrupoAmbiente').val().length > 0)) ||
 				$('#checkTodosCursos').is(':checked') ||
 				$('#checkTodasTurmas').is(':checked') ||
 				$('#checkTodosProfessores').is(':checked') ||
 				$('#checkTodosAmbientes').is(':checked') ||
 				$('#checkTodosGruposAmbientes').is(':checked')) {
-				filtroPreenchido = true;
-			}
+			filtroPreenchido = true;
+		}
 
 		if (!filtroPreenchido) {
 			$.toast({
