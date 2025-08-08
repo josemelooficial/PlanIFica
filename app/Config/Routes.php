@@ -27,8 +27,10 @@ $routes->get('sys/cadastro-turmas', 'Turmas::index');
 $routes->get('sys/cadastro-horarios-de-aula', 'TemposAula::cadastro');
 
 //adicionar o filter (middleware de login no group depois)
-$routes->group('sys', function ($routes) {
-    $routes->group('tabela-horarios', function ($routes) {
+$routes->group('sys', function ($routes) 
+{
+    $routes->group('tabela-horarios', function ($routes) 
+    {
         $routes->get('', 'TabelaHorarios::index');
         $routes->get('teste/(:num)', 'TabelaHorarios::teste/$1');
         $routes->post('atribuirAula', 'TabelaHorarios::atribuirAula');
@@ -38,10 +40,10 @@ $routes->group('sys', function ($routes) {
         $routes->get('verificar-todos-conflitos', 'AulaHorarioController::verificarConflitosRotina');
 
         $routes->post('bypassAula', 'TabelaHorarios::bypassAula');
-        $routes->post('destacarAula', 'TabelaHorarios::destacarAula');
     });
 
-    $routes->group('cadastro-ambientes', function ($routes) {
+    $routes->group('cadastro-ambientes', function ($routes) 
+    {
         $routes->get('', 'Ambientes::index');
         $routes->post('salvar-ambiente', 'Ambientes::salvarAmbiente');
         $routes->post('deletar-ambiente', 'Ambientes::deletarAmbiente');
@@ -53,7 +55,8 @@ $routes->group('sys', function ($routes) {
         $routes->post('remover-ambientes-grupo', 'Ambientes::removerAmbienteDoGrupo');
     });
 
-    $routes->group('professor', function ($routes) {
+    $routes->group('professor', function ($routes) 
+    {
         $routes->get('', 'Professor::index');
         $routes->get('listar', 'Professor::index');
         $routes->get('cadastro', 'Professor::cadastro');
@@ -141,7 +144,7 @@ $routes->group('sys', function ($routes) {
         $routes->post('deletarMulti', 'Aulas::deletarMulti');
         $routes->post('atualizar', 'Aulas::atualizar');
         $routes->get('getAulasFromTurma/(:num)', 'Aulas::getAulasFromTurma/$1');
-        $routes->get('getTableByAjax', 'Aulas::getTableByAjax');
+        $routes->get('getTableByAjax', 'Aulas::getTableByAjax');        
     });
 
     $routes->group('versao', function ($routes) {
@@ -168,7 +171,8 @@ $routes->group('sys', function ($routes) {
         $routes->post('excluir-permanentemente', 'AdminController::excluirPermanentemente');
     });
 
-    $routes->group('relatorios', function ($routes) {
+    $routes->group('relatorios', function ($routes) 
+    {
         $routes->get('/', 'Relatorios::index');
         $routes->post('filtrar', 'Relatorios::filtrar');
         $routes->post('getTurmasByCurso', 'Relatorios::getTurmasByCurso');
@@ -177,4 +181,5 @@ $routes->group('sys', function ($routes) {
         $routes->post('exportar', 'Relatorios::exportar');
         $routes->post('exportarXLSX','Relatorios::exportarXLSX');
     });
+    
 });
