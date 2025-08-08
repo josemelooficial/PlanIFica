@@ -149,64 +149,82 @@
     const dataTableLangUrl = "<?php echo base_url('assets/js/traducao-dataTable/pt_br.json'); ?>";
 
     //essa linha abaixo é para detectar que o documento foi completamente carregado e executar o código após isso
-    $(document).ready(function() {
-        $('.js-example-basic-single').select2({
+    $(document).ready(function() 
+    {
+        $('.js-example-basic-single').select2(
+        {
             placeholder: "Selecione uma opção:",
             allowClear: true,
             width: '100%'
         });
 
-        $("#turmas").on("invalid", function() {
-            if (this.validity.valueMissing) {
+        $("#turmas").on("invalid", function() 
+        {
+            if (this.validity.valueMissing) 
+            {
                 this.setCustomValidity("Selecione ao menos uma turma!");
             }
         });
 
-        $("#professores, #professoresEdit").on("invalid", function() {
-            if (this.validity.valueMissing) {
+        $("#professores, #professoresEdit").on("invalid", function() 
+        {
+            if (this.validity.valueMissing) 
+            {
                 this.setCustomValidity("Selecione ao menos um professor!");
             }
         });
 
-        $("#turmas, #professores, #professoresEdit").on("change", function() {
+        $("#turmas, #professores, #professoresEdit").on("change", function() 
+        {
             this.setCustomValidity("");
         });
 
         //Seleciona opção do filtro para a tabela
-        $('#filtroCurso').on('change', function() {
+        $('#filtroCurso').on('change', function() 
+        {
             $('#filtroTurma').find('option').remove().end().append('<option value="0">-</option>');
             $('#filtroTurma option[value="0"]').prop('selected', true);
 
             //Buscar turmas do curso selecionado.
-            if ($('#filtroCurso').val() > 0) {
-                $.get('<?php echo base_url('sys/turma/getTurmasByCurso/'); ?>' + $('#filtroCurso').val(), function(data) {
-                    $.each(data, function(idx, obj) {
+            if($('#filtroCurso').val() > 0)
+            {
+                $.get('<?php echo base_url('sys/turma/getTurmasByCurso/'); ?>' + $('#filtroCurso').val(), function(data) 
+                {
+                    $.each(data, function(idx, obj) 
+                    {
                         $('#filtroTurma').append('<option value="' + obj.id + '">' + obj.sigla + '</option>');
                     });
                 }, 'json')
             }
         });
 
-        table = $("#listagem-aulas").DataTable({
+        table = $("#listagem-aulas").DataTable(
+        {
             stateSave: true,
-            stateSaveCallback: function(settings, data) {
-                localStorage.setItem('DataTables_' + settings.sInstance, JSON.stringify(data))
+            stateSaveCallback: function(settings,data) 
+            {
+                localStorage.setItem( 'DataTables_' + settings.sInstance, JSON.stringify(data))
             },
-            stateLoadCallback: function(settings) {
+            stateLoadCallback: function(settings) 
+            {
                 let myJson = null;
 
-                if (localStorage.getItem('DataTables_' + settings.sInstance) !== null) {
-                    myJson = JSON.parse(localStorage.getItem('DataTables_' + settings.sInstance));
-
-                    if (myJson.hasOwnProperty("columns")) {
-                        var valueCurso = $("#filtroCurso option").filter(function() {
+                if(localStorage.getItem( 'DataTables_' + settings.sInstance ) !== null)
+                {
+                    myJson = JSON.parse( localStorage.getItem( 'DataTables_' + settings.sInstance ));
+                
+                    if (myJson.hasOwnProperty("columns")) 
+                    {
+                        var valueCurso = $("#filtroCurso option").filter(function()
+                        {
                             return $(this).text() == myJson.columns[1].search.search;
                         }).val();
 
                         $("#filtroCurso").val(valueCurso).trigger("change");
 
                         setTimeout(function() {
-                            var valueTurma = $("#filtroTurma option").filter(function() {
+                            var valueTurma = $("#filtroTurma option").filter(function()
+                            {
                                 return $(this).text() == myJson.columns[2].search.search;
                             }).val();
 
@@ -215,13 +233,13 @@
                         }, 2000);
                     }
                 }
-
+                
                 return myJson;
             },
-            ajax: {
-                url: "<?php echo base_url('sys/aulas/getTableByAjax'); ?>",
-                dataSrc: ""
-            },
+            ajax:{
+                url:"<?php echo base_url('sys/aulas/getTableByAjax'); ?>",
+                dataSrc:""
+            },                
             aLengthMenu: [
                 [25, 50, 100, -1],
                 [25, 50, 100, "Todos"],
@@ -235,76 +253,63 @@
                 [1, 'asc'],
                 [2, 'asc']
             ],
-            columns: [{
-                    data: null
-                },
-                {
-                    data: 'curso_nome'
-                },
-                {
-                    data: 'turma_sigla'
-                },
-                {
-                    data: 'disciplina_nome'
-                },
-                {
-                    data: 'disciplina_ch_semanal'
-                },
-                {
-                    data: 'professores_nome'
-                },
-                {
-                    data: null
-                }
+            columns: [
+                { data: null },
+                { data: 'curso_nome' },
+                { data: 'turma_sigla' },
+                { data: 'disciplina_nome' },
+                { data: 'disciplina_ch_semanal' },
+                { data: 'professores_nome' },
+                { data: null }
             ],
-            columnDefs: [{
+            columnDefs: [
+                {
                     targets: 6,
                     data: null,
                     className: 'dt-left',
-                    render: function(data, type, row, meta) {
+                    render: function (data, type, row, meta) {
                         return `
-                <div class="d-flex">
-                    <span data-bs-toggle="tooltip" data-placement="top" title="Atualizar dados da aula">
-                        <button
-                            type="button"
-                            class="justify-content-center align-items-center d-flex btn btn-inverse-success button-trans-success btn-icon me-1"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modal-edit-aula"
-                            data-id="${data.id}"
-                            data-curso="${data.curso_nome}"
-                            data-curso_id="${data.curso_id}"
-                            data-turma="${data.turma_sigla}"
-                            data-turma_id="${data.turma_id}"
-                            data-disciplina="${data.disciplina_nome}"
-                            data-disciplina_id="${data.disciplina_id}"
-                            data-profs="${data.professores_nome}"
-                            data-profs_id="${data.professores_id}"
-                            data-destaque="${data.destaque}"> <!-- Adicione esta linha -->
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    </span>
-                    <span data-bs-toggle="tooltip" data-placement="top" title="Excluir aula">
-                        <button
-                            type="button"
-                            class="justify-content-center align-items-center d-flex btn btn-inverse-danger button-trans-danger btn-icon me-1"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modal-deletar-aula"
-                            data-id="${data.id}"
-                            data-curso="${data.curso_nome}"
-                            data-turma="${data.turma_sigla}"
-                            data-disciplina="${data.disciplina_nome}">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </span>
-                </div>
-            `;
+                            <div class="d-flex">
+                                <span data-bs-toggle="tooltip" data-placement="top" title="Atualizar dados da aula">
+                                    <button
+                                        type="button"
+                                        class="justify-content-center align-items-center d-flex btn btn-inverse-success button-trans-success btn-icon me-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modal-edit-aula"
+                                        data-id="${data.id}"
+                                        data-curso="${data.curso_nome}"
+                                        data-curso_id="${data.curso_id}"
+                                        data-turma="${data.turma_sigla}"
+                                        data-turma_id="${data.turma_id}"
+                                        data-disciplina="${data.disciplina_nome}"
+                                        data-disciplina_id="${data.disciplina_id}"
+                                        data-profs="${data.professores_nome}"
+                                        data-profs_id="${data.professores_id}">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                </span>
+                                <span data-bs-toggle="tooltip" data-placement="top" title="Excluir aula">
+                                    <button
+                                        type="button"
+                                        class="justify-content-center align-items-center d-flex btn btn-inverse-danger button-trans-danger btn-icon me-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modal-deletar-aula"
+                                        data-id="${data.id}"
+                                        data-curso="${data.curso_nome}"
+                                        data-turma="${data.turma_sigla}"
+                                        data-disciplina="${data.disciplina_nome}">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        `;
                     }
                 },
                 {
                     targets: 0,
                     data: null,
                     className: 'dt-center',
-                    render: function(data, type, row, meta) {
+                    render: function (data, type, row, meta) {
                         return `
                             <label class="form-check-label">
                                 <input type="checkbox" class="form-check-input" name="selecionados[]" value="${data.id}">
@@ -313,13 +318,12 @@
                     }
                 }
             ],
-            footerCallback: function(row, data, start, end, display) {
+            footerCallback: function (row, data, start, end, display)
+            {
                 let api = this.api();
                 // Total over this page
                 pageTotal = api
-                    .column(4, {
-                        page: 'current'
-                    })
+                    .column(4, { page: 'current' })
                     .data()
                     .reduce((a, b) => parseInt(a) + parseInt(b), 0);
                 api.column(4).footer().innerHTML = pageTotal;
@@ -327,16 +331,17 @@
         });
 
         //Seleciona opção do filtro para a tabela
-        $('#filtroCurso').on('change', function() {
+        $('#filtroCurso').on('change', function() 
+        {
             /*$('#filtroTurma').find('option').remove().end().append('<option value="0">-</option>');
             $('#filtroTurma option[value="0"]').prop('selected', true);
 
             //Buscar turmas do curso selecionado.
             if($('#filtroCurso').val() > 0)
             {
-                $.get('<?php echo base_url('sys/turma/getTurmasByCurso/'); ?>' + $('#filtroCurso').val(), function(data)
+                $.get('<?php echo base_url('sys/turma/getTurmasByCurso/'); ?>' + $('#filtroCurso').val(), function(data) 
                 {
-                    $.each(data, function(idx, obj)
+                    $.each(data, function(idx, obj) 
                     {
                         $('#filtroTurma').append('<option value="' + obj.id + '">' + obj.sigla + '</option>');
                     });
@@ -347,15 +352,14 @@
             table.draw();
         });
 
-        $('#filtroTurma').on('change', function() {
-            table.columns(2).search($('#filtroTurma option:selected').text(), false, false, {
-                boundary: true,
-                exact: true
-            });
+        $('#filtroTurma').on('change', function()
+        {
+            table.columns(2).search($('#filtroTurma option:selected').text(), false, false, {boundary: true, exact: true});
             table.draw();
         });
 
-        $('#modal-edit-aula').on('show.bs.modal', function(event) {
+        $('#modal-edit-aula').on('show.bs.modal', function(event) 
+        {
             var button = $(event.relatedTarget);
 
             var id = button.data('id');
@@ -377,7 +381,8 @@
         });
 
         //Mesma abordagem do código acima, para o modal de excluir professor
-        $('#modal-deletar-aula').on('show.bs.modal', function(event) {
+        $('#modal-deletar-aula').on('show.bs.modal', function(event) 
+        {
             var button = $(event.relatedTarget);
 
             var id = button.data('id');
@@ -393,7 +398,7 @@
         });
 
         //Ativa os tooltips dos botões
-        $('[data-bs-toggle="tooltip"]').tooltip();
+        $('[data-bs-toggle="tooltip"]').tooltip();            
 
         // Exibe mensagem de erro se o flashdata estiver com 'erro'
         <?php if (session()->has('erros')): ?>

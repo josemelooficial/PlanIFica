@@ -9,8 +9,7 @@
             </div>
             <form id="cadastrarAula" class="forms-sample" method="post" action='<?php echo base_url('sys/aulas/salvar'); ?>'>
                 <div class="modal-body">
-                    <?php //echo csrf_field()
-                    ?>
+                    <?php //echo csrf_field() ?>
 
                     <div class="form-group">
                         <label for="curso">Curso</label>
@@ -44,16 +43,6 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <div class="form-check form-check-flat">
-                            <label class="form-check-label">
-                                <input type="checkbox" class="form-check-input" id="destaque" name="destaque" value="1">
-                                Marcar como aula em destaque
-                                <i class="input-helper"></i>
-                            </label>
-                        </div>
-                    </div>
-
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary me-2">Salvar</button>
@@ -66,38 +55,39 @@
 
 <script>
     let cursos = [
-        <?php foreach ($cursos as $curso): ?> {
-                "id": "<?php echo $curso['id'] ?>",
-                "nome": "<?php echo $curso['nome'] ?>",
-                "matriz": "<?php echo $curso['matriz_id'] ?>"
+        <?php foreach ($cursos as $curso): ?>
+            {
+                "id": "<?php echo $curso['id'] ?>","nome": "<?php echo $curso['nome'] ?>","matriz": "<?php echo $curso['matriz_id'] ?>"
             },
         <?php endforeach; ?>
     ];
 
     let turmas = [
-        <?php foreach ($turmas as $turma): ?> {
-                "id": "<?php echo $turma['id'] ?>",
-                "sigla": "<?php echo $turma['sigla'] ?>",
-                "curso": "<?php echo $turma['curso_id'] ?>"
+        <?php foreach ($turmas as $turma): ?>
+            {
+                "id": "<?php echo $turma['id'] ?>","sigla": "<?php echo $turma['sigla'] ?>","curso": "<?php echo $turma['curso_id'] ?>"
             },
         <?php endforeach; ?>
     ];
 
     let disciplinas = [
-        <?php foreach ($disciplinas as $disciplina): ?> {
-                "id": "<?php echo $disciplina['id'] ?>",
-                "nome": "<?php echo $disciplina['nome'] ?>",
-                "matriz": "<?php echo $disciplina['matriz_id'] ?>"
+        <?php foreach ($disciplinas as $disciplina): ?>
+            {
+                "id": "<?php echo $disciplina['id'] ?>", "nome": "<?php echo $disciplina['nome'] ?>", "matriz": "<?php echo $disciplina['matriz_id'] ?>"
             },
         <?php endforeach; ?>
     ];
 
-    function updateSelectTurmas() {
+    function updateSelectTurmas() 
+    {
         $('.select2-turmas').empty();
 
-        turmas.forEach(function(obj) {
-            if (obj.curso == $("#curso option:selected").val()) {
-                $(".select2-turmas").append($('<option>', {
+        turmas.forEach(function(obj) 
+        {
+            if (obj.curso == $("#curso option:selected").val()) 
+            {
+                $(".select2-turmas").append($('<option>', 
+                {
                     value: obj.id,
                     text: obj.sigla
                 }));
@@ -105,11 +95,14 @@
         });
     }
 
-    function getMatrizFromCurso() {
+    function getMatrizFromCurso() 
+    {
         var matriz = -1;
 
-        cursos.forEach(function(obj) {
-            if (obj.id == $("#curso option:selected").val()) {
+        cursos.forEach(function(obj) 
+        {
+            if(obj.id == $("#curso option:selected").val()) 
+            {
                 matriz = obj.matriz;
             }
         });
@@ -117,70 +110,84 @@
         return matriz;
     }
 
-    function updateSelectDisciplinas() {
+    function updateSelectDisciplinas() 
+    {
         let matriz = getMatrizFromCurso();
         $('#disciplina').empty();
-        $('#disciplina').append($('<option>', {
-            value: '0',
-            text: '-'
-        }));
+        $('#disciplina').append($('<option>', {value: '0',text: '-'}));
 
-        disciplinas.forEach(function(obj) {
-            if (obj.matriz == matriz) {
-                $("#disciplina").append($('<option>', {
+        disciplinas.forEach(function(obj) 
+        {
+            if (obj.matriz == matriz) 
+            {
+                $("#disciplina").append($('<option>', 
+                {
                     value: obj.id,
                     text: obj.nome
                 }));
             }
         });
-    }
+    }    
 
-    $(document).ready(function() {
+    $(document).ready(function() 
+    {
         updateSelectTurmas();
         updateSelectDisciplinas();
 
-        if ($(".select2-turmas").length) {
-            $(".select2-turmas").select2({
+        if ($(".select2-turmas").length) 
+        {
+            $(".select2-turmas").select2(
+            {
                 language: {
-                    noResults: function() {
-                        return "Nenhum resultado encontrado"
+                    noResults:function()
+                    {
+                        return"Nenhum resultado encontrado"
                     }
                 },
                 dropdownParent: $('#modal-cad-aula')
             });
         }
 
-        if ($(".select2-professores").length) {
-            $(".select2-professores").select2({
+        if ($(".select2-professores").length)
+        {
+            $(".select2-professores").select2(
+            {
                 language: {
-                    noResults: function() {
-                        return "Nenhum resultado encontrado"
+                    noResults:function()
+                    {
+                        return"Nenhum resultado encontrado"
                     }
                 },
                 dropdownParent: $('#modal-cad-aula')
             });
         }
 
-        if ($("#disciplina").length) {
-            $("#disciplina").select2({
+        if ($("#disciplina").length) 
+        {
+            $("#disciplina").select2(
+            {
                 language: {
-                    noResults: function() {
-                        return "Nenhum resultado encontrado"
+                    noResults:function()
+                    {
+                        return"Nenhum resultado encontrado"
                     }
                 },
                 dropdownParent: $('#modal-cad-aula')
             });
         }
 
-        $("#curso").on("change", function() {
+        $("#curso").on("change", function() 
+        {
             updateSelectTurmas();
             updateSelectDisciplinas();
         });
 
-        $("#cadastrarAula").on("submit", function(e) {
+        $("#cadastrarAula").on("submit", function(e) 
+        {
             e.preventDefault();
 
-            if ($("#disciplina").val() == "0") {
+            if($("#disciplina").val() == "0") 
+            {
                 alert("Selecione uma disciplina válida.");
                 return;
             }
@@ -190,13 +197,16 @@
             let data = form.serialize();
 
 
-            $.ajax({
+            $.ajax(
+            {
                 type: "POST",
                 url: url,
                 data: data,
 
-                success: function(response) {
-                    if (response == "ok") {
+                success: function(response) 
+                {
+                    if (response == "ok") 
+                    {
                         // Limpar os campos
                         updateSelectDisciplinas();
                         $("#professores").val(null).trigger("change");
@@ -213,14 +223,18 @@
 
                         // Recarregar a tabela de aulas
                         table.ajax.reload();
-                    } else {
+                    } 
+                    else 
+                    {
                         alert("Erro ao cadastrar a aula: " + response);
                     }
                 },
-                error: function() {
+                error: function() 
+                {
                     alert("Erro inesperado ao salvar a aula.");
                 }
             });
         });
     });
+
 </script>
