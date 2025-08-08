@@ -46,6 +46,16 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <div class="form-check form-check-flat">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input" id="destaqueEdit" name="destaque" value="1">
+                                Marcar como aula em destaque
+                                <i class="input-helper"></i>
+                            </label>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary me-2">Salvar</button>
@@ -56,8 +66,7 @@
     </div>
 </div>
 
-<script>  
-
+<script>
     function updateSelectTurmasEdit() {
         $('#turmaEdit').empty();
         turmas.forEach(function(obj) {
@@ -73,7 +82,7 @@
     function getMatrizFromCursoEdit() {
         var matriz = -1;
         cursos.forEach(function(obj) {
-            if(obj.id == $("#cursoEdit option:selected").val()) {
+            if (obj.id == $("#cursoEdit option:selected").val()) {
                 matriz = obj.matriz;
             }
         });
@@ -99,8 +108,8 @@
         if ($(".select2-professoresEdit").length) {
             $(".select2-professoresEdit").select2({
                 language: {
-                    noResults:function(){
-                        return"Nenhum resultado encontrado"
+                    noResults: function() {
+                        return "Nenhum resultado encontrado"
                     }
                 },
                 dropdownParent: $('#modal-edit-aula')
@@ -110,8 +119,8 @@
         if ($("#disciplinaEdit").length) {
             $("#disciplinaEdit").select2({
                 language: {
-                    noResults:function(){
-                        return"Nenhum resultado encontrado"
+                    noResults: function() {
+                        return "Nenhum resultado encontrado"
                     }
                 },
                 dropdownParent: $('#modal-edit-aula')
@@ -123,6 +132,100 @@
             updateSelectDisciplinasEdit();
         });
 
+        // Função para carregar os dados da aula ao abrir o modal de edição
+        function carregarDadosAula(aulaId) {
+            $.ajax({
+                url: '<?php echo base_url('sys/aulas/getAulaData/') ?>' + aulaId,
+                type: 'GET',
+                success: function(response) {
+                    var aulaData = JSON.parse(response);
+
+                    // Preenche os outros campos como já deve estar fazendo...
+
+                    // Define o status da checkbox de destaque
+                    if (aulaData.destaque == 1) {
+                        $('#destaqueEdit').prop('checked', true);
+                    } else {
+                        $('#destaqueEdit').prop('checked', false);
+                    }
+                }
+            });
+        }
+
+        // Chamada quando o modal de edição é aberto
+        $('#modal-edit-aula').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+
+            var id = button.data('id');
+            var curso = button.data('curso');
+            var curso_id = button.data('curso_id');
+            var disciplina = button.data('disciplina');
+            var disciplina_id = button.data('disciplina_id');
+            var turma = button.data('turma');
+            var turma_id = button.data('turma_id');
+            var profs_id = button.data('profs_id') + "";
+            var prof = (profs_id.indexOf(",") > -1) ? profs_id.split(',') : profs_id;
+            var destaque = button.data('destaque');
+
+            var modal = $(this);
+            modal.find('#edit-id').val(id);
+            modal.find('#cursoEdit').val(curso_id).change();
+            modal.find('#turmaEdit').val(turma_id).change();
+            modal.find('#disciplinaEdit').val(disciplina_id).change();
+            modal.find('.select2-professoresEdit').val(prof).change();
+
+            if (destaque == 1) {
+                modal.find('#destaqueEdit').prop('checked', true);
+            } else {
+                modal.find('#destaqueEdit').prop('checked', false);
+            }
+        });
+
+        // Adiciona o evento de submit do formulário de edição
+        $("#editarAula").on("submit", function(e) {
+            e.preventDefault();
+
+            if ($("#disciplinaEdit").val() == "0") {
+                alert("Selecione uma disciplina válida.");
+                return;
+            }
+
+            let form = $(this);
+            let url = form.attr('action');
+            let data = form.serialize();
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                success: function(response) {
+                    if (response == "ok") {
+                        // Fechar o modal
+                        $('#modal-edit-aula').modal('hide');
+
+                        // Mensagem de sucesso
+                        $.toast({
+                            heading: 'Sucesso',
+                            text: 'Aula atualizada com sucesso!',
+                            showHideTransition: 'slide',
+                            icon: 'success',
+                            loaderBg: '#46c35f',
+                            position: 'top-center'
+                        });
+
+                        // Recarregar a tabela
+                        if (typeof table !== 'undefined') {
+                            table.ajax.reload();
+                        }
+                    } else {
+                        alert("Erro ao atualizar a aula: " + response);
+                    }
+                },
+                error: function() {
+                    alert("Erro inesperado ao atualizar a aula.");
+                }
+            });
+        });
+
     })(jQuery);
-    
 </script>
