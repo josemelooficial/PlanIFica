@@ -92,6 +92,11 @@
     .drag-over {
         background-color: #6c7293 !important;
     }
+
+    .min-height-card {
+        min-height: 80px;
+        position: relative;
+    }
 </style>
 
 <!-- Modal -->
@@ -1050,7 +1055,7 @@
 
                             // Preenche o horário selecionado
                             horarioSelecionado.html(`
-                            <div class="card border-1 shadow-sm bg-gradient" style="cursor: pointer; height: 100%;">
+                            <div class="card border-1 shadow-sm bg-gradient min-height-card" style="cursor: pointer; height: 100%;">
                                 <div class="card-body p-1 d-flex flex-column justify-content-center align-items-center text-center">
                                     <h6 class="text-wrap mb-0 fs-6 ${conflitoStyle}" style="font-size: 0.75rem !important; margin-right: 15px">
                                         <i class="fa ${conflitoIcon} me-1"></i>
@@ -1256,7 +1261,7 @@
 
                         // Preenche o horário selecionado
                         $(`#horario_${horarioId}`).html(`
-                        <div class="card border-1 shadow-sm bg-gradient" style="cursor: pointer; height: 100%;">
+                        <div class="card border-1 shadow-sm bg-gradient min-height-card" style="cursor: pointer; height: 100%;">
                             <div class="card-body p-1 d-flex flex-column justify-content-center align-items-center text-center">
                                 <h6 class="text-wrap mb-0 fs-6 ${conflitoStyle}" style="font-size: 0.75rem !important; margin-right: 15px">
                                     <i class="fa ${conflitoIcon} me-1"></i>
@@ -1847,7 +1852,7 @@
 
                                     // Preenche o horário selecionado
                                     horarioSelecionado.html(`
-                                    <div class="card border-1 shadow-sm bg-gradient" style="cursor: pointer; height: 100%;">
+                                    <div class="card border-1 shadow-sm bg-gradient min-height-card" style="cursor: pointer; height: 100%;">
                                         <div class="card-body p-1 d-flex flex-column justify-content-center align-items-center text-center">
 
                                             <h6 class="text-wrap mb-0 fs-6 ${conflitoStyle}" style="font-size: 0.75rem !important; margin-right: 15px">
