@@ -782,19 +782,31 @@
                 {                    
                     $('#modalRemocaoConflitoCurso').text("Curso: " + data[0].curso);
                     $('#modalRemocaoConflitoTurma').text("Turma: " + data[0].turma);
-                    $('#modalRemocaoConflitoDisciplina').text("Disciplina: " + data[0].disciplina);                    
+                    $('#modalRemocaoConflitoDisciplina').text("Disciplina: " + data[0].disciplina);
+
+                    var professores = data[0].professor;
+                    var ambientes = data[0].ambiente;
+
+                    data.forEach(function(value)
+                    {
+                        if(professores.indexOf(value.professor) < 0)
+                            professores += ", " + value.professor;
+
+                        if(ambientes.indexOf(value.ambiente) < 0)
+                            ambientes += ", " + value.ambiente;
+                    });
 
                     if($horario.data('conflitoProfessor') == 1)
                     {
                             $('#modalRemocaoConflitoProfessor')
-                                .html('<i class="fa fa-exclamation-circle me-1"></i> ' + 'Professor(es): ' + data[0].professor)
+                                .html('<i class="fa fa-exclamation-circle me-1"></i> ' + 'Professor(es): ' + professores)
                                 .addClass('text-danger')
                                 .removeClass('text-warning');
                     }
                     else
                     {
                         $('#modalRemocaoConflitoProfessor')
-                            .text("Professor(es): " + data[0].professor)
+                            .text("Professor(es): " + professores)
                             .addClass('text-warning')
                             .removeClass('text-danger');
                     }
@@ -802,27 +814,25 @@
                     if($horario.data('conflitoAmbiente') == 1)
                     {
                         $('#modalRemocaoConflitoAmbiente')
-                            .html('<i class="fa fa-exclamation-circle me-1"></i> ' + 'Ambiente(s): ')
+                            .html('<i class="fa fa-exclamation-circle me-1"></i> ' + 'Ambiente(s): ' + ambientes)
                             .addClass('text-danger')
                             .removeClass('text-warning');                        
-
-                        //$('#rowAlterarAmbiente').show();
                     }
                     else
                     {
                         $('#modalRemocaoConflitoAmbiente')
-                            .text("Ambiente(s): ")
+                            .text("Ambiente(s): " + ambientes)
                             .addClass('text-warning')
                             .removeClass('text-danger');
                     }
 
-                    $.each(data, function(index, value)
+                    /*$.each(data, function(index, value)
                     {
                         if($('#modalRemocaoConflitoAmbiente').html().indexOf(value.ambiente) < 0)
                         {
                             $('#modalRemocaoConflitoAmbiente').append(value.ambiente + " | ");
                         }                        
-                    });
+                    });*/
 
                 }, 'json');
 
