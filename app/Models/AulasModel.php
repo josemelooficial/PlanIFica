@@ -13,7 +13,7 @@ class AulasModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['disciplina_id', 'turma_id', 'versao_id'];
+    protected $allowedFields    = ['disciplina_id', 'turma_id', 'versao_id', 'destaque'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -71,15 +71,15 @@ class AulasModel extends Model
     public function getAulasComTurmaDisciplinaEProfessores()
     {
         return $this->select(
-            "aulas.*, 
+            "aulas.*,
                 turma.sigla as turma_sigla,
                 turma.id as turma_id,
                 disciplina.nome as disciplina_nome,
                 disciplina.id as disciplina_id,
                 disciplina.ch as disciplina_ch,
-                CASE 
-                    WHEN curso.regime = 1 THEN CAST((disciplina.ch / 40) as INT)
-                    WHEN curso.regime = 2 THEN CAST((disciplina.ch / 20) as INT)
+                CASE
+                    WHEN curso.regime = 1 THEN CAST((disciplina.ch / 40) as SIGNED)
+                    WHEN curso.regime = 2 THEN CAST((disciplina.ch / 20) as SIGNED)
                 END AS disciplina_ch_semanal,
                 curso.nome as curso_nome,
                 curso.id as curso_id,
@@ -102,36 +102,36 @@ class AulasModel extends Model
         $builder->where('versao_id', $versao);
         $query = $builder->get();
 
-        if ($query->getNumRows() > 0) 
+        if ($query->getNumRows() > 0)
         {
             return true; // A versão existe na tabela
-        } 
-        else 
+        }
+        else
         {
             return false; // A versão não existe na tabela
         }
     }*/
 
-    public function getRestricoes($id) 
+    public function getRestricoes($id)
     {
         $id = $id['id'];
 
         $professores = $this->db->table('aula_professor')
-                        ->where('aula_id', $id)
-                        ->get()
-                        ->getNumRows();
+            ->where('aula_id', $id)
+            ->get()
+            ->getNumRows();
 
         $horarios = $this->db->table('aula_horario')
-                        ->where('aula_id', $id)
-                        ->where('versao_id', (new \App\Models\VersoesModel())->getVersaoByUser(auth()->id()))
-                        ->get()
-                        ->getNumRows();
+            ->where('aula_id', $id)
+            ->where('versao_id', (new \App\Models\VersoesModel())->getVersaoByUser(auth()->id()))
+            ->get()
+            ->getNumRows();
 
         $restricoes = [
-            'professores' => $professores, 
+            'professores' => $professores,
             'horarios' => $horarios
         ];
 
         return $restricoes;
-    }    
+    }
 }
