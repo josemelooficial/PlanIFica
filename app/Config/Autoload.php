@@ -100,13 +100,4 @@ class Autoload extends AutoloadConfig
      * @var list<string>
      */
     public $helpers = ['auth', 'setting'];
-
-    /**
-     * -------------------------------------------------------------------
-     * Composer auto-loading
-     * -------------------------------------------------------------------
-     *
-     * @var bool
-     */
-    public $composerAutoload = true;
 }
