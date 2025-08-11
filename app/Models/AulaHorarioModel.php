@@ -216,6 +216,59 @@ class AulaHorarioModel extends Model
         return 0; // Sem conflito
     }
 
+    public function destacandoConflitoAmbiente($aulaId, $horarioId)
+        {
+            // 1. Buscar o ambiente da aula informada
+            $ambienteRow = $this->db->table('aula_horario_ambiente')
+                ->select('ambiente_id')
+                ->where('aula_horario_id', $aulaId)
+                ->get()
+                ->getRowArray();
+            // dd($ambienteRow);
+            if (!$ambienteRow) {
+                return []; // não encontrou a aula
+            }
+
+            $ambienteId = $ambienteRow['ambiente_id'];
+
+            // 2. Buscar dia e hora do horário informado
+            $tempoRow = $this->db->table('tempos_de_aula')
+                ->select('dia_semana, hora_inicio, minuto_inicio, hora_fim, minuto_fim')
+                ->where('id', $horarioId)
+                ->get()
+                ->getRowArray();
+
+            if (!$tempoRow) {
+                return []; // não encontrou o horário
+            }
+
+            $dia_semana     = $tempoRow['dia_semana'];
+            $hora_inicio    = $tempoRow['hora_inicio'];
+            $minuto_inicio  = $tempoRow['minuto_inicio'];
+            $hora_fim       = $tempoRow['hora_fim'];
+            $minuto_fim     = $tempoRow['minuto_fim'];
+
+            // 3. Buscar se já existe conflito com outro horário do mesmo ambiente no mesmo dia
+            $conflitos = $this->select('aula_horario.id as theid')
+                ->join('tempos_de_aula', 'aula_horario.tempo_de_aula_id = tempos_de_aula.id')
+                ->join('aula_horario_ambiente', 'aula_horario_ambiente.aula_horario_id = aula_horario.id')
+                ->groupStart()
+                    ->where('bypass is null')
+                    ->orWhere('bypass', '0')
+                ->groupEnd()
+                // ->where('aula_horario_ambiente.ambiente_id', $ambienteId)
+                // ->where('tempos_de_aula.dia_semana', $dia_semana)
+                // ->where('(tempos_de_aula.hora_inicio * 60 + tempos_de_aula.minuto_inicio) <', $hora_fim * 60 + $minuto_fim)
+                // ->where('(tempos_de_aula.hora_fim * 60 + tempos_de_aula.minuto_fim) >', $hora_inicio * 60 + $minuto_inicio)
+                // ->where('versao_id', (new VersoesModel())->getVersaoByUser(auth()->id()))
+                ->get()
+                ->getResultArray();
+
+            return $conflitos; // array vazio = sem conflito
+        }
+
+
+
     public function choqueDocente($aulaHorarioId)
     {
         $builder = $this->select('professor_id, tempo_de_aula_id')

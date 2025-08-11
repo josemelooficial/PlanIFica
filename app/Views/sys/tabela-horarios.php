@@ -963,6 +963,17 @@
         // Função para abrir o modal de seleção de ambiente
         function abrirModalAmbiente(aulaId, horarioId) 
         {
+            console.log(aulaId, horarioId);
+
+            $.post('<?php echo base_url('sys/tabela-horarios/destacar-conflitos-ambiente'); ?>', 
+            {
+                aula_id: aulaId,
+                horario_id: horarioId
+            }, function(data) {
+                console.log(data);
+            });
+
+
             let minhaAula = getAulaById(aulaId);
             $("#modalAmbienteNomeDisciplina").html(minhaAula.disciplina);
             $("#modalAmbienteProfessor").html(minhaAula.professores.join(", "));

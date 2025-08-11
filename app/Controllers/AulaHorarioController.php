@@ -9,8 +9,7 @@ use App\Models\VersoesModel;
 use App\Models\AmbientesModel;
 use App\Models\AulaHorarioModel;
 use App\Models\AulaHorarioAmbienteModel;
-
-
+use CodeIgniter\HTTP\Request;
 
 class AulaHorarioController extends BaseController
 {
@@ -77,8 +76,30 @@ class AulaHorarioController extends BaseController
     // dd($conflitos);
     return $this->response->setJSON($conflitos);
 
-
   }
+
+  public function destacarConflitosAmbiente()
+{
+    $data = $this->request->getPost();
+    $idAula = $data['aula_id'];
+    $idHorario = $data['horario_id'];
+
+    $aulaHorarioModel = new AulaHorarioModel();
+    $conflitos = $aulaHorarioModel->destacandoConflitoAmbiente($idAula, $idHorario);
+
+    // dd($conflitos);
+    if (!empty($conflitos)) {
+        return $this->response->setJSON([
+            'status' => 'alerta',
+            'mensagem' => 'Conflito detectado com outro horário.',
+            'conflitos' => $conflitos
+        ]);
+    }
+
+    return $this->response->setJSON(['status' => 'ok']);
+}
+
+  
 }
 
 // $intervalo = $aulaHorarioModel->verificarTempoEntreTurnos($aulaHorarioId);
