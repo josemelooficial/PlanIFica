@@ -13,7 +13,7 @@ class AulasModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['disciplina_id', 'turma_id', 'versao_id'];
+    protected $allowedFields    = ['disciplina_id', 'turma_id', 'versao_id', 'destaque'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
