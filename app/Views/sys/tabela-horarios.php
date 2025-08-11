@@ -1876,7 +1876,7 @@
                                                 <i class="mdi mdi-close-box fs-6 text-danger me-1" id="btnRemover_horario_${obj.id}"></i><br />
                                                 <i class="mdi mdi-lock fs-6 ${btnFixar} me-1" id="btnFixar_horario_${obj.id}"></i><br />
                                                 <i class="mdi mdi-account-multiple fs-6 ${btnBypass} me-1" id="btnBypass_horario_${obj.id}"></i><br />
-                                                <i class="mdi ${(obj.destaque == 1 || aula.destaque == 1) ? 'mdi-star text-warning' : 'mdi-star-outline text-primary'} fs-6 me-1" id="btnDestacar_horario_${obj.id}"></i>
+                                                <i class="mdi ${(obj.aula_destaque == 1 || obj.destaque == 1) ? 'mdi-star text-warning' : 'mdi-star-outline text-primary'} fs-6 me-1" id="btnDestacar_horario_${obj.id}"></i>
                                             </div>
 
                                         </div>
@@ -1908,19 +1908,6 @@
                                         const isDestaque = $(this).hasClass("mdi-star");
                                         const tipo = isDestaque ? 0 : 1;
 
-                                        // Verificar se está tentando remover o destaque E o destaque veio da aula original
-                                        if (tipo === 0 && aula.destaque == 1) { // Só bloqueia se o destaque veio do cadastro
-                                            $.toast({
-                                                heading: 'Aviso',
-                                                text: 'Não é possível remover o destaque pois esta aula está marcada como destacada no cadastro de aulas.',
-                                                showHideTransition: 'slide',
-                                                icon: 'warning',
-                                                loaderBg: '#f96868',
-                                                position: 'top-center'
-                                            });
-                                            return;
-                                        }
-
                                         $.ajax({
                                             url: '<?php echo base_url('sys/tabela-horarios/destacarAula'); ?>',
                                             type: 'POST',
@@ -1931,42 +1918,56 @@
                                             },
                                             success: function(response) {
                                                 if (response.success) {
-                                                    // Atualiza visualmente conforme a ação
                                                     if (tipo === 1) {
                                                         $(`#btnDestacar_horario_${obj.id}`)
                                                             .removeClass("mdi-star-outline text-primary")
                                                             .addClass("mdi-star text-warning");
-                                                        $(`#horario_${obj.tempo_de_aula_id}`).data('destacada', 1);
                                                     } else {
                                                         $(`#btnDestacar_horario_${obj.id}`)
                                                             .removeClass("mdi-star text-warning")
                                                             .addClass("mdi-star-outline text-primary");
-                                                        $(`#horario_${obj.tempo_de_aula_id}`).data('destacada', 0);
                                                     }
-
                                                     $.toast({
                                                         heading: 'Sucesso',
-                                                        text: (tipo === 1) ? 'Aula destacada com sucesso!' : 'Destaque removido da aula!',
+                                                        text: response.message || 'Operação realizada com sucesso',
                                                         showHideTransition: 'slide',
                                                         icon: 'success',
                                                         loaderBg: '#f96868',
                                                         position: 'top-center'
                                                     });
                                                 } else {
-                                                    $.toast({
-                                                        heading: 'Erro',
-                                                        text: response.message || 'Não foi possível alterar o destaque.',
-                                                        showHideTransition: 'slide',
-                                                        icon: 'error',
-                                                        loaderBg: '#f96868',
-                                                        position: 'top-center'
-                                                    });
+                                                    // Verifica se é uma mensagem especial de toast
+                                                    if (response.message && response.message.startsWith('toast:')) {
+                                                        const parts = response.message.split(':');
+                                                        const type = parts[1];
+                                                        const text = parts[2].split('|')[0];
+                                                        const duration = parts[2].split('|')[1] || 3000;
+
+                                                        $.toast({
+                                                            heading: 'Aviso',
+                                                            text: text,
+                                                            showHideTransition: 'slide',
+                                                            icon: type,
+                                                            loaderBg: '#f2a654',
+                                                            position: 'top-center',
+                                                            hideAfter: duration
+                                                        });
+                                                    } else {
+                                                        $.toast({
+                                                            heading: 'Erro',
+                                                            text: response.message || 'Não foi possível alterar o destaque',
+                                                            showHideTransition: 'slide',
+                                                            icon: 'error',
+                                                            loaderBg: '#f96868',
+                                                            position: 'top-center'
+                                                        });
+                                                    }
                                                 }
                                             },
                                             error: function() {
                                                 $.toast({
                                                     heading: 'Erro',
-                                                    text: 'Falha na comunicação com o servidor.',
+                                                    text: 'Falha na comunicação com o servidor',
                                                     showHideTransition: 'slide',
                                                     icon: 'error',
                                                     loaderBg: '#f96868',
@@ -2048,7 +2049,7 @@
                                         .data('intervalo', obj.intervalo)
                                         .data('aula_horario_id', obj.id)
                                         .data('fixa', obj.fixa)
-                                        .data('destacada', (obj.destaque == 1 || aula.destaque == 1) ? 1 : 0)
+                                        .data('destacada', (obj.destaque == 1 || obj.aula_destaque == 1) ? 1 : 0)
                                         .removeClass('horario-vazio')
                                         .addClass('horario-preenchido')
                                         .off()

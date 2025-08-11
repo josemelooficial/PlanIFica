@@ -51,7 +51,7 @@ class TabelaHorarios extends BaseController
         $aula = $aulaModel->find($dado['aula_id']);
 
         // Forçar destaque se a aula estiver destacada no cadastro
-        $dado['destaque'] = ($aula['destaque'] == 1) ? 1 : 0;
+        $dado['destaque'] = $aula['destaque'] ?? 0;
 
         $aulaHorarioModel = new AulaHorarioModel();
 
@@ -183,18 +183,19 @@ class TabelaHorarios extends BaseController
                 ]);
             }
 
-            // Verificar se a aula original está destacada
+            // Verifica se a aula original está destacada
             $aulaModel = new AulasModel();
             $aula = $aulaModel->find($aulaHorario['aula_id']);
 
-            // Só impede se estiver tentando REMOVER E o destaque veio da AULA ORIGINAL
-            if ($tipo == 0 && isset($aula['destaque']) && $aula['destaque'] == 1) {
+            // Bloqueia completamente se a aula original estiver destacada
+            if (isset($aula['destaque']) && $aula['destaque'] == 1) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Não é possível remover o destaque pois a aula está marcada como destacada no cadastro'
+                    'message' => 'toast:warning:Não é possível alterar o destaque pois a aula está marcada como destacada no cadastro.|5000'
                 ]);
             }
 
+            // Permite adicionar/remover destaque apenas se a aula original NÃO estiver destacada
             $result = ($tipo == 1)
                 ? $aulaHorarioModel->destacarAulaHorario($aulaHorarioId)
                 : $aulaHorarioModel->desDestacarAulaHorario($aulaHorarioId);
