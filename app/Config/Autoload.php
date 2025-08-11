@@ -44,7 +44,8 @@ class Autoload extends AutoloadConfig
         'PhpOffice\\PhpSpreadsheet' => APPPATH . 'ThirdParty/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
         'Psr\\SimpleCache' => APPPATH . 'ThirdParty/psr/simple-cache/src/',
         'CodeIgniter\\Settings' => APPPATH . 'ThirdParty/settings-2.2.0/src',
-        'CodeIgniter\\Shield' => APPPATH . 'ThirdParty/shield-1.1.0/src'
+        'CodeIgniter\\Shield' => APPPATH . 'ThirdParty/shield-1.1.0/src',
+        'ZipStream'   => APPPATH . 'ThirdParty/zipstream/src',
     ];
 
 
@@ -101,12 +102,4 @@ class Autoload extends AutoloadConfig
      */
     public $helpers = ['auth', 'setting'];
 
-    /**
-     * -------------------------------------------------------------------
-     * Composer auto-loading
-     * -------------------------------------------------------------------
-     *
-     * @var bool
-     */
-    public $composerAutoload = true;
 }
