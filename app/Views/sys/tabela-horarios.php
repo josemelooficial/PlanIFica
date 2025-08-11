@@ -1812,6 +1812,8 @@
                                     const aulaSelecionadaId = obj.aula_id;
                                     const aula = getAulaById(obj.aula_id);
 
+                                    aula.destaque = obj.destaque || 0;
+
                                     const ambienteSelecionadoId = obj.ambiente_id;
 
                                     var ambientesSelecionadosNome = [];
@@ -1905,6 +1907,19 @@
 
                                         const isDestaque = $(this).hasClass("mdi-star");
                                         const tipo = isDestaque ? 0 : 1;
+
+                                        // Verificar se está tentando remover o destaque E o destaque veio da aula original
+                                        if (tipo === 0 && aula.destaque == 1) { // Só bloqueia se o destaque veio do cadastro
+                                            $.toast({
+                                                heading: 'Aviso',
+                                                text: 'Não é possível remover o destaque pois esta aula está marcada como destacada no cadastro de aulas.',
+                                                showHideTransition: 'slide',
+                                                icon: 'warning',
+                                                loaderBg: '#f96868',
+                                                position: 'top-center'
+                                            });
+                                            return;
+                                        }
 
                                         $.ajax({
                                             url: '<?php echo base_url('sys/tabela-horarios/destacarAula'); ?>',

@@ -159,8 +159,6 @@ class TabelaHorarios extends BaseController
         echo "1";
     }
 
-    // No Controller TabelaHorarios
-    // No Controller TabelaHorarios
     public function destacarAula()
     {
         try {
@@ -189,6 +187,7 @@ class TabelaHorarios extends BaseController
             $aulaModel = new AulasModel();
             $aula = $aulaModel->find($aulaHorario['aula_id']);
 
+            // Só impede se estiver tentando REMOVER E o destaque veio da AULA ORIGINAL
             if ($tipo == 0 && isset($aula['destaque']) && $aula['destaque'] == 1) {
                 return $this->response->setJSON([
                     'success' => false,
