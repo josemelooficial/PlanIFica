@@ -323,13 +323,14 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             $.toast({
-                heading: 'Erro',
+                heading: '<b>Erro</b>',
                 text: "<?= esc(session()->getFlashdata('erro'), 'js'); ?>",
                 showHideTransition: 'fade',
                 icon: 'error',
                 loaderBg: '#dc3545',
                 position: 'top-center', 
-                hideAfter: false
+                hideAfter: false, 
+                class: 'custom-error-toast error-toast-professores'
             });
         });
     </script>

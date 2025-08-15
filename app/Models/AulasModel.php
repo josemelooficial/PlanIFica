@@ -127,6 +127,42 @@ class AulasModel extends Model
             ->get()
             ->getNumRows();
 
+        if ($horarios) {
+            $horarios = $this->db->table('aula_horario AS ah')
+                ->select("ta.*")
+                ->join("tempos_de_aula AS ta", "ah.tempo_de_aula_id = ta.id")
+                ->where("ah.aula_id", $id)
+                ->get()->getResult();
+
+            $horarios = array_map(function($h) {
+                switch ($h->dia_semana) {
+                    case 1:
+                        $h->dia_semana = "Segunda-Feira";
+                        break;
+                    case 2:
+                        $h->dia_semana = "Terça-Feira";
+                        break;
+                    case 3:
+                        $h->dia_semana = "Quarta-Feira";
+                        break;
+                    case 4:
+                        $h->dia_semana = "Quinta-Feira";
+                        break;
+                    case 5:
+                        $h->dia_semana = "Sexta-Feira";
+                        break;
+                }
+
+                $h->minuto_inicio = $h->minuto_inicio == "0" ? "00" : $h->minuto_inicio;
+                $h->minuto_fim = $h->minuto_fim == "0" ? "00" : $h->minuto_fim;
+                $h->intervalo = "$h->hora_inicio:$h->minuto_inicio - $h->hora_fim:$h->minuto_fim";
+
+                return $h;
+            }, $horarios);
+        } else {
+            $horarios = null;
+        }
+
         $restricoes = [
             'professores' => $professores,
             'horarios' => $horarios
