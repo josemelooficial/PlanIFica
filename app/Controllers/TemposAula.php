@@ -124,13 +124,9 @@ class TemposAula extends BaseController
                     return redirect()->to(base_url('/sys/tempoAula'))->with('erro', 'Erro inesperado ao excluir Tempo de Aula!');
                 }
             } else {
-                $mensagem = "<b>O tempo de aula não pode ser excluído. Este tempo de aula possui</b>";
-                if ($restricoes['horarios']) {
-                    $mensagem = $mensagem . "<br><b>Horário(s) relacionado(s) a ele:</b><br><ul>";
-                    foreach ($restricoes['horarios'] as $h) {
-                        $mensagem = $mensagem . "<li><b>Curso:</b> $h->curso<br> <b>Turma:</b> $h->turma<br> <b>Versão:</b> $h->versao</li>";
-                    }
-                    $mensagem = $mensagem . "</ul>";
+                $mensagem = "O tempo de aula não pode ser excluído.<br>Este tempo de aula possui ";
+                if ($restricoes['regras'] && $restricoes['horarios']) {
+                    $mensagem = $mensagem . "horário relacionado a ele!";
                 }
                 throw new ReferenciaException($mensagem);
             }

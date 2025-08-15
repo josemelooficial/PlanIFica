@@ -61,7 +61,7 @@ class Horario extends BaseController
         try {
             $restricoes = $horarioModel->getRestricoes(['id' => $id]);
 
-            if (!$restricoes['tempos_aula'] && !$restricoes['turmas']) {
+            if (!$restricoes['tempos_aula'] && !$restricoes['turmas'] && !$restricoes['turmas_pref']) {
                 if ($horarioModel->delete($id)) {
                     session()->setFlashdata('sucesso', 'Horário excluído com sucesso!');
                     return redirect()->to(base_url('/sys/horario'));
@@ -69,20 +69,13 @@ class Horario extends BaseController
                     return redirect()->to(base_url('/sys/horario'))->with('erro', 'Erro inesperado ao excluir horário!');
                 }
             } else {
-                $mensagem = "<b>O horário não pode ser excluído. Este horário possui</b>";
-                if ($restricoes['turmas']) {
-                    $mensagem = $mensagem . "<br><b>Turma(s) relacionada(s) a ele:</b><br><ul>";
-                    foreach ($restricoes['turmas'] as $t) {
-                        $mensagem = $mensagem . "<li><b>Turma:</b> $t->turma</li>";
-                    }
-                    $mensagem = $mensagem . "</ul><p>...</p>";
-                }
-                if ($restricoes['tempos_aula']) {
-                    $mensagem = $mensagem . "<br><b>Tempo(s) de aula relacionado(s) a ele:</b><br><ul>";
-                    foreach ($restricoes['tempos_aula'] as $ta) {
-                        $mensagem = $mensagem . "<li><b>Dia/Horário:</b> $ta->dia_semana | $ta->intervalo</li>";
-                    }
-                    $mensagem = $mensagem . "</ul><p>...</p>";
+                $mensagem = "O horário não pode ser excluído.<br>Este horário possui ";
+                if ($restricoes['tempos_aula'] && ($restricoes['turmas'] || $restricoes['turmas_pref'])) {
+                    $mensagem = $mensagem . "tempo(s) de aula e turma(s) relacionadas a ele!";
+                } else if ($restricoes['tempos_aula']) {
+                    $mensagem = $mensagem . "tempo(s) de aula relacionado(s) a ele!";
+                } else {
+                    $mensagem = $mensagem . "turma(s) relacionada(s) a ele!";
                 }
                 throw new ReferenciaException($mensagem);
             }

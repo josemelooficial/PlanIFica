@@ -261,12 +261,12 @@
 					<ul class="navbar-nav navbar-nav-right">
 						<li class="nav-item">
 							<a class="nav-link count-indicator" id="indicadorVersaoVigente" href="<?php echo base_url('sys/versao'); ?>">
-								<i class="mdi mdi-multicast"></i> Versão vigente: <span class="badge badge-warning"> <?php echo $versao_vigente; ?> </span>
+								<i class="mdi mdi-multicast"></i> Versão vigente: <span class="badge badge-info"> <?php echo $versao_vigente; ?> </span>
 							</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link count-indicator" id="indicadorVersao" href="<?php echo base_url('sys/versao'); ?>">
-								<i class="mdi mdi-multicast"></i> Versão ativa: <span class="badge badge-info"> <?php echo $versao_nome; ?> </span>
+								<i class="mdi mdi-multicast"></i> Versão ativa: <span class="badge badge-primary"> <?php echo $versao_nome; ?> </span>
 							</a>
 						</li>
 						<!--

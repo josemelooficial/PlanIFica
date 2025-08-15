@@ -74,20 +74,13 @@ class MatrizCurricular extends BaseController
                     return redirect()->to(base_url('/sys/matriz'))->with('erro', 'Erro inesperado ao excluir Matriz!');
                 }
             } else {
-                $mensagem = "<b>A matriz não pode ser excluída. Esta matriz possui</b>";
-                if ($restricoes['cursos']) {
-                    $mensagem = $mensagem . "<br><b>Curso(s) relacionado(s) a ela:</b><br><ul>";
-                    foreach ($restricoes['cursos'] as $c) {
-                        $mensagem = $mensagem . "<li>$c->nome</li>";
-                    }
-                    $mensagem = $mensagem . "</ul>";
-                }
-                if ($restricoes['disciplinas']) {
-                    $mensagem  = $mensagem . "<br><b>Disciplina(s) relacionada(s) a ela:</b><br><ul>";
-                    foreach ($restricoes['disciplinas'] as $d) {
-                        $mensagem = $mensagem . "<li>$d->nome - $d->abreviatura</li>";
-                    }
-                    $mensagem = $mensagem . "</ul><p>...</p>";
+                $mensagem = "A matriz não pode ser excluída.<br>Esta matriz possui ";
+                if ($restricoes['cursos'] && $restricoes['disciplinas']) {
+                    $mensagem = $mensagem . "curso(s) e disciplina(s) relacionadas a ela!";
+                } else if ($restricoes['cursos']) {
+                    $mensagem = $mensagem . "curso(s) relacionado(s) a ela!";
+                } else {
+                    $mensagem = $mensagem . "disciplina(s) relacionada(s) a ela!";
                 }
                 throw new ReferenciaException($mensagem);
             }

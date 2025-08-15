@@ -108,10 +108,8 @@ class Professor extends BaseController
         {
             $restricoes = $professorModel->getRestricoes(['id' => $id]);
 
-            if (!$restricoes['aulas'])
+            if (!$restricoes['aulas'] && !$restricoes['regras'])
             {
-                $profRegraModel = new ProfessorRegrasModel();
-                $profRegraModel->where('professor_id', $id)->delete();
                 if ($professorModel->delete($id))
                 {
                     session()->setFlashdata('sucesso', 'Professor excluído com sucesso!');
@@ -124,13 +122,18 @@ class Professor extends BaseController
             }
             else
             {
-                $mensagem = "<b>O professor não pode ser excluído. Este professor possui</b>";
-                if ($restricoes['aulas']) {
-                    $mensagem = $mensagem . "<br><b>Aula(s) relacionada(s) a ele:</b><br><ul>";
-                    foreach ($restricoes['aulas'] as $a) {
-                        $mensagem = $mensagem . "<li><b>Disciplina:</b> $a->disciplina<br> <b>Turma:</b> $a->turma<br> <b>Versão:</b> $a->versao</li>";
-                    }
-                    $mensagem = $mensagem . "</ul>";
+                $mensagem = "O professor não pode ser excluído.<br>Este professor possui ";
+                if ($restricoes['aulas'] && $restricoes['regras'])
+                {
+                    $mensagem = $mensagem . "aula(s) e horário(s) relacionados a ele!";
+                }
+                else if ($restricoes['aulas'])
+                {
+                    $mensagem = $mensagem . "aula(s) relacionada(s) a ele!";
+                }
+                else
+                {
+                    $mensagem = $mensagem . "horário(s) relacionado(s) a ele!";
                 }
                 throw new ReferenciaException($mensagem);
             }

@@ -181,23 +181,12 @@ class TemposAulasModel extends Model
     {
         $id = $id['id'];
 
-        $horarios = $this->db->table('aula_horario')->where('tempo_de_aula_id', $id)->get();
-
-        if ($horarios->getNumRows()) {
-            $horarios = $this->db->table('aula_horario AS ah')
-                ->select("c.nome AS curso, t.sigla AS turma, v.nome AS versao")
-                ->join("aulas AS a", "ah.aula_id = a.id")
-                ->join("versoes AS v", "a.versao_id = v.id")
-                ->join("turmas AS t", "a.turma_id = t.id")
-                ->join("cursos AS c", "t.curso_id = c.id")
-                ->where("ah.tempo_de_aula_id", $id)
-                ->get()->getResult();
-        } else {
-            $horarios = null;
-        }
+        $aula_horario = $this->db->table('aula_horario')->where('tempo_de_aula_id', $id)->get()->getNumRows();
+        $professor_regras = $this->db->table('professor_regras')->where('tempo_de_aula_id', $id)->get()->getNumRows();
 
         $restricoes = [
-            'horarios' => $horarios, 
+            'horarios' => $aula_horario, 
+            'regras' => $professor_regras
         ];
 
         return $restricoes;

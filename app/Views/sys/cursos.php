@@ -293,7 +293,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             $.toast({
-                heading: '<b>Erro</b>',
+                heading: 'Erro',
                 text: "<?= esc(session()->getFlashdata('erro'), 'js'); ?>",
                 showHideTransition: 'fade',
                 icon: 'error',
