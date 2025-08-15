@@ -112,7 +112,20 @@ class TurmasModel extends Model
     {
         $id = $id['id'];
 
-        $aulas = $this->db->table('aulas')->where('turma_id', $id)->get()->getNumRows();
+        $aulas = $this->db->table('aulas')->where('turma_id', $id)->get();
+
+        if ($aulas->getNumRows()) {
+            $aulas = $this->db->table('aulas')
+                ->select("aulas.*, d.nome AS disciplina, p.nome AS professor, v.nome AS versao")
+                ->join("disciplinas AS d", "aulas.disciplina_id = d.id")
+                ->join("aula_professor AS ap", "aulas.id = ap.aula_id")
+                ->join("professores AS p", "ap.professor_id = p.id")
+                ->join("versoes AS v", "aulas.versao_id = v.id")
+                ->where("aulas.turma_id", $id)
+                ->get()->getResult();
+        } else {
+            $aulas = null;
+        }
 
         $restricoes = [
             'aulas' => $aulas
