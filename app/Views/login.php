@@ -109,14 +109,15 @@
 
                         <p class="fade-in" style="font-size: 13px;">Prof. Leandro Ferrarezi Valiante</p>
                         <p class="fade-in" style="font-size: 13px;">Prof. Willians de Paula Pereira</p>
+                        <p class="fade-in" style="font-size: 13px;">Prof. Paulo Sérgio Tomé</p>
 
                         <br>
 
-                        <p class="fade-in" style="font-size: 13px;">Jorge Domingos de Sousa Neto</p>
                         <p class="fade-in" style="font-size: 13px;">Kassandra de Oliveira Rodrigues</p>
-                        <p class="fade-in" style="font-size: 13px;">Levir Menezes de Souza</p>
-                        <p class="fade-in" style="font-size: 13px;">Luis Henrique Bergonzini Souza</p>                        
+                        <p class="fade-in" style="font-size: 13px;">Jorge Domingos de Sousa Neto</p>                        
+                        <p class="fade-in" style="font-size: 13px;">Levir Menezes de Souza</p>                                               
                         <p class="fade-in" style="font-size: 13px;">Wagner José Nascimento Relvas</p>
+                        <p class="fade-in" style="font-size: 13px;">Robert Barreto Vieira</p>
 
                         <br>
 
@@ -128,6 +129,7 @@
                         <p class="fade-in" style="font-size: 13px; color: gray; text-decoration: line-through">Igor Vinícius Medonça Barreto</p>
                         <p class="fade-in" style="font-size: 13px; color: gray; text-decoration: line-through">José Claion Martins de Sousa</p>
                         <p class="fade-in" style="font-size: 13px; color: gray; text-decoration: line-through">Poliana Carvalho Lima</p>
+                        <p class="fade-in" style="font-size: 13px; color: gray; text-decoration: line-through">Luis Henrique Bergonzini Souza</p> 
 
                       </div>
                       <div class="modal-footer">
