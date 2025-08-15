@@ -58,11 +58,50 @@ class AmbientesModel extends Model
     {
         $id = $id['id'];
 
-        $grupos = $this->db->table('ambiente_grupo')->where('ambiente_id', $id)->get()->getNumRows();
-        $horarios = $this->db->table('aula_horario_ambiente')->where('ambiente_id', $id)->get()->getNumRows();
+        $horarios = $this->db->table('aula_horario_ambiente')->where('ambiente_id', $id)->get();
+
+        if ($horarios->getNumRows()) {
+            $horarios = $this->db->table('aula_horario_ambiente AS aha')
+                ->select("ta.*, t.sigla AS turma, c.nome AS curso, v.nome AS versao")
+                ->join("aula_horario AS ah", "aha.aula_horario_id = ah.id")
+                ->join("tempos_de_aula AS ta", "ah.tempo_de_aula_id = ta.id")
+                ->join("versoes AS v", "ah.versao_id = v.id")
+                ->join("aulas AS a", "ah.aula_id = a.id")
+                ->join("turmas AS t", "a.turma_id = t.id")
+                ->join("cursos AS c", "t.curso_id = c.id")           
+                ->where("aha.ambiente_id", $id)
+                ->get()->getResult();
+
+            $horarios = array_map(function($h) {
+                switch ($h->dia_semana) {
+                    case 1:
+                        $h->dia_semana = "Segunda-Feira";
+                        break;
+                    case 2:
+                        $h->dia_semana = "Terça-Feira";
+                        break;
+                    case 3:
+                        $h->dia_semana = "Quarta-Feira";
+                        break;
+                    case 4:
+                        $h->dia_semana = "Quinta-Feira";
+                        break;
+                    case 5:
+                        $h->dia_semana = "Sexta-Feira";
+                        break;
+                }
+
+                $h->minuto_inicio = $h->minuto_inicio == "0" ? "00" : $h->minuto_inicio;
+                $h->minuto_fim = $h->minuto_fim == "0" ? "00" : $h->minuto_fim;
+                $h->intervalo = "$h->hora_inicio:$h->minuto_inicio - $h->hora_fim:$h->minuto_fim";
+
+                return $h;
+            }, $horarios);
+        } else {
+            $horarios = null;
+        }
 
         $restricoes = [
-            'grupos' => $grupos, 
             'horarios' => $horarios
         ];
 
