@@ -109,20 +109,7 @@ class DisciplinasModel extends Model
     {
         $id = $id['id'];
 
-        $aulas = $this->db->table('aulas')->where('disciplina_id', $id)->get();
-
-        if ($aulas->getNumRows()) {
-            $aulas = $this->db->table('aulas')
-                ->select("aulas.*, t.sigla AS turma, p.nome AS professor, v.nome AS versao")
-                ->join("turmas AS t", "aulas.turma_id = t.id")
-                ->join("aula_professor AS ap", "aulas.id = ap.aula_id")
-                ->join("professores AS p", "ap.professor_id = p.id")
-                ->join("versoes AS v", "aulas.versao_id = v.id")
-                ->where("aulas.disciplina_id", $id)
-                ->get()->getResult();
-        } else {
-            $aulas = null;
-        }
+        $aulas = $this->db->table('aulas')->where('disciplina_id', $id)->get()->getNumRows();
         
         $restricoes = [
             'aulas' => $aulas

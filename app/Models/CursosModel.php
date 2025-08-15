@@ -94,18 +94,8 @@ class CursosModel extends Model
     {
         $id = $id['id'];
 
-        $turmas = $this->db->table('turmas')
-        ->where('curso_id', $id)
-        ->orderBy('curso_id')
-        ->orderBy('periodo')
-        ->get();
-
-        if ($turmas->getNumRows()) {
-            $turmas = $turmas->getResult();
-        } else {
-            $turmas = null;
-        }
-
+        $turmas = $this->db->table('turmas')->where('curso_id', $id)->get()->getNumRows();
+        
         $restricoes = [
             'turmas' => $turmas
         ];

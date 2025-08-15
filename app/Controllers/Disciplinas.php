@@ -92,13 +92,9 @@ class Disciplinas extends BaseController
                     return redirect()->to(base_url('/sys/disciplina'))->with('erro', 'Erro inesperado ao excluir Disciplina!');
                 }
             } else {
-                $mensagem = "<b>A disciplina não pode ser excluída. Esta disciplina possui</b>";
+                $mensagem = "A disciplina não pode ser excluída.<br>Esta disciplina possui ";
                 if ($restricoes['aulas']) {
-                    $mensagem = $mensagem . "<br><b>Aula(s) relacionada(s) a ela:</b><br><ul>";
-                    foreach($restricoes['aulas'] as $a) {
-                        $mensagem = $mensagem . "<li><b>Turma:</b> $a->turma<br> <b>Professor:</b> $a->professor<br> <b>Versão:</b> $a->versao</li>";
-                    }
-                    $mensagem = $mensagem . "</ul>";
+                    $mensagem = $mensagem . "aula(s) relacionada(s) a ela!";
                 }
                 throw new ReferenciaException($mensagem);
             }

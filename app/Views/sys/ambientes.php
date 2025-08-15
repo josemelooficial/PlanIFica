@@ -327,14 +327,13 @@
 
         <?php if (session()->getFlashdata('erro')): ?>
             $.toast({
-                heading: '<b>Erro</b>',
+                heading: 'Erro',
                 text: '<?php echo session()->getFlashdata('erro'); ?>',
                 showHideTransition: 'slide',
                 icon: 'error',
                 loaderBg: '#f96868',
                 position: 'top-center', 
-                hideAfter: false,
-                class: 'custom-error-toast error-toast-ambientes'
+                hideAfter: false
             });
         <?php endif; ?>
     });

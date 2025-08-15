@@ -95,63 +95,14 @@ class HorariosModel extends BaseModel
     {
         $id = $id['id'];
 
-        $tempos_aula = $this->db->table('tempos_de_aula')->where('horario_id', $id)->get();
-        $turmas = $this->db->table('turmas')->where('horario_id', $id)->orWhere('horario_preferencial_id', $id)->get();
-
-        if ($tempos_aula->getNumRows()) {
-            $tempos_aula = $this->db->table('tempos_de_aula AS ta')
-                ->select("ta.*")
-                ->where("ta.horario_id", $id)
-                ->get()->getResult();
-            
-            $tempos_aula = array_slice($tempos_aula, 0, 5);
-
-            $tempos_aula = array_map(function($t) {
-                switch ($t->dia_semana) {
-                    case 1:
-                        $t->dia_semana = "Segunda-Feira";
-                        break;
-                    case 2:
-                        $t->dia_semana = "Terça-Feira";
-                        break;
-                    case 3:
-                        $t->dia_semana = "Quarta-Feira";
-                        break;
-                    case 4:
-                        $t->dia_semana = "Quinta-Feira";
-                        break;
-                    case 5:
-                        $t->dia_semana = "Sexta-Feira";
-                        break;
-                }
-
-                $t->minuto_inicio = $t->minuto_inicio == "0" ? "00" : $t->minuto_inicio;
-                $t->minuto_fim = $t->minuto_fim == "0" ? "00" : $t->minuto_fim;
-                $t->intervalo = "$t->hora_inicio:$t->minuto_inicio - $t->hora_fim:$t->minuto_fim";
-
-                return $t;
-            }, $tempos_aula);
-        } else {
-            $tempos_aula = null;
-        }
-
-        if ($turmas->getNumRows()) {
-            $turmas = $this->db->table('turmas AS t')
-                ->select("t.id, t.sigla AS turma")
-                ->where('t.horario_id', $id)
-                ->orWhere('t.horario_preferencial_id', $id)
-                ->orderBy('t.curso_id')
-                ->orderBy('t.periodo')
-                ->get()->getResult();
-
-            $turmas = array_slice($turmas, 0, 5);
-        } else {
-            $turmas = null;
-        }
+        $tempos_aula = $this->db->table('tempos_de_aula')->where('horario_id', $id)->get()->getNumRows();
+        $turmas = $this->db->table('turmas')->where('horario_id', $id)->get()->getNumRows();
+        $turmas_pref = $this->db->table('turmas')->where('horario_preferencial_id', $id)->get()->getNumRows();
 
         $restricoes = [
             'tempos_aula' => $tempos_aula, 
-            'turmas' => $turmas
+            'turmas' => $turmas, 
+            'turmas_pref' => $turmas_pref
         ];
 
         return $restricoes;

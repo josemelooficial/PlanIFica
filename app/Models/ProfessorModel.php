@@ -89,27 +89,8 @@ class ProfessorModel extends Model
     {
         $id = $id['id'];
         
-        $aulas = $this->db->table('aula_professor')->where('professor_id', $id)->get();
-        $regras = $this->db->table('professor_regras')->where('professor_id', $id)->get();
-
-        if ($aulas->getNumRows()) {
-            $aulas = $this->db->table('aula_professor AS ap')
-                ->select("t.sigla AS turma, d.nome AS disciplina, v.nome AS versao")
-                ->join("aulas AS a", "ap.aula_id = a.id")
-                ->join("versoes AS v", "a.versao_id = v.id")
-                ->join("turmas AS t", "a.turma_id = t.id")
-                ->join("disciplinas AS d", "a.disciplina_id = d.id")
-                ->where("ap.professor_id", $id)
-                ->get()->getResult();
-        } else {
-            $aulas = null;
-        }
-
-        if ($regras->getNumRows()) {
-            $regras = $regras->getResult();
-        } else {
-            $regras = null;
-        }
+        $aulas = $this->db->table('aula_professor')->where('professor_id', $id)->get()->getNumRows();
+        $regras = $this->db->table('professor_regras')->where('professor_id', $id)->get()->getNumRows();
 
         $restricoes = [
             'aulas' => $aulas, 

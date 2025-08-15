@@ -93,13 +93,9 @@ class Ambientes extends BaseController
                     return redirect()->to(base_url('/sys/cadastro-ambientes'))->with('erro', 'Erro inesperado ao excluir Ambiente!');
                 }
             } else {
-                $mensagem = "<b>O Ambiente não pode ser excluído. Este ambiente possui</b>";
+                $mensagem = "O Ambiente não pode ser excluído.<br>Este ambiente possui ";
                 if ($restricoes['horarios']) {
-                    $mensagem = $mensagem . "<br><b>Horário(s) relacionado(s) a ele:</b><br><ul>";
-                    foreach ($restricoes['horarios'] as $h) {
-                        $mensagem = $mensagem . "<li><b>Dia/Horário:</b> $h->dia_semana | $h->intervalo<br> <b>Curso:</b> $h->curso<br> <b>Turma:</b> $h->turma<br> <b>Versão:</b> $h->versao</li>";
-                    }
-                    $mensagem = $mensagem . "</ul>";
+                    $mensagem = $mensagem . "horário(s) relacionado(s) a ele!";
                 }
                 throw new ReferenciaException($mensagem);
             }
@@ -162,13 +158,9 @@ class Ambientes extends BaseController
                     return redirect()->to(base_url('/sys/cadastro-ambientes'))->with('erro', 'Erro inesperado ao excluir Grupo de Ambientes!');
                 }
             } else {
-                $mensagem = "<b>O grupo não pode ser excluído. Este grupo possui</b>";
-                if ($restricoes['disciplinas']) {
-                    $mensagem = $mensagem . "<br><b>Disciplina(s) relacionada(s) a ele:</b><br><ul>";
-                    foreach ($restricoes['disciplinas'] as $d) {
-                        $mensagem = $mensagem . "<li>$d->nome - $d->abreviatura</li>";
-                    }
-                    $mensagem = $mensagem . "</ul>";
+                $mensagem = "O grupo não pode ser excluído.<br>Este grupo possui ";
+                if($restricoes['disciplinas']) {
+                    $mensagem = $mensagem . "disciplina(s) relacionada(s) a ele!";
                 }
                 throw new ReferenciaException($mensagem);
             }

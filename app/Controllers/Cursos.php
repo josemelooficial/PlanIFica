@@ -84,13 +84,9 @@ class Cursos extends BaseController
                     return redirect()->to(base_url('/sys/curso'))->with('erro', 'Erro inesperado ao excluir Curso!');
                 }
             } else {
-                $mensagem = "<b>O curso não pode ser excluído. Este curso possui</b>";
+                $mensagem = "O curso não pode ser excluído.<br>Este curso possui ";
                 if ($restricoes['turmas']) {
-                    $mensagem = $mensagem . "<br><b>Turma(s) relacionada(s) a ele:</b><br><ul>";
-                    foreach($restricoes['turmas'] as $m) {
-                        $mensagem = $mensagem . "<li>$m->sigla</li>";
-                    }
-                    $mensagem = $mensagem . "</ul>";
+                    $mensagem = $mensagem . "turma(s) relacionada(s) a ele!";
                 }
                 throw new ReferenciaException($mensagem);
             }

@@ -83,21 +83,8 @@ class MatrizCurricularModel extends Model
     {
         $id = $id['id'];
         
-        $cursos = $this->db->table('cursos')->where('matriz_id', $id)->get();
-        $disciplinas = $this->db->table('disciplinas')->where('matriz_id', $id)->get();
-
-        if ($cursos->getNumRows()) {
-            $cursos = $cursos->getResult();
-        } else {
-            $cursos = null;
-        }
-
-        if ($disciplinas->getNumRows()) {
-            $disciplinas = $disciplinas->getResult();
-            $disciplinas = array_slice($disciplinas, 0, 5);
-        } else {
-            $disciplinas = null;
-        }
+        $cursos = $this->db->table('cursos')->where('matriz_id', $id)->get()->getNumRows();
+        $disciplinas = $this->db->table('disciplinas')->where('matriz_id', $id)->get()->getNumRows();
 
         $restricoes = [
             'cursos' => $cursos, 
