@@ -58,11 +58,15 @@ class GruposAmbientesModel extends Model
     {
         $id = $id['id'];
 
-        $ambientes = $this->db->table('ambiente_grupo')->where('grupo_de_ambiente_id', $id)->get()->getNumRows();
-        $disciplinas = $this->db->table('disciplinas')->where('grupo_de_ambientes_id', $id)->get()->getNumRows();
+        $disciplinas = $this->db->table('disciplinas')->where('grupo_de_ambientes_id', $id)->get();
+
+        if ($disciplinas->getNumRows()) {
+            $disciplinas = $disciplinas->getResult();
+        } else {
+            $disciplinas = null;
+        }
 
         $restricoes = [
-            'ambientes' => $ambientes, 
             'disciplinas' => $disciplinas
         ];
 

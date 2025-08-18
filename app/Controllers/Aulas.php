@@ -115,14 +115,23 @@ class Aulas extends BaseController
 				} else {
 					echo "Erro inesperado ao excluir Aula!";
 				}
-			} else {
-				$mensagem = "A aula não pode ser excluída.<br>Esta aula possui ";
-
-				if ($restricoes['professores'] && $restricoes['horarios']) {
-					$mensagem = $mensagem . "horário(s) relacionado(s) a ela!";
+				else
+				{
+					return redirect()->to(base_url('/sys/aulas'))->with('erro', 'Erro inesperado ao excluir Aula!');
 				}
+			}
+			else
+			{
+				$mensagem = "<b>A aula não pode ser excluída. Esta aula possui</b>";
 
-				echo $mensagem;
+				if ($restricoes['horarios']) {
+					$mensagem = $mensagem . "<br><b>Horário(s) relacionado(s) a ela:</b><br><ul>";
+					foreach($restricoes['horarios'] as $h) {
+						$mensagem = $mensagem . "<li><b>Dia/Horário:</b> $h->dia_semana | $h->intervalo</li>";
+					}
+					$mensagem = $mensagem . "</ul>";
+				}
+				throw new ReferenciaException($mensagem);
 			}
 		} catch (ReferenciaException $e) {
 			echo $e->getMessage();
