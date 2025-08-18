@@ -111,21 +111,26 @@ class Aulas extends BaseController
 				$aulaProfModel->where('aula_id', $id)->delete();
 
 				if ($aulasModel->delete($id)) {
-					echo "ok"; // Alterado para retornar string em vez de redirect
+					session()->setFlashdata('sucesso', 'Aula excluída com sucesso!');
+					return redirect()->to(base_url('/sys/aulas'));
 				} else {
-					echo "Erro inesperado ao excluir Aula!";
+					return redirect()->to(base_url('/sys/aulas'))->with('erro', 'Erro inesperado ao excluir Aula!');
 				}
 			} else {
-				$mensagem = "A aula não pode ser excluída.<br>Esta aula possui ";
+				$mensagem = "<b>A aula não pode ser excluída. Esta aula possui</b>";
 
-				if ($restricoes['professores'] && $restricoes['horarios']) {
-					$mensagem = $mensagem . "horário(s) relacionado(s) a ela!";
+				if ($restricoes['horarios']) {
+					$mensagem = $mensagem . "<br><b>Horário(s) relacionado(s) a ela:</b><br><ul>";
+					foreach($restricoes['horarios'] as $h) {
+						$mensagem = $mensagem . "<li><b>Dia/Horário:</b> $h->dia_semana | $h->intervalo</li>";
+					}
+					$mensagem = $mensagem . "</ul>";
 				}
-
-				echo $mensagem;
+				throw new ReferenciaException($mensagem);
 			}
 		} catch (ReferenciaException $e) {
-			echo $e->getMessage();
+			session()->setFlashdata('erro', $e->getMessage());
+			return redirect()->to(base_url('/sys/aulas'));
 		}
 	}
 
