@@ -98,6 +98,11 @@ $routes->group('sys', function ($routes) {
         $routes->post('deletar', 'Cursos::deletar');
         $routes->post('importar', 'Cursos::importar');
         $routes->post('processarImportacao', 'Cursos::processarImportacao');
+        $routes->post('salvar-grupo', 'Cursos::salvarGrupo');
+        $routes->post('atualizar-grupo', 'Cursos::atualizarGrupo');
+        $routes->post('deletar-grupo', 'Cursos::deletarGrupo');
+        $routes->post('adicionar-curso-grupo', 'Cursos::adicionarCursoAoGrupo');
+        $routes->post('remover-curso-grupo', 'Cursos::removerCursoDoGrupo');
     });
 
     $routes->group('disciplina', function ($routes) {
