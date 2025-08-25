@@ -3,9 +3,14 @@
 <?php echo view('components/curso/modal-cad-curso'); ?>
 <?php echo view('components/curso/modal-deletar-curso') ?>
 <?php echo view('components/curso/modal-import-curso') ?>
+<?php echo view('components/grupo-cursos/modal-cad-gp-cursos') ?>
+<?php echo view('components/grupo-cursos/modal-edit-gp-cursos') ?>
+<?php echo view('components/grupo-cursos/modal-listar-cursos') ?>
+<?php echo view('components/grupo-cursos/modal-add-cursos') ?>
+<?php echo view('components/grupo-cursos/modal-deletar-gp-cursos') ?>
 
 <div class="page-header">
-    <h3 class="page-title">GERENCIAR CURSOS</h3>
+    <h3 class="page-title">GERENCIAMENTO DE CURSOS</h3>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= base_url('/sys/home') ?>">Início</a></li>
@@ -34,35 +39,26 @@
 <?php endif; ?>
 
 <div class="row">
-    <div class="col-md-12 grid-margin stretch-card">
+    <div class="col-md-6 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">Ações</h4>
+
+                <h4 class="card-title">CURSOS</h4>
                 <div class="row">
                     <div class="col-12 mb-4">
-                        <button type="button" class="btn btn-primary btn-icon-text" data-bs-toggle="modal" data-bs-target="#modal-cad-curso"><i class="fa fa-plus-circle btn-icon-prepend"></i> Incluir Curso</button>
+                        <button type="button" class="btn btn-primary btn-icon-text" data-bs-toggle="modal" data-bs-target="#modal-cad-curso"><i class="fa fa-plus-circle btn-icon-prepend"></i>Cadastrar Curso</button>
                         <button class="btn btn-info btn-icon-text" data-bs-toggle="modal"
-                            data-bs-target="#modal-import-curso"><i class="fa fa-upload btn-icon-prepend"></i> Importar Cursos do SUAP</button>
+                            data-bs-target="#modal-import-curso"><i class="fa fa-upload btn-icon-prepend"></i>Importar Cursos do SUAP</button>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-lg-12 grid-margin stretch-card">
-        <div class="card">
-            <div class="card-body">
                 <div class="row">
                     <div class="col-12">
                         <div class="table-responsive">
-                            <table class="table mb-4" id="listagem-curso">
+                            <table class="table mb-4 custom-table" id="listagem-curso">
                                 <thead>
                                     <tr>
                                         <th>Nome</th>
-                                        <th>Matriz</th>
-                                        <th>Regime</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
@@ -71,8 +67,6 @@
                                         <?php foreach ($cursos as $curso): ?>
                                             <tr>
                                                 <td><?php echo esc($curso['nome']); ?></td>
-                                                <td><?php echo esc($curso['nome_matriz']); ?></td>
-                                                <td><?php echo ($curso['regime'] == 1) ? "Anual" : "Semestral"; ?></td>
                                                 <td>
                                                     <div class="d-flex">
                                                         <!-- o elemento <span> é apenas para mostrar o tooltip -->
@@ -122,7 +116,104 @@
             </div>
         </div>
     </div>
+    <div class="col-md-6 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">GRUPO DE CURSOS</h4>
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <button type="button" class="btn btn-primary btn-icon-text" data-bs-toggle="modal" data-bs-target="#modal-cad-gp-cursos"><i class="fa fa-plus-circle btn-icon-prepend"></i>Criar Grupo de Cursos</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="table-responsive">
+                            <table class="table mb-4 custom-table" id="grupo_cursos">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (!empty($grupos)): ?>
+                                        <?php foreach($grupos as $grupo): ?>
+                                            <tr>
+                                                <td><?= esc($grupo['nome']); ?></td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <span data-bs-toggle="tooltip" data-placement="top" title="Atualizar dados do grupo">
+                                                            <!-- botão com estilo, ativação do modal, e dados formados para transmitir ao modal -->
+                                                            <button
+                                                                type="button"
+                                                                class="justify-content-center align-items-center d-flex btn btn-inverse-success button-trans-success btn-icon me-1"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#modal-edit-gp-cursos"
+                                                                data-id="<?php echo esc($grupo['id']); ?>"
+                                                                data-nome="<?php echo esc($grupo['nome']); ?>">
+                                                                <i class="fa fa-edit"></i>
+                                                            </button>
+                                                        </span>
+
+                                                        <span data-bs-toggle="tooltip" data-placement="top" title="Adicionar cursos ao grupo">
+                                                            <!-- botão com estilo, ativação do modal, e dados formados para transmitir ao modal -->
+                                                            <button
+                                                                type="button"
+                                                                class="justify-content-center align-items-center d-flex btn btn-inverse-primary button-trans-primary btn-icon me-1"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#modal-add-cursos-gp-<?= $grupo['id']; ?>"
+                                                                data-id="<?php echo esc($grupo['id']); ?>"
+                                                                data-nome="<?php echo esc($grupo['nome']); ?>">
+                                                                <!-- icone do botão -->
+                                                                <i class="fa fa-plus"></i>
+                                                            </button>
+                                                        </span>
+
+                                                        <span data-bs-toggle="tooltip" data-placement="top" title="Remover cursos do grupo">
+                                                            <!-- botão com estilo, ativação do modal, e dados formados para transmitir ao modal -->
+                                                            <button
+                                                                type="button"
+                                                                class="justify-content-center align-items-center d-flex btn btn-inverse-warning button-trans-warning btn-icon me-1"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#modal-list-gp-cursos-<?= $grupo['id']; ?>"
+                                                                data-id="<?= esc($grupo['id']); ?>"
+                                                                data-nome="<?= esc($grupo['nome']); ?>">
+                                                                <!-- icone do botão -->
+                                                                <i class="fa fa-list"></i>
+                                                            </button>
+                                                        </span>
+                                                        <!-- abaixo são repetidos os códigos acima para replicar os outros 2 botões -->
+
+                                                        <span data-bs-toggle="tooltip" data-placement="top" title="Excluir Grupo">
+                                                            <button
+                                                                type="button"
+                                                                class="justify-content-center align-items-center d-flex btn btn-inverse-danger button-trans-danger btn-icon me-1"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#modal-deletar-gp-cursos"
+                                                                data-id="<?php echo esc($grupo['id']); ?>"
+                                                                data-nome="<?php echo esc($grupo['nome']); ?>">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="5">Nenhum grupo cadastrado.</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
 
 <div class="card">
     <div class="card-body">
@@ -130,6 +221,8 @@
             <div class="col-12 mt-4 d-flex justify-content-end">Legenda</div>
             <div class="col-12 mt-4 d-flex justify-content-end gap-3">
                 <p class="card-description text-end"><i class="fa fa-edit text-success me-2"></i>Editar &nbsp; &nbsp; </p>
+                <p class="card-description text-end"><i class="fa fa-plus text-primary me-2"></i>Adicionar cursos ao grupo &nbsp; &nbsp; </p>
+                <p class="card-description text-end"><i class="fa fa-list text-warning me-2"></i>Listar cursos do grupo &nbsp; &nbsp; </p>
                 <p class="card-description text-end"><i class="fa fa-trash text-danger me-2"></i>Excluir</p>
             </div>
         </div>
@@ -209,7 +302,7 @@
                     [1, 'asc']
                 ],
                 //Desativa a ordenação por ações
-                columns: [null, null, null, {
+                columns: [null, {
                     orderable: false
                 }]
             });
@@ -257,6 +350,51 @@
             //Ativa os tooltips dos botões
             $('[data-bs-toggle="tooltip"]').tooltip();
 
+        <?php endif; ?>
+
+        <?php if (!empty($grupos)): ?>
+            $("#grupo_cursos").DataTable({
+                aLengthMenu: [
+                    [-1, 5, 15, 30],
+                    ["Todos", 5, 15, 30],
+                ], 
+                
+                language: {
+                    search: "Pesquisar:", 
+                    url: dataTableLangUrl
+                }, 
+
+                ordering: true, 
+
+                order: [
+                    [1, 'asc']
+                ], 
+
+                columns: [null, {
+                    orderable: false
+                }]
+            });
+
+            $('#modal-edit-gp-cursos').on('show.bs.modal', function(event) {
+                var button = $(event.relatedTarget);
+
+                var id = button.data('id');
+                var nome = button.data('nome');
+
+                var modal = $(this);
+                modal.find('#edit-gp-id').val(id);
+                modal.find('#edit-gp-nome').val(nome);
+            });
+
+            $('#modal-deletar-gp-cursos').on('show.bs.modal', function(event) {
+                var button = $(event.relatedTarget); // Botão que acionou o modal
+                var grupoID = button.data('id'); // Obtém o ID do curso
+                var grupoNome = button.data('nome');
+
+                var modal = $(this);
+                modal.find('#deletar-gp-id').val(grupoID);
+                modal.find('#deletar-gp-nome').text(grupoNome);
+            });
         <?php endif; ?>
 
         // Exibe mensagem de sucesso se o flashdata estiver com 'sucesso'
