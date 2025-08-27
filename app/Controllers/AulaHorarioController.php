@@ -82,17 +82,22 @@ class AulaHorarioController extends BaseController
 {
     $data = $this->request->getPost();
     $idAula = $data['aula_id'];
-    $idHorario = $data['horario_id'];
+    $idTempoDeAula = $data['tempo_de_aula_id'];
 
     $aulaHorarioModel = new AulaHorarioModel();
-    $conflitos = $aulaHorarioModel->destacandoConflitoAmbiente($idAula, $idHorario);
+    $conflitos = $aulaHorarioModel->destacandoConflitoAmbiente($idAula, $idTempoDeAula);
+    $ambienteModel = new AmbientesModel();
+    $nomeAmbiente = (!empty($conflitos)) ? $ambienteModel->select('nome')->where('id', $conflitos['ambiente'])->first() : null;
 
-    // dd($conflitos);
     if (!empty($conflitos)) {
         return $this->response->setJSON([
-            'status' => 'alerta',
-            'mensagem' => 'Conflito detectado com outro horário.',
-            'conflitos' => $conflitos
+            'mensagem' => 'Conflito de Ambiente detectado!',
+            'conflitos' => $conflitos['conflito'],
+            'ambiente' => $nomeAmbiente,
+        ]);
+    } else {
+        return $this->response->setJSON([
+            'mensagem' => 'Sem Conflitos!',
         ]);
     }
 
@@ -101,11 +106,3 @@ class AulaHorarioController extends BaseController
 
   
 }
-
-// $intervalo = $aulaHorarioModel->verificarTempoEntreTurnos($aulaHorarioId);
-
-// if ($intervalo > 0)
-// {
-//     echo "$intervalo-INTERVALO";
-//     return;
-// }

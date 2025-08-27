@@ -152,6 +152,7 @@
 
             <div class="modal-body">
                 <div class="row">
+
                     <div class="col-md-12">
                         <div class="card border-1 shadow-sm bg-gradient">
                             <div class="card-body">
@@ -166,8 +167,18 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="row">
+                    <div class="col-md-12 destacar-conflito">
+                        <div class="card border-1 border-warning">
+                            <div class="d-flex align-items-center justify-content-center m-2 py-0">
+                                    <i class="mdi mdi-map-marker-off text-warning fs-6 me-1"></i>
+                                    <small class="text-secondary"><span id="modalDestacarConflito"></span></small>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center m-2 py-0">
+                                <small class="mt text-secondary"><span id="modalDestacarNomeConflito"> </span></small>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-md-12">
                         <div class="card border-1 shadow-sm">
                             <div class="card-body">
@@ -184,6 +195,7 @@
                             </div>
                         </div>
                     </div>
+                    
                 </div>
 
             </div>
@@ -969,16 +981,24 @@
         }
 
         // Função para abrir o modal de seleção de ambiente
-        function abrirModalAmbiente(aulaId, horarioId) {
-            console.log(aulaId, horarioId);
+        function abrirModalAmbiente(aulaId, tempoDeAulaId) {
+            console.log(aulaId, tempoDeAulaId);
 
-            // $.post('<?php echo base_url('sys/tabela-horarios/destacar-conflitos-ambiente'); ?>', 
-            // {
-            //     aula_id: aulaId,
-            //     horario_id: horarioId
-            // }, function(data) {
-            //     console.log(data);
-            // });
+            $.post('<?php echo base_url('sys/tabela-horarios/destacar-conflitos-ambiente'); ?>', 
+            {
+                aula_id: aulaId,
+                tempo_de_aula_id: tempoDeAulaId
+            }, function(data) {
+                console.log(data);
+                if(data['mensagem'] !== 'Sem Conflitos!') {
+                    $("#modalDestacarConflito").html(data['mensagem']);
+                    $("#modalDestacarNomeConflito").html(`Ambiente: ` + data['ambiente']['nome']);
+                    $(".destacar-conflito").show();
+                } else {
+                    $(".destacar-conflito").hide();
+                }
+
+            });
 
 
             let minhaAula = getAulaById(aulaId);

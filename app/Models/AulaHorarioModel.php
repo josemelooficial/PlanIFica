@@ -217,56 +217,54 @@ class AulaHorarioModel extends Model
         return 0; // Sem conflito
     }
 
-    public function destacandoConflitoAmbiente($aulaId, $horarioId)
-        {
-            // 1. Buscar o ambiente da aula informada
-            $ambienteRow = $this->db->table('aula_horario_ambiente')
-                ->select('ambiente_id')
-                ->where('aula_horario_id', $aulaId)
-                ->get()
-                ->getRowArray();
-            // dd($ambienteRow);
-            if (!$ambienteRow) {
-                return []; // não encontrou a aula
-            }
+    public function destacandoConflitoAmbiente($horarioId)
+    {
+    $ambientes = $this->db->table('ambientes')
+        ->select('id')
+        ->get()->getResultArray();
+    
+    if (!$ambientes) {
+        return null; 
+    }
 
-            $ambienteId = $ambienteRow['ambiente_id'];
+    $tempo = $this->db->table('tempos_de_aula')
+        ->select('dia_semana, hora_inicio, minuto_inicio, hora_fim, minuto_fim')
+        ->where('id', $horarioId)
+        ->get()->getRowArray();
 
-            // 2. Buscar dia e hora do horário informado
-            $tempoRow = $this->db->table('tempos_de_aula')
-                ->select('dia_semana, hora_inicio, minuto_inicio, hora_fim, minuto_fim')
-                ->where('id', $horarioId)
-                ->get()
-                ->getRowArray();
 
-            if (!$tempoRow) {
-                return []; // não encontrou o horário
-            }
+    if (!$tempo) {
+        return null; 
+    }
 
-            $dia_semana     = $tempoRow['dia_semana'];
-            $hora_inicio    = $tempoRow['hora_inicio'];
-            $minuto_inicio  = $tempoRow['minuto_inicio'];
-            $hora_fim       = $tempoRow['hora_fim'];
-            $minuto_fim     = $tempoRow['minuto_fim'];
+    $novoInicio = $tempo['hora_inicio']*60 + $tempo['minuto_inicio'];
+    $novoFim   = $tempo['hora_fim']*60   + $tempo['minuto_fim'];
 
-            // 3. Buscar se já existe conflito com outro horário do mesmo ambiente no mesmo dia
-            $conflitos = $this->select('aula_horario.id as theid')
-                ->join('tempos_de_aula', 'aula_horario.tempo_de_aula_id = tempos_de_aula.id')
-                ->join('aula_horario_ambiente', 'aula_horario_ambiente.aula_horario_id = aula_horario.id')
-                ->groupStart()
-                    ->where('bypass is null')
-                    ->orWhere('bypass', '0')
-                ->groupEnd()
-                // ->where('aula_horario_ambiente.ambiente_id', $ambienteId)
-                // ->where('tempos_de_aula.dia_semana', $dia_semana)
-                // ->where('(tempos_de_aula.hora_inicio * 60 + tempos_de_aula.minuto_inicio) <', $hora_fim * 60 + $minuto_fim)
-                // ->where('(tempos_de_aula.hora_fim * 60 + tempos_de_aula.minuto_fim) >', $hora_inicio * 60 + $minuto_inicio)
-                // ->where('versao_id', (new VersoesModel())->getVersaoByUser(auth()->id()))
-                ->get()
-                ->getResultArray();
+    //Para cada ambiente, checa conflitos
+    foreach ($ambientes as $amb) {
+        $builder = $this->select('aula_horario.id as conflito_id')
+            ->join('tempos_de_aula t', 'aula_horario.tempo_de_aula_id = t.id')
+            ->join('aula_horario_ambiente aha', 'aha.aula_horario_id = aula_horario.id')
+            ->where('aha.ambiente_id', $amb['id'])
+            ->where('t.dia_semana', $tempo['dia_semana'])
+            ->groupStart()
+                ->where('aula_horario.bypass', null)
+                ->orWhere('aula_horario.bypass', '0')
+            ->groupEnd()
+            ->groupStart()
+                ->where('(t.hora_inicio*60 + t.minuto_inicio) <', $novoFim)
+                ->where($novoInicio.' < (t.hora_fim*60 + t.minuto_fim)', null, false)
+            ->groupEnd();
 
-            return $conflitos; // array vazio = sem conflito
+        $conflito = $builder->get();
+
+        if ($conflito->getNumRows()) {
+            return ['conflito' => $conflito->getRowArray()['conflito_id'], 'ambiente' => $amb]; // retorna o primeiro conflito encontrado
         }
+    }
+
+    return null;
+    }
 
 
 
