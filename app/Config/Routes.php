@@ -36,7 +36,8 @@ $routes->group('sys', function ($routes) {
         $routes->get('dadosDaAula/(:num)', 'TabelaHorarios::dadosDaAula/$1');
         $routes->post('fixarAula', 'TabelaHorarios::fixarAula');
         $routes->get('verificar-todos-conflitos', 'AulaHorarioController::verificarConflitosRotina');
-        $routes->post('destacarAula', 'TabelaHorarios::destacarAula');
+        $routes->post('destacarAula', 'TabelaHorarios::destacarAula');        
+        $routes->post('destacar-conflitos-ambiente', 'AulaHorarioController::destacarConflitosAmbiente');
         $routes->post('bypassAula', 'TabelaHorarios::bypassAula');
     });
 

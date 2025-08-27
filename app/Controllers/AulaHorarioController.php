@@ -9,8 +9,7 @@ use App\Models\VersoesModel;
 use App\Models\AmbientesModel;
 use App\Models\AulaHorarioModel;
 use App\Models\AulaHorarioAmbienteModel;
-
-
+use CodeIgniter\HTTP\Request;
 
 class AulaHorarioController extends BaseController
 {
@@ -77,14 +76,33 @@ class AulaHorarioController extends BaseController
     // dd($conflitos);
     return $this->response->setJSON($conflitos);
 
-
   }
+
+  public function destacarConflitosAmbiente()
+{
+    $data = $this->request->getPost();
+    $idAula = $data['aula_id'];
+    $idTempoDeAula = $data['tempo_de_aula_id'];
+
+    $aulaHorarioModel = new AulaHorarioModel();
+    $conflitos = $aulaHorarioModel->destacandoConflitoAmbiente($idAula, $idTempoDeAula);
+    $ambienteModel = new AmbientesModel();
+    $nomeAmbiente = (!empty($conflitos)) ? $ambienteModel->select('nome')->where('id', $conflitos['ambiente'])->first() : null;
+
+    if (!empty($conflitos)) {
+        return $this->response->setJSON([
+            'mensagem' => 'Conflito de Ambiente detectado!',
+            'conflitos' => $conflitos['conflito'],
+            'ambiente' => $nomeAmbiente,
+        ]);
+    } else {
+        return $this->response->setJSON([
+            'mensagem' => 'Sem Conflitos!',
+        ]);
+    }
+
+    return $this->response->setJSON(['status' => 'ok']);
 }
 
-// $intervalo = $aulaHorarioModel->verificarTempoEntreTurnos($aulaHorarioId);
-
-// if ($intervalo > 0)
-// {
-//     echo "$intervalo-INTERVALO";
-//     return;
-// }
+  
+}
