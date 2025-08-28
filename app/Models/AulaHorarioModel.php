@@ -257,7 +257,7 @@ class AulaHorarioModel extends Model
             ->groupEnd();
 
         $conflito = $builder->get();
-
+        // dd($conflito);
         if ($conflito->getNumRows()) {
             return ['conflito' => $conflito->getRowArray()['conflito_id'], 'ambiente' => $amb]; // retorna o primeiro conflito encontrado
         }
