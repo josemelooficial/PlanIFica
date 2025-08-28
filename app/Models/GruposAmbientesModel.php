@@ -37,7 +37,7 @@ class GruposAmbientesModel extends Model
         "nome" => [
             "required" => "O campo nome é obrigatório",
             "max_length" => "O tamanho máximo é 64 caracteres",
-            "is_unique" => "O Grupo Ambiente já cadastrado",
+            "is_unique" => "Grupo Ambiente já cadastrado",
         ]
     ];
     protected $skipValidation       = false;
