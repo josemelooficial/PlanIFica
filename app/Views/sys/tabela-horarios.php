@@ -982,14 +982,12 @@
 
         // Função para abrir o modal de seleção de ambiente
         function abrirModalAmbiente(aulaId, tempoDeAulaId) {
-            console.log(aulaId, tempoDeAulaId);
 
             $.post('<?php echo base_url('sys/tabela-horarios/destacar-conflitos-ambiente'); ?>', 
             {
                 aula_id: aulaId,
                 tempo_de_aula_id: tempoDeAulaId
             }, function(data) {
-                console.log(data);
                 if(data['mensagem'] !== 'Sem Conflitos!') {
                     $("#modalDestacarConflito").html(data['mensagem']);
                     $("#modalDestacarNomeConflito").html(`Ambiente: ` + data['ambiente']['nome']);
@@ -999,7 +997,6 @@
                 }
 
             });
-
 
             let minhaAula = getAulaById(aulaId);
             $("#modalAmbienteNomeDisciplina").html(minhaAula.disciplina);

@@ -81,13 +81,14 @@ class AulaHorarioController extends BaseController
   public function destacarConflitosAmbiente()
 {
     $data = $this->request->getPost();
-    $idAula = $data['aula_id'];
     $idTempoDeAula = $data['tempo_de_aula_id'];
 
     $aulaHorarioModel = new AulaHorarioModel();
-    $conflitos = $aulaHorarioModel->destacandoConflitoAmbiente($idAula, $idTempoDeAula);
+    $conflitos = $aulaHorarioModel->destacandoConflitoAmbiente($idTempoDeAula);
     $ambienteModel = new AmbientesModel();
     $nomeAmbiente = (!empty($conflitos)) ? $ambienteModel->select('nome')->where('id', $conflitos['ambiente'])->first() : null;
+
+    // dd($conflitos);
 
     if (!empty($conflitos)) {
         return $this->response->setJSON([
