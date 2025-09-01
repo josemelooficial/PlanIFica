@@ -11,6 +11,7 @@ use App\Models\ProfessorModel;
 use App\Models\GruposAmbientesModel;
 use App\Models\VersoesModel;
 use App\Models\AulasModel;
+use App\Models\GruposCursosModel;
 
 class Relatorios extends BaseController
 {
@@ -21,6 +22,7 @@ class Relatorios extends BaseController
     protected $professorModel;
     protected $gruposAmbientesModel;
     protected $aulasModel;
+    protected $gruposCursosModel;
     private $versao_nome;
 
     public function __construct()
@@ -32,6 +34,7 @@ class Relatorios extends BaseController
         $this->professorModel = new ProfessorModel();
         $this->gruposAmbientesModel = new GruposAmbientesModel();
         $this->aulasModel = new AulasModel();
+        $this->gruposCursosModel = new GruposCursosModel();
 
         $this->versao_nome = '';
         $versaoModel = new VersoesModel();
@@ -44,6 +47,7 @@ class Relatorios extends BaseController
     {
         $data = [
             'cursos' => $this->cursosModel->orderBy('nome')->findAll(),
+            'gruposCursos' => $this->gruposCursosModel->orderBy('nome')->findAll(), 
             'professores' => $this->professorModel->orderBy('nome')->findAll(),
             'ambientes' => $this->ambientesModel->orderBy('nome')->findAll(),
             'gruposAmbientes' => $this->gruposAmbientesModel->orderBy('nome')->findAll(),
@@ -53,6 +57,24 @@ class Relatorios extends BaseController
         return view('dashboard', $this->content_data);
     }
 
+    public function getCursosByGrupo() 
+    {
+        $grupos = $this->request->getPost('grupos');
+
+        if (empty($grupos)) {
+            return $this->response->setJSON([]);
+        }
+
+        $cursos = $this->cursosModel
+            ->select('cursos.id, cursos.nome')
+            ->join('curso_grupo', 'curso_grupo.curso_id = cursos.id')
+            ->whereIn('curso_grupo.grupo_de_cursos_id', $grupos)
+            ->orderBy('cursos.nome', 'ASC')
+            ->findAll();
+
+        return $this->response->setJSON($cursos);
+    }
+    
     public function getTurmasByCurso()
     {
         $cursos = $this->request->getPost('cursos');
@@ -107,6 +129,7 @@ class Relatorios extends BaseController
     protected function filtrarCursos()
     {
         $cursos = $this->request->getPost('cursos') ?? [];
+        $grupos = $this->request->getPost('grupos_cursos') ?? [];
         $turmas = $this->request->getPost('turmas') ?? [];
 
         $builder = $this->aulaHorarioModel
@@ -134,6 +157,11 @@ class Relatorios extends BaseController
 
         if (!empty($cursos)) {
             $builder->whereIn('cursos.id', $cursos);
+        }
+
+        if (!empty($grupos)) {
+            $builder->join('curso_grupo', 'curso_grupo.curso_id = cursos.id')
+                ->whereIn('curso_grupo.grupo_de_cursos_id', $grupos);
         }
 
         if (!empty($turmas)) {
