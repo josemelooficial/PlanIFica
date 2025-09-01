@@ -176,6 +176,7 @@ $routes->group('sys', function ($routes) {
     $routes->group('relatorios', function ($routes) {
         $routes->get('/', 'Relatorios::index');
         $routes->post('filtrar', 'Relatorios::filtrar');
+        $routes->post('getCursosByGrupo', 'Relatorios::getCursosByGrupo');
         $routes->post('getTurmasByCurso', 'Relatorios::getTurmasByCurso');
         $routes->post('getAmbientesByGrupo', 'Relatorios::getAmbientesByGrupo');
         $routes->get('relatorios/gerar', 'Relatorios::gerar');
