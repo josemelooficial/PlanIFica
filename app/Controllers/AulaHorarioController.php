@@ -85,17 +85,18 @@ class AulaHorarioController extends BaseController
 
     $aulaHorarioModel = new AulaHorarioModel();
     $conflitos = $aulaHorarioModel->destacandoConflitoAmbiente($idTempoDeAula);
-    $ambienteModel = new AmbientesModel();
-    $nomeAmbiente = (!empty($conflitos)) ? $ambienteModel->select('nome')->where('id', $conflitos['ambiente'])->first() : null;
+    // echo "<pre>";
+    //   print_r($conflitos);
+    // echo "</pre>";
+    // $ambienteModel = new AmbientesModel();
+    // $nomeAmbiente = (!empty($conflitos)) ? $ambienteModel->select('nome')->where('id', $conflitos['ambiente'])->first() : null;
 
     // dd($conflitos);
 
     if (!empty($conflitos)) {
-        return $this->response->setJSON([
-            'mensagem' => 'Conflito de Ambiente detectado!',
-            'conflitos' => $conflitos['conflito'],
-            'ambiente' => $nomeAmbiente,
-        ]);
+        return $this->response->setJSON(
+            $conflitos
+        );
     } else {
         return $this->response->setJSON([
             'mensagem' => 'Sem Conflitos!',

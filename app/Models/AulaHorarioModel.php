@@ -220,7 +220,7 @@ class AulaHorarioModel extends Model
     public function destacandoConflitoAmbiente($horarioId)
     {
     $ambientes = $this->db->table('ambientes')
-        ->select('id')
+        ->select('id, nome')
         ->get()->getResultArray();
     
     if (!$ambientes) {
@@ -240,6 +240,7 @@ class AulaHorarioModel extends Model
     $novoInicio = $tempo['hora_inicio']*60 + $tempo['minuto_inicio'];
     $novoFim   = $tempo['hora_fim']*60   + $tempo['minuto_fim'];
 
+    $ambientesConflitantes = [];
     //Para cada ambiente, checa conflitos
     foreach ($ambientes as $amb) {
         $builder = $this->select('aula_horario.id as conflito_id')
@@ -256,14 +257,22 @@ class AulaHorarioModel extends Model
                 ->where($novoInicio.' < (t.hora_fim*60 + t.minuto_fim)', null, false)
             ->groupEnd();
 
-        $conflito = $builder->get();
-        // dd($conflito);
-        if ($conflito->getNumRows()) {
-            return ['conflito' => $conflito->getRowArray()['conflito_id'], 'ambiente' => $amb]; // retorna o primeiro conflito encontrado
+        $conflitoDetectado = $builder->get()->getResultArray();
+        
+        foreach($conflitoDetectado as $conflito) {
+            $ambientesConflitantes[] = [
+                'conflito_id' => $conflito['conflito_id'],
+                'ambiente_id' => $amb['id'],
+                'nome_ambiente' => $amb['nome'],
+            ]; 
         }
     }
+    
+    
+    if (!empty($ambientesConflitantes)) {
+        return $ambientesConflitantes ?? null; 
+    }
 
-    return null;
     }
 
 
