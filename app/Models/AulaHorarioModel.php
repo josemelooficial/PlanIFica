@@ -219,51 +219,57 @@ class AulaHorarioModel extends Model
 
     public function destacandoConflitoAmbiente($horarioId)
     {
-    $ambientes = $this->db->table('ambientes')
-        ->select('id')
-        ->get()->getResultArray();
-    
-    if (!$ambientes) {
-        return null; 
-    }
-
-    $tempo = $this->db->table('tempos_de_aula')
-        ->select('dia_semana, hora_inicio, minuto_inicio, hora_fim, minuto_fim')
-        ->where('id', $horarioId)
-        ->get()->getRowArray();
-
-
-    if (!$tempo) {
-        return null; 
-    }
-
-    $novoInicio = $tempo['hora_inicio']*60 + $tempo['minuto_inicio'];
-    $novoFim   = $tempo['hora_fim']*60   + $tempo['minuto_fim'];
-
-    //Para cada ambiente, checa conflitos
-    foreach ($ambientes as $amb) {
-        $builder = $this->select('aula_horario.id as conflito_id')
-            ->join('tempos_de_aula t', 'aula_horario.tempo_de_aula_id = t.id')
-            ->join('aula_horario_ambiente aha', 'aha.aula_horario_id = aula_horario.id')
-            ->where('aha.ambiente_id', $amb['id'])
-            ->where('t.dia_semana', $tempo['dia_semana'])
-            ->groupStart()
-                ->where('aula_horario.bypass', null)
-                ->orWhere('aula_horario.bypass', '0')
-            ->groupEnd()
-            ->groupStart()
-                ->where('(t.hora_inicio*60 + t.minuto_inicio) <', $novoFim)
-                ->where($novoInicio.' < (t.hora_fim*60 + t.minuto_fim)', null, false)
-            ->groupEnd();
-
-        $conflito = $builder->get();
-        // dd($conflito);
-        if ($conflito->getNumRows()) {
-            return ['conflito' => $conflito->getRowArray()['conflito_id'], 'ambiente' => $amb]; // retorna o primeiro conflito encontrado
+        $ambientes = $this->db->table('ambientes')
+            ->select('id, nome')
+            ->get()->getResultArray();
+        
+        if (!$ambientes) {
+            return null; 
         }
-    }
 
-    return null;
+        $tempo = $this->db->table('tempos_de_aula')
+            ->select('dia_semana, hora_inicio, minuto_inicio, hora_fim, minuto_fim')
+            ->where('id', $horarioId)
+            ->get()->getRowArray();
+
+
+        if (!$tempo) {
+            return null; 
+        }
+
+        $novoInicio = $tempo['hora_inicio']*60 + $tempo['minuto_inicio'];
+        $novoFim   = $tempo['hora_fim']*60   + $tempo['minuto_fim'];
+
+        $ambientesConflitantes = [];
+        //Para cada ambiente, checa conflitos
+        foreach ($ambientes as $amb) {
+            $builder = $this->select('aula_horario.id as conflito_id')
+                ->join('tempos_de_aula t', 'aula_horario.tempo_de_aula_id = t.id')
+                ->join('aula_horario_ambiente aha', 'aha.aula_horario_id = aula_horario.id')
+                ->where('aha.ambiente_id', $amb['id'])
+                ->where('t.dia_semana', $tempo['dia_semana'])
+                ->groupStart()
+                    ->where('aula_horario.bypass', null)
+                    ->orWhere('aula_horario.bypass', '0')
+                ->groupEnd()
+                ->groupStart()
+                    ->where('(t.hora_inicio*60 + t.minuto_inicio) <', $novoFim)
+                    ->where($novoInicio.' < (t.hora_fim*60 + t.minuto_fim)', null, false)
+                ->groupEnd();
+
+            $conflitoDetectado = $builder->get()->getResultArray();
+            
+            foreach($conflitoDetectado as $conflito) {
+                $ambientesConflitantes[] = [
+                    'conflito_id' => $conflito['conflito_id'],
+                    'ambiente_id' => $amb['id'],
+                    'nome_ambiente' => $amb['nome'],
+                ]; 
+            }
+        } 
+        if (!empty($ambientesConflitantes)) {
+            return $ambientesConflitantes ?? null; 
+        }
     }
 
 

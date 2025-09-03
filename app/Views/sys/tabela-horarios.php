@@ -168,17 +168,6 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12 destacar-conflito">
-                        <div class="card border-1 border-warning">
-                            <div class="d-flex align-items-center justify-content-center m-2 py-0">
-                                    <i class="mdi mdi-map-marker-off text-warning fs-6 me-1"></i>
-                                    <small class="text-secondary"><span id="modalDestacarConflito"></span></small>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center m-2 py-0">
-                                <small class="mt text-secondary"><span id="modalDestacarNomeConflito"> </span></small>
-                            </div>
-                        </div>
-                    </div>
                     <div class="col-md-12">
                         <div class="card border-1 shadow-sm">
                             <div class="card-body">
@@ -188,7 +177,12 @@
                                     </label>
                                     <select class="form-select" id="selectAmbiente" multiple="multiple" name="selectAmbiente[]" style="width:100%;">
                                         <?php foreach ($ambientes as $ambiente): ?>
-                                            <option value="<?php echo esc($ambiente['id']) ?>"><?php echo esc($ambiente['nome']) ?></option>
+                                            <option 
+                                                value="<?php echo esc($ambiente['id']) ?>"
+                                                data-original-text="<?php echo esc($ambiente['nome']) ?>"
+                                            >
+                                                <?php echo esc($ambiente['nome']) ?>
+                                            </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
@@ -980,23 +974,134 @@
             }, 100);
         }
 
-        // Função para abrir o modal de seleção de ambiente
-        function abrirModalAmbiente(aulaId, tempoDeAulaId) {
+        const $modalAmbiente  = $('#modalAula');
+        const $selectAmbiente = $('#selectAmbiente');
 
-            $.post('<?php echo base_url('sys/tabela-horarios/destacar-conflitos-ambiente'); ?>', 
-            {
-                aula_id: aulaId,
-                tempo_de_aula_id: tempoDeAulaId
-            }, function(data) {
-                if(data['mensagem'] !== 'Sem Conflitos!') {
-                    $("#modalDestacarConflito").html(data['mensagem']);
-                    $("#modalDestacarNomeConflito").html(`Ambiente: ` + data['ambiente']['nome']);
-                    $(".destacar-conflito").show();
-                } else {
-                    $(".destacar-conflito").hide();
-                }
+        let conflitosDetectados = null;
 
+        const textoConflito = ' (⚠️ Conflito)';
+        const removeTextoConflito = /\s*\(⚠️\s*Conflito\)$/;
+
+        // config para não quebrar o select 
+        const configSelectAmbiente = {
+            width: '100%',
+            placeholder: 'Selecione o(s) ambiente(s)…',
+            allowClear: true,
+            closeOnSelect: false,
+            language: { noResults: () => 'Sem resultados' },
+            templateResult: function (data) {
+                if (!data.id) return data.text;
+
+                const $optionAmbiente = $(data.element);
+                // se houver conflito, altera a cor e mostra o texto com conflito
+                // se não, mostra apenas o texto padrão
+                return $optionAmbiente.hasClass('option-conflito')
+                ? $('<span class="text-secondary"></span>').text($optionAmbiente.text())
+                : data.text;
+            }
+        };
+
+        //função para destruir o select2 possibilitando que as opções marcadas com conflito sejam limpas antes da próxima abertura de modal
+        function destroySelect2() {
+            if ($selectAmbiente.hasClass('select2-hidden-accessible')) {
+                $selectAmbiente.select2('close');
+                $selectAmbiente.select2('destroy');
+            }
+        }
+
+        function inicializarSelect2() {
+            if ($selectAmbiente.hasClass('select2-hidden-accessible')) return; // se já iniciado, retorna
+
+            const $selectNaModal = $selectAmbiente.closest('.modal');
+            const fallbackSelect = $selectNaModal.length ? $selectNaModal : $(document.body);//evita erro caso o select não esteja dentro da modal ainda
+
+            $selectAmbiente.select2({
+                ...configSelectAmbiente,
+                dropdownParent: fallbackSelect
             });
+        }
+
+        function limparOptionsSelect() {
+            //percorre todas as opcões do select e remove o texto de conflito, se houver
+            $selectAmbiente.find('option').each(function () {
+                const $optionAmbiente = $(this);
+                const textoPadrao = $optionAmbiente.attr('data-original-text') ?? $optionAmbiente.text().replace(removeTextoConflito, '');
+                $optionAmbiente.text(textoPadrao).removeClass('option-conflito').prop('disabled', false);
+            });
+            $selectAmbiente.val(null);
+        }
+
+        function abrirModalAmbiente(aulaId, tempoDeAulaId) {
+        
+        //evita que uma requisição seja chamada antes da finalização da anterior     
+        if (conflitosDetectados && conflitosDetectados.readyState !== 4) conflitosDetectados.abort();
+
+        //desmonta select2 e limpa antes de mexer no HTML
+        destroySelect2();
+        limparOptionsSelect();
+
+        conflitosDetectados = $.ajax({
+            url: '<?= base_url('sys/tabela-horarios/destacar-conflitos-ambiente'); ?>',
+            method: 'POST',
+            dataType: 'json',
+            cache: false,
+            data: { aula_id: aulaId, tempo_de_aula_id: tempoDeAulaId }
+        });
+
+        conflitosDetectados.done(function (data) {
+            const arr = Array.isArray(data) ? data : [];
+            const conflitoIds = new Set(arr.map(o => String(o.ambiente_id)));
+
+            $selectAmbiente.find('option:disabled:selected').remove();
+            $selectAmbiente.prop('disabled', false);
+
+            //adiciona a tag de conflito à option caso detecte o conflito 
+            $selectAmbiente.find('option').each(function () {
+                const $optionAmbiente = $(this);
+                const id = String($optionAmbiente.val());
+                const textoPadrao = $optionAmbiente.attr('data-original-text') ?? $optionAmbiente.text().replace(removeTextoConflito, '');
+                if (conflitoIds.has(id)) {
+                    $optionAmbiente.text(textoPadrao + textoConflito).addClass('option-conflito');
+                } else {
+                    $optionAmbiente.text(textoPadrao).removeClass('option-conflito').prop('disabled', false);
+                }
+            });
+
+            //garantir que o Select2 esteja ativo para evitar que ele não consiga ser aberto
+            inicializarSelect2();
+            $selectAmbiente.trigger('change');
+        });
+
+        //se falhar, isso garante que o select2 continue sendo inicializado
+        conflitosDetectados.fail(function (xhr, status, err) {
+            if (status === 'abort') return;
+            $selectAmbiente.find('option:disabled:selected').remove();
+            $selectAmbiente.prop('disabled', false);
+
+            inicializarSelect2();
+            $selectAmbiente.trigger('change');
+
+            console.warn('Falha ao carregar conflitos:', status, err, 'HTTP', xhr?.status);
+        });
+
+        // !ditando ciclo de vida da modal para o select não acumular estados! //
+
+        $modalAmbiente.on('show.bs.modal', function (e) {
+            const $aberturaModal = $(e.relatedTarget);
+            abrirModalAmbiente($aberturaModal.data('aula-id'), $aberturaModal.data('tempo-de-aula-id'));
+        });
+
+        // iniciando o Select2 após a modal estar no DOM
+        $modalAmbiente.on('shown.bs.modal', function () {
+            inicializarSelect2();
+        });
+
+        $modalAmbiente.on('hidden.bs.modal', function () {
+            if (conflitosDetectados && conflitosDetectados.readyState !== 4) conflitosDetectados.abort();
+            conflitosDetectados = null;
+            destroySelect2();
+            limparOptionsSelect();
+        });
 
             let minhaAula = getAulaById(aulaId);
             $("#modalAmbienteNomeDisciplina").html(minhaAula.disciplina);

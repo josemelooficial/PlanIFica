@@ -73,37 +73,28 @@ class AulaHorarioController extends BaseController
         }
 
     }
-    // dd($conflitos);
     return $this->response->setJSON($conflitos);
-
   }
 
   public function destacarConflitosAmbiente()
-{
-    $data = $this->request->getPost();
-    $idTempoDeAula = $data['tempo_de_aula_id'];
+  {
+      $data = $this->request->getPost();
+      $idTempoDeAula = $data['tempo_de_aula_id'];
 
-    $aulaHorarioModel = new AulaHorarioModel();
-    $conflitos = $aulaHorarioModel->destacandoConflitoAmbiente($idTempoDeAula);
-    $ambienteModel = new AmbientesModel();
-    $nomeAmbiente = (!empty($conflitos)) ? $ambienteModel->select('nome')->where('id', $conflitos['ambiente'])->first() : null;
+      $aulaHorarioModel = new AulaHorarioModel();
+      $conflitos = $aulaHorarioModel->destacandoConflitoAmbiente($idTempoDeAula);
 
-    // dd($conflitos);
-
-    if (!empty($conflitos)) {
-        return $this->response->setJSON([
-            'mensagem' => 'Conflito de Ambiente detectado!',
-            'conflitos' => $conflitos['conflito'],
-            'ambiente' => $nomeAmbiente,
-        ]);
-    } else {
-        return $this->response->setJSON([
-            'mensagem' => 'Sem Conflitos!',
-        ]);
-    }
-
-    return $this->response->setJSON(['status' => 'ok']);
-}
+      if (!empty($conflitos)) {
+          return $this->response->setJSON(
+              $conflitos
+          );
+      } else {
+          return $this->response->setJSON([
+              'mensagem' => 'Sem Conflitos!',
+          ]);
+      }
+      return $this->response->setJSON(['status' => 'ok']);
+  }
 
   
 }
