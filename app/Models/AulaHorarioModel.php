@@ -611,4 +611,102 @@ class AulaHorarioModel extends Model
             return false;
         }
     }
+
+    public function countConflitosAmbiente(int $versaoId): int
+    {
+        $sqlAmbiente = "
+            SELECT COUNT(DISTINCT ah1.id) AS total
+            FROM aula_horario ah1
+            JOIN tempos_de_aula t1  ON t1.id = ah1.tempo_de_aula_id
+            JOIN aula_horario_ambiente a1 ON a1.aula_horario_id = ah1.id
+            JOIN aula_horario_ambiente a2 ON a2.ambiente_id = a1.ambiente_id
+            JOIN aula_horario ah2   ON ah2.id = a2.aula_horario_id AND ah2.id <> ah1.id
+            JOIN tempos_de_aula t2  ON t2.id = ah2.tempo_de_aula_id
+            WHERE ah1.versao_id = :v:
+              AND ah2.versao_id = :v:
+              AND (ah1.bypass IS NULL OR ah1.bypass = '0')
+              AND (ah2.bypass IS NULL OR ah2.bypass = '0')
+              AND t1.dia_semana = t2.dia_semana
+              AND (t1.hora_inicio*60 + t1.minuto_inicio) <  (t2.hora_fim*60 + t2.minuto_fim)
+              AND (t2.hora_inicio*60 + t2.minuto_inicio) <  (t1.hora_fim*60 + t1.minuto_fim)
+        ";
+        $conflitos = $this->db->query($sqlAmbiente, ['v' => $versaoId])->getRowArray();
+        return (int)($conflitos['total'] ?? 0);
+    }
+
+    public function countConflitosProfessor(int $versaoId): int
+    {   
+        $sqlProf = "
+            SELECT COUNT(DISTINCT ah1.id) AS total
+            FROM aula_horario ah1
+            JOIN tempos_de_aula t1  ON t1.id = ah1.tempo_de_aula_id
+            JOIN aula_professor ap1 ON ap1.aula_id = ah1.aula_id
+
+            JOIN aula_professor ap2 ON ap2.professor_id = ap1.professor_id
+            JOIN aula_horario ah2   ON ah2.aula_id = ap2.aula_id AND ah2.id <> ah1.id
+            JOIN tempos_de_aula t2  ON t2.id = ah2.tempo_de_aula_id
+
+            WHERE ah1.versao_id = :v:
+              AND ah2.versao_id = :v:
+              AND (ah1.bypass IS NULL OR ah1.bypass = '0')
+              AND (ah2.bypass IS NULL OR ah2.bypass = '0')
+              AND t1.dia_semana = t2.dia_semana
+              AND (t1.hora_inicio*60 + t1.minuto_inicio) <  (t2.hora_fim*60 + t2.minuto_fim)
+              AND (t2.hora_inicio*60 + t2.minuto_inicio) <  (t1.hora_fim*60 + t1.minuto_fim)
+        ";
+        $conflitos = $this->db->query($sqlProf, ['v' => $versaoId])->getRowArray();
+        return (int)($conflitos['total'] ?? 0);
+    }
+
+    public function countRestricaoDocente(int $versaoId): int
+    {
+        $sqlRestricao = "
+            SELECT COUNT(DISTINCT ah.id) AS total
+            FROM aula_horario ah
+            JOIN tempos_de_aula t1   ON t1.id = ah.tempo_de_aula_id
+            JOIN aula_professor ap   ON ap.aula_id = ah.aula_id
+            JOIN professor_regras pr ON pr.professor_id = ap.professor_id AND pr.tipo = '2'
+            JOIN tempos_de_aula t2   ON t2.id = pr.tempo_de_aula_id
+            WHERE ah.versao_id = :v:
+              AND (ah.bypass IS NULL OR ah.bypass = '0')
+              AND t1.dia_semana = t2.dia_semana
+              -- start da aula dentro da janela de restrição (igual ao seu código)
+              AND (t2.hora_inicio*60 + t2.minuto_inicio) <= (t1.hora_inicio*60 + t1.minuto_inicio)
+              AND (t2.hora_fim*60 + t2.minuto_fim)       >  (t1.hora_inicio*60 + t1.minuto_inicio)
+        ";
+        $conflitos = $this->db->query($sqlRestricao, ['v' => $versaoId])->getRowArray();
+        return (int)($conflitos['total'] ?? 0);
+    }
+
+    public function countTresTurnos(int $versaoId): int
+    {
+        $sqlTresTurnos = "
+            SELECT COUNT(*) AS total
+            FROM (
+                SELECT ap.professor_id, t.dia_semana,
+                    COUNT(DISTINCT
+                        CASE
+                            WHEN t.hora_inicio < 12 THEN 1
+                            WHEN t.hora_inicio < 18 THEN 2
+                            ELSE 3
+                        END
+                    ) AS qnt_turnos
+                FROM aula_horario ah
+                JOIN aula_professor ap ON ap.aula_id = ah.aula_id
+                JOIN tempos_de_aula t  ON t.id = ah.tempo_de_aula_id
+                WHERE ah.versao_id = :v:
+                  AND (ah.bypass IS NULL OR ah.bypass = '0')
+                GROUP BY ap.professor_id, t.dia_semana
+                HAVING COUNT(DISTINCT
+                    CASE
+                        WHEN t.hora_inicio < 12 THEN 1
+                        WHEN t.hora_inicio < 18 THEN 2
+                        ELSE 3
+                    END
+                ) >= 3
+            ) s
+        ";
+        $conflitos = $this->db->query($sqlTresTurnos, ['v' => $versaoId])->getRowArray();
+        return (int)($conflitos['total'] ?? 0);
+    }
 }
