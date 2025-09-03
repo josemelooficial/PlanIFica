@@ -92,6 +92,19 @@
 			<div class="col-md-12 mb-1">
 				<div class="form-group">
 					<div class="form-check d-flex align-items-center mb-1" style="margin-left: 0.375rem;">
+						<input class="form-check-input mt-0" type="checkbox" id="checkTodosGruposCursos" name="todosGruposCursos">
+						<label class="form-check-label" for="checkTodosGruposCursos">Todos os Grupos de Cursos</label>
+					</div>
+					<select class="form-select select2-multiple" multiple id="filtroGrupoCurso" name="grupos_cursos[]">
+						<?php foreach($gruposCursos as $grupo): ?>
+							<option value="<?= $grupo['id'] ?>"><?= $grupo['nome'] ?></option>
+						<?php endforeach;?>
+					</select>
+				</div>
+			</div>
+			<div class="col-md-12 mb-1">
+				<div class="form-group">
+					<div class="form-check d-flex align-items-center mb-1" style="margin-left: 0.375rem;">
 						<input class="form-check-input mt-0" type="checkbox" id="checkTodosCursos" name="todosCursos">
 						<label class="form-check-label" for="checkTodosCursos">Todos os Cursos</label>
 					</div>
@@ -229,11 +242,32 @@
 							width: '100%'
 						});
 
+						// Configura checkbox "Todos os Grupos de Cursos"
+						handleTodosCheckbox("#checkTodosGruposCursos", "#filtroGrupoCurso");
+
 						// Configura checkbox "Todos os Cursos"
 						handleTodosCheckbox('#checkTodosCursos', '#filtroCurso', '#checkTodasTurmas', '#filtroTurma');
 
 						// Configura checkbox "Todas as Turmas"
 						handleTodosCheckbox('#checkTodasTurmas', '#filtroTurma');
+
+						$('#filtroGrupoCurso').on('change', function()	
+						{
+							var grupos = $(this).val();
+							var cursoSelect = $('#filtroCurso');
+							var checkTodosCursos = $('#checkTodosCursos');
+
+							if (grupos && grupos.length > 0) {
+								$('#checkTodosCursos').prop('checked', false);
+								carregarCursosPorGrupo(grupos);
+							} else {
+								cursoSelect.empty();
+								<?php foreach($cursos as $curso): ?>
+									cursoSelect.append(new Option('<?= $curso['nome'] ?>', '<?= $curso['id'] ?>'));
+								<?php endforeach; ?>
+								cursoSelect.trigger('change');
+							}
+						});
 
 						// Evento para carregar turmas quando cursos são selecionados
 						filtrosContainer.find('#filtroCurso').on('change', function() {
@@ -345,6 +379,36 @@
 			});
 		}
 
+		function carregarCursosPorGrupo(grupos)
+		{
+			var cursoSelect = $('#filtroCurso');
+			cursoSelect.empty().append('<option value="">Carregando...</option>').trigger('change');
+
+			$.ajax({
+				url: '<?= base_url('sys/relatorios/getCursosByGrupo') ?>', 
+				type: 'POST', 
+				data: {
+					grupos: grupos, 
+					[csrfName]: csrfHash
+				}, 
+				dataType: 'json', 
+				success: function(response) {
+					cursoSelect.empty();
+
+					if (response && response.length > 0) {
+						$.each(response, function(index, item) {
+							cursoSelect.append(new Option(item.nome, item.id));
+						});
+					}
+					cursoSelect.trigger('change');
+				}, 
+				error: function(xhr, status, error) {
+					console.error('Erro ao carregar cursos:', error);
+					cursoSelect.empty().append('<option disabled>Erro ao carregar cursos</option>').trigger('change');
+				}
+			});
+		}
+
 		function carregarAmbientesPorGrupo(grupos) 
 		{
 			var ambienteSelect = $('#filtroAmbiente');
@@ -398,6 +462,12 @@
 
 			switch (tipo) {
 				case 'curso':
+					if ($('#checkTodosGruposCursos').is(':checked')) {
+						// Não envia filtro de grupos (busca todos)
+					} else {
+						dados.grupos_cursos = $('#filtroGrupoCurso').val();
+					}
+
 					if ($('#checkTodosCursos').is(':checked')) {
 						// Não envia filtro de cursos (busca todos)
 					} else {
@@ -438,11 +508,13 @@
 
 			// Verifica se pelo menos um filtro está preenchido ou se "Todos" está marcado
 			if ((dados.cursos && dados.cursos.length > 0) ||
+				(dados.grupos_cursos && dados.grupos_cursos.length > 0) ||
 				(dados.turmas && dados.turmas.length > 0) ||
 				(dados.professores && dados.professores.length > 0) ||
 				(dados.ambientes && dados.ambientes.length > 0) ||
 				(dados.grupos_ambientes && dados.grupos_ambientes.length > 0) ||
 				$('#checkTodosCursos').is(':checked') ||
+				$('#checkTodosGruposCursos').is(':checked') ||
 				$('#checkTodasTurmas').is(':checked') ||
 				$('#checkTodosProfessores').is(':checked') ||
 				$('#checkTodosAmbientes').is(':checked') ||
@@ -486,11 +558,13 @@
 		// Verifica se pelo menos um filtro está preenchido ou se "Todos" está marcado
 		var filtroPreenchido = false;
 		if ( (($('#filtroCurso').val() && $('#filtroCurso').val().length > 0)) ||
+				(($('#filtroGrupoCurso').val() && $('#filtroGrupoCurso').val().length > 0)) ||
 				(($('#filtroTurma').val() && $('#filtroTurma').val().length > 0)) ||
 				(($('#filtroProfessor').val() && $('#filtroProfessor').val().length > 0)) ||
 				(($('#filtroAmbiente').val() && $('#filtroAmbiente').val().length > 0)) ||
 				(($('#filtroGrupoAmbiente').val() && $('#filtroGrupoAmbiente').val().length > 0)) ||
 				$('#checkTodosCursos').is(':checked') ||
+				$('#checkTodosGruposCursos').is(':checked') ||
 				$('#checkTodasTurmas').is(':checked') ||
 				$('#checkTodosProfessores').is(':checked') ||
 				$('#checkTodosAmbientes').is(':checked') ||
@@ -537,6 +611,12 @@
 
 			switch (tipo) {
 				case 'curso':
+					if ($('#checkTodosGruposCursos').is(':checked')) {
+						// Não envia filtro de grupos (busca todos)
+					} else {
+						dados.grupos_cursos = $('#filtroGrupoCurso').val();
+					}
+
 					if ($('#checkTodosCursos').is(':checked')) {
 						// Não envia filtro de cursos (busca todos)
 					} else {
@@ -577,11 +657,13 @@
 
 			// Verifica se pelo menos um filtro está preenchido ou se "Todos" está marcado
 			if ((dados.cursos && dados.cursos.length > 0) ||
+				(dados.grupos_cursos && dados.grupos_cursos.length > 0) ||
 				(dados.turmas && dados.turmas.length > 0) ||
 				(dados.professores && dados.professores.length > 0) ||
 				(dados.ambientes && dados.ambientes.length > 0) ||
 				(dados.grupos_ambientes && dados.grupos_ambientes.length > 0) ||
 				$('#checkTodosCursos').is(':checked') ||
+				$('#checkTodosGruposCursos').is(':checked') ||
 				$('#checkTodasTurmas').is(':checked') ||
 				$('#checkTodosProfessores').is(':checked') ||
 				$('#checkTodosAmbientes').is(':checked') ||

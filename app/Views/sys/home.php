@@ -248,7 +248,7 @@
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    fetch('/horarios/public/sys/tabela-horarios/verificar-todos-conflitos')
+    fetch("<?= base_url('sys/tabela-horarios/verificar-todos-conflitos') ?>")
         .then(response => response.json())
         .then(data => {
             const container = document.getElementById('cards-conflitos');
