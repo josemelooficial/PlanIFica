@@ -1040,11 +1040,6 @@
         destroySelect2();
         limparOptionsSelect();
 
-        // “Carregando…”
-        // const $loading = $('<option>', { value: '', text: 'Carregando…' })
-        //     .prop('disabled', true).prop('selected', true);
-        // $selectAmbiente.prepend($loading).prop('disabled', true);
-
         conflitosDetectados = $.ajax({
             url: '<?= base_url('sys/tabela-horarios/destacar-conflitos-ambiente'); ?>',
             method: 'POST',
@@ -1088,7 +1083,6 @@
 
             console.warn('Falha ao carregar conflitos:', status, err, 'HTTP', xhr?.status);
         });
-
 
         // !ditando ciclo de vida da modal para o select não acumular estados! //
 
