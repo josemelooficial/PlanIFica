@@ -37,7 +37,7 @@ class GruposAmbientesModel extends Model
         "nome" => [
             "required" => "O campo nome é obrigatório",
             "max_length" => "O tamanho máximo é 64 caracteres",
-            "is_unique" => "O Grupo Ambiente já cadastrado",
+            "is_unique" => "Grupo Ambiente já cadastrado",
         ]
     ];
     protected $skipValidation       = false;
@@ -58,11 +58,15 @@ class GruposAmbientesModel extends Model
     {
         $id = $id['id'];
 
-        $ambientes = $this->db->table('ambiente_grupo')->where('grupo_de_ambiente_id', $id)->get()->getNumRows();
-        $disciplinas = $this->db->table('disciplinas')->where('grupo_de_ambientes_id', $id)->get()->getNumRows();
+        $disciplinas = $this->db->table('disciplinas')->where('grupo_de_ambientes_id', $id)->get();
+
+        if ($disciplinas->getNumRows()) {
+            $disciplinas = $disciplinas->getResult();
+        } else {
+            $disciplinas = null;
+        }
 
         $restricoes = [
-            'ambientes' => $ambientes, 
             'disciplinas' => $disciplinas
         ];
 

@@ -137,3 +137,41 @@
 body {
   background-color: #000;
 }
+
+.custom-error-toast {
+  position: fixed !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+.error-toast-disciplinas {
+  width: 350px !important;
+}
+
+.error-toast-turmas {
+  width: 500px !important;
+}
+
+.error-toast-matrizes {
+  width: 500px !important;
+}
+
+.error-toast-ambientes {
+  width: 600px !important;
+}
+
+.error-toast-professores {
+  width: 400px !important;
+}
+
+.error-toast-tempos-aula {
+  width: 400px !important;
+}
+
+.error-toast-horarios {
+  width: 400px !important;
+}
+
+.error-toast-aulas {
+  width: 400px !important;
+}

@@ -2,7 +2,7 @@
     <div class="col-xl-12 col-sm-6 grid-margin stretch-card">
         <div class="card">
             <div class="row card-body" id="cards-conflitos">
-                Conflitos
+                Carregando conflitos...
             </div>
         </div>
     </div>
@@ -248,88 +248,82 @@
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    fetch('/horarios/public/sys/tabela-horarios/verificar-todos-conflitos')
-        .then(response => response.json())
-        .then(data => {
-            const container = document.getElementById('cards-conflitos');
-            container.innerHTML = ''; // limpar antes de renderizar
+    const container = document.getElementById('cards-conflitos');
+    container.innerHTML = `
+        <div class="col-12"><div class="alert alert-secondary">Carregando conflitos…</div></div>
+    `;
+    fetch("<?= base_url('sys/tabela-horarios/verificar-todos-conflitos') ?>")
+    .then(r => r.json())
+    .then(data => {
+      container.innerHTML = '';
 
-            if (data.length === 0) {
-                container.innerHTML = `
-                <div class="col-12">
-                    <div class="alert alert-primary bg-dark text-light">Nenhum conflito encontrado.</div>
-                </div>`;
-                return;
-            }
+      const tipos = {
+        'CONFLITO-AMBIENTE': {
+          cor: 'danger',
+          icone: 'mdi-map-marker-off',
+          texto: 'Conflitos de Ambiente'
+        },
+        
+        'CONFLITO-PROFESSOR': {
+          cor: 'warning',
+          icone: 'mdi-account-alert',
+          texto: 'Conflitos de Professor'
+        },
 
-            const tipos = {
-                'CONFLITO-AMBIENTE': {
-                    cor: 'danger',
-                    icone: 'mdi-map-marker-off',
-                    texto: 'Conflitos de Ambiente'
-                },
-                'CONFLITO-PROFESSOR': {
-                    cor: 'warning',
-                    icone: 'mdi-account-alert',
-                    texto: 'Conflitos de Professor'
-                },
-                'CONFLITO-TURNOS': {
-                    cor: 'danger',
-                    icone: 'mdi-clock-alert-outline',
-                    texto: 'Conflitos de Turnos'
-                },
-                'RESTRIÇÃO-DOCENTE': {
-                    cor: 'warning',
-                    icone: 'mdi-account-cancel-outline',
-                    texto: 'Restrição de Professor'
-                },
-                'CONFLITO-INTERVALO': {
-                    cor: 'warning',
-                    icone: 'mdi-timer-sand-empty',
-                    texto: 'Conflitos de Intervalo'
-                },
-            };
+        'CONFLITO-TURNOS': {
+          cor: 'danger',
+          icone: 'mdi-clock-alert-outline',
+          texto: 'Conflitos de Turnos'
+        },
 
-            const contagem = {};
+        'RESTRIÇÃO-DOCENTE': {
+          cor: 'warning',
+          icone: 'mdi-account-cancel-outline',
+          texto: 'Restrição de Professor'
+        },
+        
+      };
 
-            //agrupando conflitos por tipo
-            data.forEach(c => {
-                if (!contagem[c.tipo]) contagem[c.tipo] = 0;
-                contagem[c.tipo]++;
-            });
+      Object.entries(tipos).forEach(([tipo, configTipo]) => {
 
-            Object.entries(contagem).forEach(([tipo, quantidade]) => {
-                const item = tipos[tipo];
-                container.innerHTML += `
-                <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-                    <div class="card border ${item.cor === 'danger' ? 'border-danger' : 'border-warning'}">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-9">
-                                    <div class="d-flex align-items-center align-self-start">
-                                        <h3 class="mb-0">${quantidade}</h3>
-                                        <p class="text-${item.cor} ms-2 mb-0 font-weight-medium">
-                                            Aulas
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="col-3">
-                                    <div class="icon icon-box-${item.cor}">
-                                        <span class="mdi ${item.icone} icon-item"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <h6 class="text-muted font-weight-normal">${item.texto}</h6>
-                        </div>
+        const quantidade = data[tipo] ?? 0;
+        if (quantidade === 0) return;
+
+        container.innerHTML += `
+          <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+            <div class="card border ${configTipo.cor === 'danger' ? 'border-danger' : 'border-warning'}">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-9">
+                    <div class="d-flex align-items-center align-self-start">
+                      <h3 class="mb-0">${quantidade}</h3>
+                      <p class="text-${configTipo.cor} ms-2 mb-0 font-weight-medium">Aulas</p>
                     </div>
-                </div>`;
-            })
-        })
-        .catch(error => {
-            document.getElementById('cards-conflitos').innerHTML =
-                '<div class="alert alert-danger">Erro ao carregar conflitos.</div>';
-            console.error('Erro ao buscar conflitos:', error);
-        });
+                  </div>
+                  <div class="col-3">
+                    <div class="icon icon-box-${configTipo.cor}">
+                      <span class="mdi ${configTipo.icone} icon-item"></span>
+                    </div>
+                  </div>
+                </div>
+                <h6 class="text-muted font-weight-normal">${configTipo.texto}</h6>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      if (!container.innerHTML.trim()) {
+        container.innerHTML = `
+          <div class="col-12">
+            <div class="alert alert-primary bg-dark text-light">Nenhum conflito encontrado.</div>
+          </div>`;
+      }
+    })
+    .catch(err => {
+      container.innerHTML = '<div class="alert alert-danger">Erro ao carregar conflitos.</div>';
+      console.error(err);
+    });
 });
 </script>
 

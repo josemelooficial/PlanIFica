@@ -3,8 +3,10 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\CursoGrupoModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\CursosModel;
+use App\Models\GruposCursosModel;
 use App\Models\MatrizCurricularModel;
 use CodeIgniter\Exceptions\ReferenciaException;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
@@ -17,10 +19,13 @@ class Cursos extends BaseController
     {
         // Cria a instância de um model do curso
         $cursoModel = new CursosModel();
+        $gruposCursosModel = new GruposCursosModel();
         $matrizCurricularModel = new MatrizCurricularModel();
         // Faz a busca por todos os cursos cadastrado no banco (tabela cursos)
         $data['matrizes'] = $matrizCurricularModel->orderBy('nome', 'asc')->findAll();
         $data['cursos'] = $cursoModel->orderBy('nome', 'asc')->getCursosWithMatriz();
+        $data['grupos'] = $gruposCursosModel->getGruposWithCursos();
+
         // Exibe os cursos cadastrados
         $this->content_data['content'] = view('sys/cursos', $data);
         return view('dashboard', $this->content_data);
@@ -84,9 +89,13 @@ class Cursos extends BaseController
                     return redirect()->to(base_url('/sys/curso'))->with('erro', 'Erro inesperado ao excluir Curso!');
                 }
             } else {
-                $mensagem = "O curso não pode ser excluído.<br>Este curso possui ";
+                $mensagem = "<b>O curso não pode ser excluído. Este curso possui</b>";
                 if ($restricoes['turmas']) {
-                    $mensagem = $mensagem . "turma(s) relacionada(s) a ele!";
+                    $mensagem = $mensagem . "<br><b>Turma(s) relacionada(s) a ele:</b><br><ul>";
+                    foreach($restricoes['turmas'] as $m) {
+                        $mensagem = $mensagem . "<li>$m->sigla</li>";
+                    }
+                    $mensagem = $mensagem . "</ul>";
                 }
                 throw new ReferenciaException($mensagem);
             }
@@ -216,6 +225,103 @@ class Cursos extends BaseController
         }
 
         session()->setFlashdata('sucesso', "{$insertedCount} registros importados com sucesso!");
+        return redirect()->to(base_url('/sys/curso'));
+    }
+
+    public function salvarGrupo()
+    {
+        $dadosPost = $this->request->getPost();
+        $dadosLimpos['nome'] = strip_tags($dadosPost['nome']);
+        
+        $gruposCursosModel = new GruposCursosModel();
+
+        if ($gruposCursosModel->insert($dadosLimpos)) {
+            session()->setFlashdata('sucesso', 'Grupo de Cursos cadastrado com sucesso!');
+            return redirect()->to(base_url('/sys/curso'));
+        } else {
+            $data['erros'] = $gruposCursosModel->errors();
+            return redirect()->to(base_url('/sys/curso'))->with('erros', $data['erros'])->withInput();
+        }
+    }
+    
+    public function atualizarGrupo()
+    {
+        $dadosPost = $this->request->getPost();
+        $dadosLimpos['id'] = strip_tags($dadosPost['id']);
+        $dadosLimpos['nome'] = strip_tags($dadosPost['nome']);
+
+        $gruposCursosModel = new GruposCursosModel();
+        if ($gruposCursosModel->save($dadosLimpos)) {
+            session()->setFlashdata('sucesso', 'Dados do grupo atualizados com sucesso!');
+            return redirect()->to(base_url('/sys/curso'));
+        } else {
+            $data['erros'] = $gruposCursosModel->errors();
+            return redirect()->to(base_url('/sys/curso'))->with('erros', $data['erros']);
+        }
+    }
+
+    public function deletarGrupo()
+    {
+        $dadosPost = $this->request->getPost();
+        $id = (int)strip_tags($dadosPost['id']);
+
+        $gruposCursosModel = new GruposCursosModel();
+        $cursoGrupoModel = new CursoGrupoModel();
+        $cursoGrupoModel->where('grupo_de_cursos_id', $id)->delete();
+        if ($gruposCursosModel->delete($id)) {
+            session()->setFlashdata('sucesso', 'Grupo de Cursos excluído com sucesso!');
+            return redirect()->to(base_url('/sys/curso'));
+        } else {
+            return redirect()->to(base_url('/sys/curso'))->with('erro', 'Erro inesperado ao excluir Grupo de Cursos!');
+        }
+    }
+
+    public function adicionarCursoAoGrupo() 
+    {
+        $cursoGrupoModel = new CursoGrupoModel();
+        
+        $dadosPost = $this->request->getPost();
+        $grupo_id = $dadosPost['grupo_de_cursos_id'];
+        $cursos = $dadosPost['cursos'];
+
+        if (empty($cursos)) {
+            session()->setFlashdata('erro', 'Nenhum Curso foi selecionado para adicionar ao grupo!');
+            return redirect()->to(base_url('/sys/curso'));
+        }
+
+        foreach($cursos as $curso_id) {
+            $repetido = $cursoGrupoModel
+                ->where('grupo_de_cursos_id', $grupo_id)
+                ->where('curso_id', $curso_id)
+                ->first();
+
+            if ($repetido) {
+                session()->setFlashdata('erro', "O(s) Curso(s) selecionados já está(ão) no grupo!");
+                return redirect()->to(base_url('/sys/curso'))->withInput();
+            } else {
+                $cursoGrupoModel->insert([
+                    'grupo_de_cursos_id' => $grupo_id, 
+                    'curso_id' => $curso_id
+                ]);
+            }
+        }
+        session()->setFlashdata('sucesso', 'Curso(s) adicionado(s) ao grupo com sucesso!');
+        return redirect()->to(base_url('/sys/curso'));
+    }
+
+    public function removerCursoDoGrupo()
+    {
+        $dadosPost = $this->request->getPost();
+        $id = (int)strip_tags($dadosPost['id']);
+
+        $cursoGrupoModel = new CursoGrupoModel();
+
+        if ($cursoGrupoModel->delete($id)) {
+            session()->setFlashdata('sucesso', 'Curso removido do grupo com sucesso!');
+        } else {
+            session()->setFlashdata('erro', 'Falha ao remover o curso do grupo.');
+        }
+
         return redirect()->to(base_url('/sys/curso'));
     }
 }

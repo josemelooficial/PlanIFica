@@ -327,14 +327,30 @@
 
         <?php if (session()->getFlashdata('erro')): ?>
             $.toast({
-                heading: 'Erro',
+                heading: '<b>Erro</b>',
                 text: '<?php echo session()->getFlashdata('erro'); ?>',
                 showHideTransition: 'slide',
                 icon: 'error',
                 loaderBg: '#f96868',
                 position: 'top-center', 
-                hideAfter: false
+                hideAfter: false,
+                class: 'custom-error-toast error-toast-ambientes'
             });
         <?php endif; ?>
     });
+
+        // Exibe mensagem de erro se o flashdata estiver com 'erro'
+        <?php if (session()->has('erros')): ?>
+            <?php foreach (session('erros') as $erro): ?>
+                $.toast({
+                    heading: 'Erro',
+                    text: '<?= esc($erro); ?>',
+                    showHideTransition: 'fade',
+                    icon: 'error',
+                    loaderBg: '#dc3545',
+                    position: 'top-center'
+                });
+            <?php endforeach; ?>
+        <?php endif; ?>
+            
 </script>

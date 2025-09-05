@@ -9,82 +9,59 @@ use App\Models\VersoesModel;
 use App\Models\AmbientesModel;
 use App\Models\AulaHorarioModel;
 use App\Models\AulaHorarioAmbienteModel;
-
+use CodeIgniter\HTTP\Request;
+use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\Cache\CacheInterface;
 
 
 class AulaHorarioController extends BaseController
 {
   public function verificarConflitosRotina() {
 
-   $aulaHorarioModel = new AulaHorarioModel();
-   $aulas = $aulaHorarioModel
-   ->where('bypass =', null)
-   ->findAll();
+    $cache = cache(); /** @var CacheInterface $cache */
 
-   $conflitos = [];
-    //construindo o array de conflitos com o retorno das verificações
-    foreach ($aulas as $aula) {
-        $id = $aula['id'];
+    $versaoId = (new \App\Models\VersoesModel())->getVersaoByUser(auth()->id());
 
-        $conflitoAmbiente = $aulaHorarioModel->choqueAmbiente($id);
-        if ($conflitoAmbiente > 0) {
-            $conflitos[] = [
-                'aula_horario_id' => $id,
-                'tipo' => 'CONFLITO-AMBIENTE',
-                'referencia' => $conflitoAmbiente
-            ];
-            continue;
-        }
-
-        $conflitoDocente = $aulaHorarioModel->choqueDocente($id);
-        if ($conflitoDocente > 0) {
-            $conflitos[] = [
-             'aula_horario_id' => $id,
-             'tipo' => 'CONFLITO-PROFESSOR',
-             'referencia' => $conflitoDocente
-            ];
-        }
-
-        $conflitoTurno = $aulaHorarioModel->verificarTresTurnos($id);
-        if($conflitoTurno > 0) {
-         $conflitos[] = [
-           'aula_horario_id' => $id,
-           'tipo' => 'CONFLITO-TURNOS',
-           'referencia' => $conflitoTurno
-         ];
-        }
-
-        $conflitoDocenteRestricao = $aulaHorarioModel->restricaoDocente($id);
-        if($conflitoDocenteRestricao > 0) {
-          $conflitos[] = [
-           'aula_horario_id' => $id,
-           'tipo' => 'RESTRIÇÃO-DOCENTE',
-           'referencia' => $conflitoDocenteRestricao,
-          ];
-        }
-
-        $conflitoIntervalo = $aulaHorarioModel->verificarTempoEntreTurnos($id);
-        if($conflitoIntervalo > 0){
-          $conflitos[] = [
-           'aula_horario_id' => $id,
-           'tipo' => 'CONFLITO-INTERVALO',
-           'referencia' => $conflitoIntervalo,
-          ];
-
-        }
-
+    $cacheKey = "rotina_conflitos{$versaoId}";
+    if ($conflitos = $cache->get($cacheKey)) {
+        return $this->response->setJSON($conflitos);
     }
-    // dd($conflitos);
+
+    $model = new \App\Models\AulaHorarioModel();
+    $amb  = $model->countConflitosAmbiente($versaoId);
+    $prof = $model->countConflitosProfessor($versaoId);
+    $restricao = $model->countRestricaoDocente($versaoId);
+    $turnos = $model->countTresTurnos($versaoId);
+
+    $conflitos = [
+      'CONFLITO-AMBIENTE' => $amb,
+      'CONFLITO-PROFESSOR' => $prof,
+      'RESTRIÇÃO-DOCENTE' => $restricao,
+      'CONFLITO-TURNOS' => $turnos,
+    ];
+
+    $cache->save($cacheKey, $conflitos, 60);
+
     return $this->response->setJSON($conflitos);
-
-
   }
+
+  public function destacarConflitosAmbiente()
+  {
+      $data = $this->request->getPost();
+      $idTempoDeAula = $data['tempo_de_aula_id'];
+
+      $aulaHorarioModel = new AulaHorarioModel();
+      $conflitos = $aulaHorarioModel->destacandoConflitoAmbiente($idTempoDeAula);
+
+      if (!empty($conflitos)) {
+          return $this->response->setJSON(
+              $conflitos
+          );
+      } else {
+          return $this->response->setJSON([
+              'mensagem' => 'Sem Conflitos!',
+          ]);
+      }
+      return $this->response->setJSON(['status' => 'ok']);
+  }  
 }
-
-// $intervalo = $aulaHorarioModel->verificarTempoEntreTurnos($aulaHorarioId);
-
-// if ($intervalo > 0)
-// {
-//     echo "$intervalo-INTERVALO";
-//     return;
-// }
