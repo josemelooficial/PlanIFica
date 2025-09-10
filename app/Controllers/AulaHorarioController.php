@@ -13,16 +13,19 @@ class AulaHorarioController extends BaseController
     $versaoId = (new \App\Models\VersoesModel())->getVersaoByUser(auth()->id());
 
     $model = new \App\Models\AulaHorarioModel();
+    
     $amb  = $model->countConflitosAmbiente($versaoId);
     $prof = $model->countConflitosProfessor($versaoId);
     $restricao = $model->countRestricaoDocente($versaoId);
     $turnos = $model->countTresTurnos($versaoId);
+    $intervalo = $model->countTempoEntreTurnos($versaoId);
 
     $conflitos = [
       'CONFLITO-AMBIENTE' => $amb,
       'CONFLITO-PROFESSOR' => $prof,
       'RESTRIÇÃO-DOCENTE' => $restricao,
       'CONFLITO-TURNOS' => $turnos,
+      'CONFLITO-INTERVALO' => $intervalo,
     ];
 
     return $this->response->setJSON($conflitos);
