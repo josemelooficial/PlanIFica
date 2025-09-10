@@ -281,6 +281,12 @@ document.addEventListener("DOMContentLoaded", function () {
           icone: 'mdi-account-cancel-outline',
           texto: 'Restrição de Professor'
         },
+
+        'CONFLITO-INTERVALO': {
+          cor: 'danger',
+          icone: 'mdi-timer-off-outline',
+          texto: 'Conflitos de Intervalo'
+        },
         
       };
 

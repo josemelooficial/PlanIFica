@@ -615,7 +615,7 @@ class AulaHorarioModel extends Model
     public function countConflitosAmbiente(int $versaoId): int
     {
         $sqlAmbiente = "
-            SELECT COUNT(DISTINCT ah1.id) AS total
+            SELECT COUNT(DISTINCT ah1.id) as total
             FROM aula_horario ah1
             JOIN tempos_de_aula t1  ON t1.id = ah1.tempo_de_aula_id
             JOIN aula_horario_ambiente a1 ON a1.aula_horario_id = ah1.id
@@ -630,7 +630,8 @@ class AulaHorarioModel extends Model
               AND (t1.hora_inicio*60 + t1.minuto_inicio) <  (t2.hora_fim*60 + t2.minuto_fim)
               AND (t2.hora_inicio*60 + t2.minuto_inicio) <  (t1.hora_fim*60 + t1.minuto_fim)
         ";
-        $conflitos = $this->db->query($sqlAmbiente, ['v' => $versaoId])->getRowArray();
+
+        $conflitos = $this->db->query($sqlAmbiente, ['v' => $versaoId])->getResultArray();
         return (int)($conflitos['total'] ?? 0);
     }
 
@@ -709,4 +710,81 @@ class AulaHorarioModel extends Model
         $conflitos = $this->db->query($sqlTresTurnos, ['v' => $versaoId])->getRowArray();
         return (int)($conflitos['total'] ?? 0);
     }
-}
+
+    public function countTempoEntreTurnos(int $versaoId): int 
+    {
+        $sqlIntervalo = "
+            WITH base AS (
+                SELECT
+                    ap.professor_id,
+                    t.dia_semana AS dia_semana,
+                    (CAST(t.hora_inicio AS SIGNED)*60 + CAST(t.minuto_inicio AS SIGNED)) AS inicio,
+                    (CAST(t.hora_fim   AS SIGNED)*60 + CAST(t.minuto_fim   AS SIGNED))   AS fim,
+                    CASE
+
+                    -- definindo períodos:
+
+                    WHEN t.hora_inicio < 12 THEN 1 -- manhã
+                    WHEN t.hora_inicio < 18 THEN 2 -- tarde
+                    ELSE 3 -- noite
+                    END AS turno,
+
+                    ah.id AS aula_id
+                FROM aula_horario ah
+                JOIN tempos_de_aula t  ON t.id = ah.tempo_de_aula_id
+                JOIN aula_professor ap ON ap.aula_id = ah.aula_id
+                WHERE ah.versao_id = :v:
+                    AND (ah.bypass IS NULL OR ah.bypass = '0')
+                ),
+                aulas AS (
+                SELECT * FROM base
+                UNION ALL
+
+                -- duplica semana para capturar noite -> manhã
+
+                SELECT professor_id, dia_semana + 7, inicio, fim, turno, aula_id FROM base
+                ),
+                ordenar AS (
+                SELECT
+                    professor_id, dia_semana, inicio, fim, turno, aula_id,
+                    LAG(fim)   OVER (PARTITION BY professor_id ORDER BY dia_semana, inicio)    AS fim_prev,
+                    LAG(dia_semana)     OVER (PARTITION BY professor_id ORDER BY dia_semana, inicio)    AS d_prev,
+                    LAG(turno) OVER (PARTITION BY professor_id ORDER BY dia_semana, inicio)    AS turno_prev
+                FROM aulas
+                ),
+                intervalos AS (
+                SELECT
+                    aula_id,
+                    MOD(dia_semana,7)         AS dia,
+                    MOD(d_prev,7)    AS dia_prev,
+                    turno,
+                    turno_prev,
+                    CAST(inicio AS SIGNED) - CAST(fim_prev AS SIGNED) AS intervalo
+                FROM ordenar
+                WHERE fim_prev IS NOT NULL
+                )
+                SELECT COUNT(DISTINCT aula_id) AS total
+                FROM intervalos
+                WHERE
+
+                -- mesmo dia: apenas manhã->tarde ou tarde->noite, e intervalo < 60
+
+                (dia = dia_prev AND
+                    (
+                    (turno_prev = 1 AND turno = 2 AND intervalo < 60) OR
+                    (turno_prev = 2 AND turno = 3 AND intervalo < 60)
+                    )
+                )
+                OR
+
+                -- virada de dia: noite->manhã, e intervalo < 11h
+
+                (dia = MOD(dia_prev + 1, 7) AND turno_prev = 3 AND turno = 1 AND intervalo < 660);
+        ";
+
+        $conflitos = $this->db->query($sqlIntervalo, ['v' => $versaoId])->getRowArray();
+        // \Kint\Kint::$mode_default = \Kint\Kint::MODE_PLAIN;
+        // dd($conflitos); 
+        return (int)($conflitos['total'] ?? 0);
+    }
+}   
