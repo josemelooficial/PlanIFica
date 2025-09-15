@@ -1366,7 +1366,7 @@
             const ambienteSelecionadoId = $("#alteraAmbiente").val();
 
             var ambientesSelecionadosNome = [];
-
+            
             var data = $('#alteraAmbiente').select2('data');
             data.forEach(function(item) {
                 ambientesSelecionadosNome.push(item.text);
@@ -1382,9 +1382,9 @@
                     aula_id: aulaId,
                     tempo_de_aula_id: horarioId,
                     ambiente_id: ambienteSelecionadoId
-                },
+                }, 
                 function(data) {
-                    if (data == "0") {
+                    if (data == "0" || !data) {
                         $.toast({
                             heading: 'Erro',
                             text: 'Ocorreu um erro ao tentar alterar o ambiente.',
@@ -1394,24 +1394,41 @@
                             position: 'top-center'
                         });
                         return;
-                    } else if (data.indexOf("OK") >= 0 || data.indexOf("CONFLITO") >= 0) {
-                        var conflitoStyle = "text-primary";
-                        var conflitoIcon = "fa-mortar-board";
-                        var aulaConflito = 0;
-                        var tresTurnos = 0;
-                        var restricao = 0;
-                        var intervalo = 0;
-                        var conflitoAmbiente = 0;
-                        var conflitoProfessor = 0;
+                    }
 
-                        var aulaHorarioId = data.split("-")[0];
+                    var conflitoStyle = "text-primary";
+                    var conflitoIcon = "fa-mortar-board";
+                    var aulaConflito = 0;
+                    var tresTurnos = 0;
+                    var restricao = 0;
+                    var intervalo = 0;
+                    var conflitoAmbiente = 0;
+                    var conflitoProfessor = 0;
 
-                        if (data.indexOf("AMBIENTE") >= 0) {
-                            aulaConflito = data.split("-")[3];
+                    var partes = data.split("-");
+                    var aulaHorarioId = partes[0];
+
+                    if (data.indexOf("CONFLITO") >= 0) {
+                        var tiposDeConflito = partes[2] || "";
+                        var aulaConflito = partes[3] || 0;
+
+                        if (tiposDeConflito.indexOf("AMBIENTE") >= 0) {
                             conflitoStyle = "text-warning";
                             conflitoIcon = "fa-warning";
                             conflitoAmbiente = 1;
                         }
+
+                        if (tiposDeConflito.indexOf("PROFESSOR") >= 0) {
+                            conflitoStyle = "text-warning";
+                            conflitoIcon = "fa-warning";
+                            conflitoProfessor = 1;
+                        }
+
+                        if (conflitoAmbiente || conflitoProfessor) {
+                            conflitoStyle = "text-warning";
+                            conflitoIcon = "fa-warning";
+                        }
+                    }
 
                         // Preenche o horário selecionado
                         $(`#horario_${horarioId}`).html(`
@@ -1470,7 +1487,6 @@
                             e.stopPropagation();
                             destacarAulaHorario(aulaHorarioId, horarioId);
                         });
-                    }
 
                     modalConfirmarRemocao.hide();
 

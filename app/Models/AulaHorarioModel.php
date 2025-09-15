@@ -711,6 +711,25 @@ class AulaHorarioModel extends Model
         return (int)($conflitos['total'] ?? 0);
     }
 
+    public function verificarConflitos($aulaHorarioId)
+    {
+        $conflitos = [];
+
+        // 1. Conflito de Choque de Ambiente
+        $choqueAmbiente = $this->choqueAmbiente($aulaHorarioId);
+        if ($choqueAmbiente > 0) {
+            $conflitos['AMBIENTE'] = $choqueAmbiente;
+        }
+
+        // 2. Conflito de Choque de Docente
+        $choqueDocente = $this->choqueDocente($aulaHorarioId);
+        if ($choqueDocente > 0) {
+            $conflitos['PROFESSOR'] = $choqueDocente;
+        }
+
+        return $conflitos;
+    }
+
     public function countTempoEntreTurnos(int $versaoId): int 
     {
         $sqlIntervalo = "
