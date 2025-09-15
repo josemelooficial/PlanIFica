@@ -1363,9 +1363,14 @@
             e.preventDefault();
             e.stopPropagation();
 
-            const ambientesSelecionadoIds = $("#alteraAmbiente").val() || [];
-            const dataSelect = $('#alteraAmbiente').select2('data') || [];
-            const ambientesSelecionadosNome = dataSelect.map(i => i.text);
+            const ambienteSelecionadoId = $("#alteraAmbiente").val();
+
+            var ambientesSelecionadosNome = [];
+            
+            var data = $('#alteraAmbiente').select2('data');
+            data.forEach(function(item) {
+                ambientesSelecionadosNome.push(item.text);
+            });
 
             const aulaId = $('#modalConfirmarRemocao').data('aula-id');
             const aula = getAulaById(aulaId);
@@ -1376,60 +1381,53 @@
             $.post('<?php echo base_url('sys/tabela-horarios/atribuirAula'); ?>', {
                     aula_id: aulaId,
                     tempo_de_aula_id: horarioId,
-                    ambiente_id: ambientesSelecionadoIds
+                    ambiente_id: ambienteSelecionadoId
                 }, 
-                function(response) {
-                    let data;
-                    try {
-                        if (typeof response === 'object') {
-                            data = response;
-                        } else {
-                            data = JSON.parse(response);
-                        }
-                    } catch (err) {
-                        console.error("Resposta inválida do servidor ao alterar ambiente:", response);
-                        $.toast({ heading: 'Erro', text: 'Resposta inválida do servidor. Veja console.', icon: 'error', position: 'top-center' });
+                function(data) {
+                    if (data == "0" || !data) {
+                        $.toast({
+                            heading: 'Erro',
+                            text: 'Ocorreu um erro ao tentar alterar o ambiente.',
+                            showHideTransition: 'slide',
+                            icon: 'error',
+                            loaderBg: '#f96868',
+                            position: 'top-center'
+                        });
                         return;
-                    }
-
-                    if (!data.status) {
-                        $.toast({ heading: 'Erro', text: 'Resposta do servidor sem status.', icon: 'error', position: 'top-center' });
-                        return;
-                    }
-
-                        var conflitoAmbiente = 0;
-                        var conflitoProfessor = 0;
-                        var tresTurnos = 0;
-                        var restricao = 0;
-                        var intervalo = 0;
-                        var aulaConflitoId = 0;
-                        var aulaHorarioId = data.id || null;
-
-                    if (data.status === 'CONFLITO' && data.conflitos) {
-                        if (data.conflitos.ambiente) {
-                            conflitoAmbiente = 1;
-                            aulaConflitoId = Array.isArray(data.conflitos.ambiente)
-                                ? (data.conflitos.ambiente[0].conflito_id ?? data.conflitos.ambiente[0].id ?? 0)
-                                : data.conflitos.ambiente;
-                        }
-                        if (data.conflitos.docente || data.conflitos.professor) {
-                            conflitoProfessor = 1;
-                            let docField = data.conflitos.docente ?? data.conflitos.professor;
-                            aulaConflitoId = aulaConflitoId || (Array.isArray(docField) ? (docField[0].conflito_id ?? docField[0].id ?? 0) : docField);
-                        }
-                    } else if (data.status === 'TRES-TURNOS') {
-                        tresTurnos = 1;
-                    } else if (data.status === 'RESTRICAO-PROFESSOR') {
-                        restricao = data.restricao || 1;
-                    } else if (data.status === 'INTERVALO') {
-                        intervalo = data.intervalo || 1;
                     }
 
                     var conflitoStyle = "text-primary";
-                    var conflitoIcon  = "fa-mortar-board";
-                    if (conflitoAmbiente === 1 || conflitoProfessor === 1 || tresTurnos === 1 || restricao > 0 || intervalo > 0) {
-                        conflitoStyle = "text-warning";
-                        conflitoIcon  = "fa-warning";
+                    var conflitoIcon = "fa-mortar-board";
+                    var aulaConflito = 0;
+                    var tresTurnos = 0;
+                    var restricao = 0;
+                    var intervalo = 0;
+                    var conflitoAmbiente = 0;
+                    var conflitoProfessor = 0;
+
+                    var partes = data.split("-");
+                    var aulaHorarioId = partes[0];
+
+                    if (data.indexOf("CONFLITO") >= 0) {
+                        var tiposDeConflito = partes[2] || "";
+                        var aulaConflito = partes[3] || 0;
+
+                        if (tiposDeConflito.indexOf("AMBIENTE") >= 0) {
+                            conflitoStyle = "text-warning";
+                            conflitoIcon = "fa-warning";
+                            conflitoAmbiente = 1;
+                        }
+
+                        if (tiposDeConflito.indexOf("PROFESSOR") >= 0) {
+                            conflitoStyle = "text-warning";
+                            conflitoIcon = "fa-warning";
+                            conflitoProfessor = 1;
+                        }
+
+                        if (conflitoAmbiente || conflitoProfessor) {
+                            conflitoStyle = "text-warning";
+                            conflitoIcon = "fa-warning";
+                        }
                     }
 
                         // Preenche o horário selecionado
@@ -1462,12 +1460,12 @@
                         $(`#horario_${horarioId}`)
                             .data('disciplina', aula.disciplina)
                             .data('professor', aula.professores.join(", "))
-                            .data('ambiente', ambientesSelecionadoIds)
+                            .data('ambiente', ambienteSelecionadoId)
                             .data('ambienteNome', ambientesSelecionadosNome)
                             .data('aula-id', aulaId)
                             .data('aulas-total', cardAula.data('aulas-total'))
                             .data('aulas-pendentes', cardAula.data('aulas-pendentes'))
-                            .data('conflito', aulaConflitoId || 0)
+                            .data('conflito', aulaConflito)
                             .data('conflitoAmbiente', conflitoAmbiente)
                             .data('conflitoProfessor', conflitoProfessor)
                             .data('restricao', restricao)

@@ -715,16 +715,16 @@ class AulaHorarioModel extends Model
     {
         $conflitos = [];
 
-        // Verifica conflito de ambiente
-        $conflitoAmbiente = $this->choqueAmbiente($aulaHorarioId);
-        if ($conflitoAmbiente && $conflitoAmbiente != 0) {
-            $conflitos['ambiente'] = $conflitoAmbiente;
+        // 1. Conflito de Choque de Ambiente
+        $choqueAmbiente = $this->choqueAmbiente($aulaHorarioId);
+        if ($choqueAmbiente > 0) {
+            $conflitos['AMBIENTE'] = $choqueAmbiente;
         }
 
-        // Verifica conflito de docente
-        $conflitoDocente = $this->choqueDocente($aulaHorarioId);
-        if ($conflitoDocente && $conflitoDocente != 0) {
-            $conflitos['docente'] = $conflitoDocente;
+        // 2. Conflito de Choque de Docente
+        $choqueDocente = $this->choqueDocente($aulaHorarioId);
+        if ($choqueDocente > 0) {
+            $conflitos['PROFESSOR'] = $choqueDocente;
         }
 
         return $conflitos;

@@ -91,36 +91,29 @@ class TabelaHorarios extends BaseController
                 return;
             }
 
-            $conflitos = $aulaHorarioModel->verificarConflitos($aulaHorarioId);
+            $choque = $aulaHorarioModel->choqueAmbiente($aulaHorarioId);
+            if ($choque > 0) {
+                echo "$aulaHorarioId-CONFLITO-AMBIENTE-$choque-$aulaDestaque";
+                return;
+            }
 
-            if (!empty($conflitos)) {
-                // Retorna JSON para mostrar conflito
-                echo json_encode([
-                    'status'    => 'CONFLITO',
-                    'id'        => $aulaHorarioId,
-                    'conflitos' => $conflitos,
-                    'destaque'  => $aulaDestaque
-                ]);
+            $choque = $aulaHorarioModel->choqueDocente($aulaHorarioId);
+            if ($choque > 0) {
+                echo "$aulaHorarioId-CONFLITO-PROFESSOR-$choque-$aulaDestaque";
                 return;
             }
 
             $intervalo = $aulaHorarioModel->verificarTempoEntreTurnos($aulaHorarioId);
             if ($intervalo > 0) {
-                echo json_encode([
-                    'status'    => 'INTERVALO',
-                    'id'        => $aulaHorarioId,
-                    'intervalo' => $intervalo,
-                    'destaque'  => $aulaDestaque
-                ]);
+                echo "$intervalo-INTERVALO-$aulaDestaque";
                 return;
             }
 
-            echo json_encode([
-                'status'   => 'OK',
-                'id'       => $aulaHorarioId,
-                'destaque' => $aulaDestaque
-            ]);
-        }}
+            echo "$aulaHorarioId-OK-$aulaDestaque";
+        } else {
+            echo "0";
+        }
+    }
 
     public function removerAula()
     {
