@@ -230,6 +230,7 @@ class AulaHorarioModel extends Model
         $tempo = $this->db->table('tempos_de_aula')
             ->select('dia_semana, hora_inicio, minuto_inicio, hora_fim, minuto_fim')
             ->where('id', $horarioId)
+
             ->get()->getRowArray();
 
 
@@ -242,12 +243,14 @@ class AulaHorarioModel extends Model
 
         $ambientesConflitantes = [];
         //Para cada ambiente, checa conflitos
-        foreach ($ambientes as $amb) {
+        foreach ($ambientes as $amb) 
+        {
             $builder = $this->select('aula_horario.id as conflito_id')
                 ->join('tempos_de_aula t', 'aula_horario.tempo_de_aula_id = t.id')
                 ->join('aula_horario_ambiente aha', 'aha.aula_horario_id = aula_horario.id')
                 ->where('aha.ambiente_id', $amb['id'])
                 ->where('t.dia_semana', $tempo['dia_semana'])
+                ->where('versao_id', (new VersoesModel())->getVersaoByUser(auth()->id()))
                 ->groupStart()
                     ->where('aula_horario.bypass', null)
                     ->orWhere('aula_horario.bypass', '0')
@@ -259,7 +262,8 @@ class AulaHorarioModel extends Model
 
             $conflitoDetectado = $builder->get()->getResultArray();
             
-            foreach($conflitoDetectado as $conflito) {
+            foreach($conflitoDetectado as $conflito) 
+            {
                 $ambientesConflitantes[] = [
                     'conflito_id' => $conflito['conflito_id'],
                     'ambiente_id' => $amb['id'],
@@ -267,12 +271,12 @@ class AulaHorarioModel extends Model
                 ]; 
             }
         } 
-        if (!empty($ambientesConflitantes)) {
+
+        if (!empty($ambientesConflitantes)) 
+        {
             return $ambientesConflitantes ?? null; 
         }
     }
-
-
 
     public function choqueDocente($aulaHorarioId)
     {
