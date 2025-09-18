@@ -2,7 +2,7 @@
     <div class="col-xl-12 col-sm-6 grid-margin stretch-card">
         <div class="card">
             <div class="row card-body" id="cards-conflitos">
-                Carregando conflitos...
+                <div class="alert alert-primary bg-dark text-light">Verificando conflitos...</div>
             </div>
         </div>
     </div>
@@ -247,11 +247,14 @@
     </div>
 </div>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () 
+{
     const container = document.getElementById('cards-conflitos');
+    
     container.innerHTML = `
-        <div class="col-12"><div class="alert alert-secondary">Carregando conflitos…</div></div>
+        <div class="alert alert-primary bg-dark text-light">Verificando conflitos...</div>
     `;
+
     fetch("<?= base_url('sys/tabela-horarios/verificar-todos-conflitos') ?>")
     .then(r => r.json())
     .then(data => {
@@ -290,10 +293,12 @@ document.addEventListener("DOMContentLoaded", function () {
         
       };
 
-      Object.entries(tipos).forEach(([tipo, configTipo]) => {
-
+      Object.entries(tipos).forEach(([tipo, configTipo]) => 
+      {
         const quantidade = data[tipo] ?? 0;
-        if (quantidade === 0) return;
+
+        if (quantidade === 0) 
+            return;
 
         container.innerHTML += `
           <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
@@ -321,9 +326,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!container.innerHTML.trim()) {
         container.innerHTML = `
-          <div class="col-12">
+          
             <div class="alert alert-primary bg-dark text-light">Nenhum conflito encontrado.</div>
-          </div>`;
+          `;
       }
     })
     .catch(err => {
