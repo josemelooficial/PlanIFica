@@ -1,306 +1,8 @@
-<style>
-    .card-body.overflow-y-auto::-webkit-scrollbar,
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 5px;
-        background-color: #000;
-    }
+<link rel="stylesheet" href="<?php echo base_url("assets/css/tabela-horarios.css"); ?>">
 
-    .card-body.overflow-y-auto::-webkit-scrollbar-track,
-    .custom-scrollbar::-webkit-scrollbar-track {
-        box-shadow: inset 0 0 5px rgba(6, 6, 6, 0.3);
-        background: #f1f1f1;
-        /* Cor de fundo da trilha */
-    }
-
-    .card-body.overflow-y-auto::-webkit-scrollbar-thumb,
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: #333;
-        outline: 1px solid slategrey;
-        border-radius: 10px;
-        /* Arredondamento do thumb */
-    }
-
-    .horario-vazio .card {
-        max-width: 100% !important;
-        margin: 0 !important;
-        height: 100%;
-    }
-
-    .horario-vazio .card-body {
-        padding: 0.25rem !important;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 100%;
-    }
-
-    .horario-vazio h6 {
-        font-size: 0.75rem !important;
-        margin-bottom: 0.1rem !important;
-    }
-
-    .horario-vazio small {
-        font-size: 0.65rem !important;
-    }
-
-    /* Mantenha as regras existentes */
-    .card-body.overflow-y-auto::-webkit-scrollbar {
-        width: 5px;
-        background-color: #000;
-    }
-
-    .loader-demo-box {
-        left: 0;
-        top: 0;
-        height: 100%;
-        width: 100%;
-        opacity: 0.9;
-        background-color: #191c24;
-        position: absolute;
-        z-index: 9999;
-        visibility: hidden;
-    }
-
-    .circle-loader::before {
-        border-top-color: #8f5fe8
-    }
-
-    #loader-text {
-        position: absolute;
-        margin-top: 15vh;
-        width: 100%;
-        color: #fff;
-        font-size: 12px;
-        text-align: center;
-    }
-
-    .left-column-section {
-        width: 100%;
-    }
-
-    .card.left-column-section {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-
-    .card-body.overflow-y-auto {
-        flex: 1;
-        min-height: 0;
-    }
-
-    .drag-over {
-        background-color: #6c7293 !important;
-    }
-
-    .min-height-card {
-        min-height: 80px;
-        position: relative;
-    }
-</style>
-
-<!-- Modal -->
-<div class="modal fade" id="modalAtribuirDisciplina" tabindex="-1" aria-labelledby="modalAtribuirDisciplinaLabel" aria-hidden="true" style="z-index: 10000;">
-    <div class="modal-dialog" style="width: 1000px; max-width: 1000px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="modalAtribuirDisciplinaLabel">
-                    [<span id="modal_Turma"></span>] : [<span id="dia_da_aula"></span>] : [<span id="hora_da_aula"></span>]
-                </h4>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table id="tabelaDisciplinasModal" class="table">
-                        <thead>
-                            <tr>
-                                <td colspan="4" class="text-center text-warning"> <i class="mdi mdi-alert-outline fs-6 me-1"></i> Atenção: ao atribuir uma nova disciplina, a atual será substituída.</td>
-                            </tr>
-                            <tr>
-                                <th>Disciplina</th>
-                                <th>Professor</th>
-                                <th>Quantidade</th>
-                                <!--<th>Ambiente</th>-->
-                                <th>Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                        <thead>
-                            <tr>
-                                <td colspan="4" class="text-center text-info"><i class="mdi mdi-information-outline fs-6 me-1"></i> O ambiente onde ocorrerá a aula será definido no próximo passo.</td>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para seleção de ambiente -->
-<div class="modal fade" id="modalSelecionarAmbiente" role="dialog" tabindex="-1" aria-labelledby="modalSelecionarAmbienteLabel" aria-hidden="false" style="z-index: 10000;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalSelecionarAmbienteLabel">Definir Ambiente</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body">
-                <div class="row">
-
-                    <div class="col-md-12">
-                        <div class="card border-1 shadow-sm bg-gradient">
-                            <div class="card-body">
-                                <h6 class="text-primary">
-                                    <i class="mdi mdi-book-outline me-1"></i> <span id="modalAmbienteNomeDisciplina"></span>
-                                </h6>
-                                <div class="d-flex align-items-center mb-0 py-0">
-                                    <i class="mdi mdi-account-tie fs-6 text-muted me-1"></i>
-                                    <small class="text-secondary"><span id="modalAmbienteProfessor"></span></small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card border-1 shadow-sm">
-                            <div class="card-body">
-                                <div class="form-group">
-                                    <label for="selectAmbiente">
-                                        <h6 class="text-primary">Selecione o(s) ambiente(s):</h6>
-                                    </label>
-                                    <select class="form-select" id="selectAmbiente" multiple="multiple" name="selectAmbiente[]" style="width:100%;">
-                                        <?php foreach ($ambientes as $ambiente): ?>
-                                            <option 
-                                                value="<?php echo esc($ambiente['id']) ?>"
-                                                data-original-text="<?php echo esc($ambiente['nome']) ?>"
-                                            >
-                                                <?php echo esc($ambiente['nome']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="confirmarAmbiente">Confirmar</button>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Análise do Horário -->
-<div class="modal fade" id="modalConfirmarRemocao" tabindex="-1" aria-labelledby="modalConfirmarRemocaoLabel" aria-hidden="true" style="z-index: 10001;">
-    <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title text-white" id="modalConfirmarRemocaoLabel">
-                    <i class="mdi mdi-alert-circle-outline me-2 text-warning"></i> Análise de Horário
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body">
-
-                <div class="row" id="rowRestricao">
-                    <h5 class="text-danger"><i class="fa fa-exclamation-triangle"></i> Restrição do Docente!</h5>
-                    <div class="card bg-dark border-danger mb-3">
-                        <div class="card-body p-2">
-                            <h5 class="text-danger mb-1">Este docente tem registro de restrição para o horário atribuído.</h5>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" id="rowTresTurnos">
-                    <h5 class="text-danger"><i class="fa fa-exclamation-triangle"></i> Restrição do Docente!</h5>
-                    <div class="card bg-dark border-danger mb-3">
-                        <div class="card-body p-2">
-                            <h5 class="text-danger mb-1">Este docente está alocado em três turnos em um mesmo dia.</h5>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" id="rowIntervalo">
-                    <h5 class="text-info"><i class="fa fa-exclamation-triangle"></i> Intervalo entre turnos!</h5>
-                    <div class="card bg-dark border-info mb-3">
-                        <div class="card-body p-2">
-                            <h6 class="text-info mb-1" id="modalRemocaoIntervaloTipo">...</h6>
-                            <h6 class="text-info mb-1" id="modalRemocaoIntervaloTempo">...</h6>
-                            <h6 class="text-muted mb-1" id="modalRemocaoIntervaloCurso">...</h6>
-                            <h6 class="text-muted mb-1" id="modalRemocaoIntervaloTurma">...</h6>
-                            <p class="text-muted mb-1" id="modalRemocaoIntervaloDisciplina">...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" id="rowConflito">
-                    <h5 class="text-danger"><i class="fa fa-exclamation-triangle"></i> Conflito identificado!</h5>
-                    <div class="card bg-dark border-danger mb-3">
-                        <div class="card-body p-2">
-                            <h6 class="text-warning mb-1" id="modalRemocaoConflitoCurso">...</h6>
-                            <h6 class="text-warning mb-1" id="modalRemocaoConflitoTurma">...</h6>
-                            <p class="text-warning mb-1" id="modalRemocaoConflitoDisciplina">...</p>
-                            <p class="text-warning mb-1" id="modalRemocaoConflitoProfessor">...</p>
-                            <p class="text-warning mb-1" id="modalRemocaoConflitoAmbiente">...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" id="rowAlterarAmbiente">
-                    <div class="card bg-dark border-primary mb-3">
-                        <div class="card-body p-1">
-                            <label for="selectAmbiente">
-                                <h6 class="text-primary">Selecione o(s) ambiente(s) para alterar:</h6>
-                            </label>
-                            <select class="form-select" id="alteraAmbiente" multiple="multiple" name="alteraAmbiente[]" style="width:100%;">
-                                <?php foreach ($ambientes as $ambiente): ?>
-                                    <option value="<?php echo esc($ambiente['id']) ?>"><?php echo esc($ambiente['nome']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <div class="text-end p-1">
-                                <button type="button" class="btn btn-primary" id="confirmarAlterarAmbiente">Alterar Ambiente</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="card bg-dark border-warning mb-3">
-                        <div class="card-body p-1">
-                            <p class="text-warning mb-1"><strong>Deseja remover esta disciplina do horário?</strong></p>
-                            <h6 class="text-muted mb-0" id="modalRemocaoDisciplina"></h6>
-                            <small class="text-muted" id="modalRemocaoProfessor"></small><br />
-                            <small class="text-muted" id="modalRemocaoAmbiente"></small>
-                        </div>
-                        <div class="text-end p-1">
-                            <button type="button" class="btn btn-danger" id="confirmarRemocao">Remover</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-secondary">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!--só pra testar o modal de ambiente-->
-<!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSelecionarAmbiente">Launch demo modal</button> -->
+<?php echo view('components/tabela-horarios/modal-atribuir-disciplina'); ?>
+<?php echo view('components/tabela-horarios/modal-selecionar-ambiente'); ?>
+<?php echo view('components/tabela-horarios/modal-analisar-horario'); ?>
 
 <!-- Filtro -->
 <div class="row g-3">
@@ -396,6 +98,8 @@
         </div>
     </div>
 </div>
+
+
 
 
 <script>
@@ -523,18 +227,18 @@
             dropdownParent: $('#modalSelecionarAmbiente')
         });
         $("#alteraAmbiente").select2({
-            dropdownParent: $('#modalConfirmarRemocao')
+            dropdownParent: $('#modalAnalisarHorario')
         });
 
         // Define variáveis globais para armazenar os dados do modal
         const modalAtribuirDisciplinaElement = document.getElementById('modalAtribuirDisciplina');
         const modalSelecionarAmbienteElement = document.getElementById('modalSelecionarAmbiente');
-        const modalConfirmarRemocaoElement = document.getElementById('modalConfirmarRemocao');
+        const modalAnalisarHorarioElement = document.getElementById('modalAnalisarHorario');
 
         // Inicializa os modais usando a API do Bootstrap 5
         const modalAtribuirDisciplina = new bootstrap.Modal(modalAtribuirDisciplinaElement);
         const modalSelecionarAmbiente = new bootstrap.Modal(modalSelecionarAmbienteElement);
-        const modalConfirmarRemocao = new bootstrap.Modal(modalConfirmarRemocaoElement);
+        const modalAnalisarHorario = new bootstrap.Modal(modalAnalisarHorarioElement);
 
         //Algumas globais pra controle dos modals
         let horarioSelecionado = null;
@@ -726,10 +430,8 @@
             const $horario = $(horarioElement);
             const aulaId = $horario.data('aula-id');
 
-            //const modalConfirmarRemocao = new bootstrap.Modal(document.getElementById('modalConfirmarRemocao'));
-
             // Adiciona os dados ao horário
-            $("#modalConfirmarRemocao")
+            $("#modalAnalisarHorario")
                 .data('aula-id', aulaId)
                 .data('aula_horario_id', $horario.data('aula_horario_id'))
                 .data('horario_id', $horario.attr('id').split('_')[1]);
@@ -741,13 +443,15 @@
 
             $('#rowRestricao').hide();
             $('#rowConflito').hide();
-            //$('#rowAlterarAmbiente').hide();
             $('#rowTresTurnos').hide();
             $('#rowIntervalo').hide();
 
-            if ($horario.data('fixa') == 1) {
+            if ($horario.data('fixa') == 1) 
+            {
                 $("#confirmarRemocao").prop("disabled", true);
-            } else {
+            } 
+            else 
+            {
                 $("#confirmarRemocao").prop("disabled", false);
             }
 
@@ -892,7 +596,7 @@
                             configurarDragAndDrop();
 
                             // Fecha o modal
-                            modalConfirmarRemocao.hide();
+                            modalAnalisarHorario.hide();
 
                             // Mostra feedback de sucesso
                             $.toast({
@@ -918,49 +622,55 @@
             });
 
             // Mostra o modal
-            modalConfirmarRemocao.show();
+            modalAnalisarHorario.show();
         }
 
         // Configura drag and drop
-        function configurarDragAndDrop() {
+        function configurarDragAndDrop() 
+        {
             // Drag start para cards de disciplinas
-            $('.card[draggable="true"]').on('dragstart', function(e) {
+            $('.card[draggable="true"]').on('dragstart', function(e) 
+            {
                 e.originalEvent.dataTransfer.setData('text/plain', $(this).data('aula-id'));
                 $(this).addClass('dragging');
             });
 
             // Drag end para cards de disciplinas
-            $('.card[draggable="true"]').on('dragend', function() {
+            $('.card[draggable="true"]').on('dragend', function() 
+            {
                 $(this).removeClass('dragging');
             });
 
             // Drag over para horários
-            $('.horario-vazio').on('dragover', function(e) {
+            $('.horario-vazio').on('dragover', function(e) 
+            {
                 e.preventDefault();
-
                 $(this).addClass('drag-over');
             });
 
             // Drag leave para horários
-            $('.horario-vazio').on('dragleave', function() {
+            $('.horario-vazio').on('dragleave', function() 
+            {
                 $(this).removeClass('drag-over');
             });
 
             // Drop para horários
-            $('.horario-vazio').on('drop', function(e) {
+            $('.horario-vazio').on('drop', function(e) 
+            {
                 e.preventDefault();
-
                 $(this).removeClass('drag-over');
 
                 horarioId = $(this).attr('id').split('_')[1]; // Extrai o ID do horário
 
                 const aulaId = e.originalEvent.dataTransfer.getData('text/plain');
 
-                if ($(this).html().trim() !== "") {
+                if ($(this).html().trim() !== "") 
+                {
                     return; // Se o horário já contém uma disciplina, não faz nada
                 }
 
-                if (aulaId) {
+                if (aulaId) 
+                {
                     horarioSelecionado = $(this);
                     atribuirDisciplina(aulaId, horarioId);
                 }
@@ -968,10 +678,10 @@
         }
 
         // Função para atribuir disciplina ao horário selecionado
-        function atribuirDisciplina(aulaId, horarioId) {
+        function atribuirDisciplina(aulaId, horarioId) 
+        {
             modalAtribuirDisciplina.hide();
 
-            // Pequeno delay para garantir que o modal feche antes de abrir o próximo
             setTimeout(() => {
                 abrirModalAmbiente(aulaId, horarioId);
             }, 100);
@@ -1034,7 +744,7 @@
         }
 
         function abrirModalAmbiente(aulaId, tempoDeAulaId) 
-        {        
+        {
             //evita que uma requisição seja chamada antes da finalização da anterior     
             if (conflitosDetectados && conflitosDetectados.readyState !== 4) 
                 conflitosDetectados.abort();
@@ -1126,7 +836,7 @@
             $("#modalAmbienteAulas").html("1 aula"); // Sempre atribui 1 aula por vez
 
             // Armazena o ID da aula e horario para uso posterior
-            $('#modalSelecionarAmbiente').data('aula-id', aulaId).data('horario-id', horarioId);
+            $('#modalSelecionarAmbiente').data('aula-id', aulaId).data('horario-id', tempoDeAulaId);
 
             modalSelecionarAmbiente.show();
         }
@@ -1372,10 +1082,10 @@
                 ambientesSelecionadosNome.push(item.text);
             });
 
-            const aulaId = $('#modalConfirmarRemocao').data('aula-id');
+            const aulaId = $('#modalAnalisarHorario').data('aula-id');
             const aula = getAulaById(aulaId);
             const cardAula = $(`#aula_${aulaId}`);
-            const horarioId = $('#modalConfirmarRemocao').data('horario_id');
+            const horarioId = $('#modalAnalisarHorario').data('horario_id');
 
             // Requisição para atribuir a disciplina ao horário no backend
             $.post('<?php echo base_url('sys/tabela-horarios/atribuirAula'); ?>', {
@@ -1488,7 +1198,7 @@
                             destacarAulaHorario(aulaHorarioId, horarioId);
                         });
 
-                    modalConfirmarRemocao.hide();
+                    modalAnalisarHorario.hide();
 
                     // Mostra feedback de sucesso
                     $.toast({
@@ -1503,7 +1213,8 @@
         });
 
         // Carrega as disciplinas pendentes no modal
-        function carregarDisciplinasPendentes(id) {
+        function carregarDisciplinasPendentes(id) 
+        {
             id = id.split('_')[1]; // Extrai o ID do horário
             var dadosDoHorario = getHorarioById(id);
 
@@ -1549,7 +1260,8 @@
                 $("#tabelaDisciplinasModal tbody").append(disciplinaRow);
 
                 // Adiciona evento de clique diretamente
-                $("#botao_atribuir_" + $(this).data("aula-id")).on('click', function() {
+                $("#botao_atribuir_" + $(this).data("aula-id")).on('click', function() 
+                {
                     atribuirDisciplina($(this).attr('id').split('_')[2], id);
                 });
             });
@@ -2255,7 +1967,8 @@
 
 
                     });
-            } else // nenhuma turma selecionada
+            } 
+            else // nenhuma turma selecionada
             {
                 //Limpar a tabela de horários inteira
                 $("#tabela-horarios").empty();
