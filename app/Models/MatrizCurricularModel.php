@@ -28,7 +28,7 @@ class MatrizCurricularModel extends Model
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
-    // Validation
+    // Validação
     protected $validationRules = [
         'id' => 'permit_empty|is_natural_no_zero|max_length[11]',
         'nome' => 'required|is_unique[matrizes.nome,id,{id}]|max_length[128]',
