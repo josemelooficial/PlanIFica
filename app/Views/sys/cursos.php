@@ -19,25 +19,6 @@
     </nav>
 </div>
 
-<!-- mostrar ALERT em caso de erro -->
-<?php if (session()->has('erros')): ?>
-    <div class="row">
-        <div class="col-lg-12 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                    <div class="alert alert-danger">
-                        <ul>
-                            <?php foreach (session('erros') as $erro): ?>
-                                <li> <i class="mdi mdi-alert-circle"></i><?= esc($erro) ?></li>
-                            <?php endforeach ?>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php endif; ?>
-
 <div class="row">
     <div class="col-md-6 grid-margin stretch-card">
         <div class="card">
@@ -137,7 +118,7 @@
                                 </thead>
                                 <tbody>
                                     <?php if (!empty($grupos)): ?>
-                                        <?php foreach($grupos as $grupo): ?>
+                                        <?php foreach ($grupos as $grupo): ?>
                                             <tr>
                                                 <td><?= esc($grupo['nome']); ?></td>
                                                 <td>
@@ -304,7 +285,12 @@
                 //Desativa a ordenação por ações
                 columns: [null, {
                     orderable: false
-                }]
+                }],
+
+                initComplete: function() {
+                    $('.dataTables_filter input')
+                        .css('max-width', '150px')
+                }
             });
 
             //programação do modal de Edição do curso
@@ -357,22 +343,27 @@
                 aLengthMenu: [
                     [-1, 5, 15, 30],
                     ["Todos", 5, 15, 30],
-                ], 
-                
-                language: {
-                    search: "Pesquisar:", 
-                    url: dataTableLangUrl
-                }, 
+                ],
 
-                ordering: true, 
+                language: {
+                    search: "Pesquisar:",
+                    url: dataTableLangUrl
+                },
+
+                ordering: true,
 
                 order: [
                     [1, 'asc']
-                ], 
+                ],
 
                 columns: [null, {
                     orderable: false
-                }]
+                }],
+
+                initComplete: function() {
+                    $('.dataTables_filter input')
+                        .css('max-width', '150px')
+                }
             });
 
             $('#modal-edit-gp-cursos').on('show.bs.modal', function(event) {
@@ -436,7 +427,7 @@
                 showHideTransition: 'fade',
                 icon: 'error',
                 loaderBg: '#dc3545',
-                position: 'top-center', 
+                position: 'top-center',
                 hideAfter: false
             });
         });
