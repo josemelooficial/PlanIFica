@@ -31,11 +31,12 @@ class MatrizCurricularModel extends Model
     // Validation
     protected $validationRules = [
         'id' => 'permit_empty|is_natural_no_zero|max_length[11]',
-        'nome' => 'required|max_length[128]',
+        'nome' => 'required|is_unique[matrizes.nome,id,{id}]|max_length[128]',
     ];
     protected $validationMessages   = [
         "nome" => [
             "required" => "Informe o nome da Matriz Curricular.",
+            "is_unique" => "Já existe um registro com esse nome",
             "max_length" => "O tamanho máximo é 128 caracteres."
         ]
     ];

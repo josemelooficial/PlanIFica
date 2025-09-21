@@ -31,24 +31,25 @@ class DisciplinasModel extends Model
     // Validation
     protected $validationRules = [
         'id' => 'permit_empty|is_natural_no_zero|max_length[11]',
-        'nome' => 'required|max_length[128]',
-        //'codigo' => 'required|is_unique[disciplinas.codigo,id,{id}]',
+        'nome' => 'required|is_unique[disciplinas.nome,id,{id}]|max_length[128]',
+        'codigo' => 'required|is_unique[disciplinas.codigo,id,{id}]',
         'matriz_id' => 'required|is_not_unique[matrizes.id]|max_length[11]',
         'ch' => 'required|integer|max_length[4]',
         'max_tempos_diarios' => 'required|is_natural|max_length[2]|',
         'periodo' => 'required|integer|max_length[2]',
         'abreviatura' => 'required|max_length[32]',
-        //'grupo_de_ambientes_id' => 'required|is_not_unique[grupos_de_ambientes.id]',
+        'grupo_de_ambientes_id' => 'required|is_not_unique[grupos_de_ambientes.id]',
     ];
     protected $validationMessages   = [
         "nome" => [
             "required" => "Informe o nome da Disciplina.",
+            "is_unique" => "Já existe um registro com esse nome",
             "max_length" => "O nome da Disciplina deve ter no máximo 128 caracteres.",
         ],
-        /*"codigo" => [
+        "codigo" => [
             "required" => "Informe o Código da Disciplina.",
             "is_unique" => "O Código informado já está cadastrado.",
-        ],*/
+        ],
         "matriz_id" => [
             "required" => "Informe a Matriz Curricular.",
             "is_not_unique" => "A Matriz Curricular deve estar cadastrada.",
