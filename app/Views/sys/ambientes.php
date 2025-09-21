@@ -234,7 +234,7 @@
         $("#nome, [id^='edit-nome-']").on("invalid", function() {
             this.setCustomValidity("Preencha o nome do ambiente!");
         });
-        
+
         $("#nome-gp, [id^='edit-nome-gp-']").on("invalid", function() {
             this.setCustomValidity("Preencha o nome do grupo!");
         });
@@ -281,7 +281,12 @@
 
                 columns: [null, {
                     orderable: false
-                }]
+                }],
+
+                initComplete: function() {
+                    $('.dataTables_filter input')
+                        .css('max-width', '150px')
+                }
             });
         <?php endif; ?>
 
@@ -309,7 +314,12 @@
 
                 columns: [null, {
                     orderable: false
-                }]
+                }],
+
+                initComplete: function() {
+                    $('.dataTables_filter input')
+                        .css('max-width', '150px')
+                }
             });
         <?php endif; ?>
 
@@ -332,25 +342,24 @@
                 showHideTransition: 'slide',
                 icon: 'error',
                 loaderBg: '#f96868',
-                position: 'top-center', 
+                position: 'top-center',
                 hideAfter: false,
                 class: 'custom-error-toast error-toast-ambientes'
             });
         <?php endif; ?>
     });
 
-        // Exibe mensagem de erro se o flashdata estiver com 'erro'
-        <?php if (session()->has('erros')): ?>
-            <?php foreach (session('erros') as $erro): ?>
-                $.toast({
-                    heading: 'Erro',
-                    text: '<?= esc($erro); ?>',
-                    showHideTransition: 'fade',
-                    icon: 'error',
-                    loaderBg: '#dc3545',
-                    position: 'top-center'
-                });
-            <?php endforeach; ?>
-        <?php endif; ?>
-            
+    // Exibe mensagem de erro se o flashdata estiver com 'erro'
+    <?php if (session()->has('erros')): ?>
+        <?php foreach (session('erros') as $erro): ?>
+            $.toast({
+                heading: 'Erro',
+                text: '<?= esc($erro); ?>',
+                showHideTransition: 'fade',
+                icon: 'error',
+                loaderBg: '#dc3545',
+                position: 'top-center'
+            });
+        <?php endforeach; ?>
+    <?php endif; ?>
 </script>
